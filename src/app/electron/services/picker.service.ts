@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
 import {desktopCapturer, ipcRenderer, ipcMain, BrowserWindow} from "electron";
+// const {desktopCapturer, ipcRenderer, ipcMain, BrowserWindow} = require('electron');
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import * as domifyImport from "domify";

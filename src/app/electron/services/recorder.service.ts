@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
 import {desktopCapturer, ipcRenderer, remote} from "electron";
+// const {desktopCapturer, ipcRenderer, remote} = require('electron');
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
