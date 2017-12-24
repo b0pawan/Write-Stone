@@ -213,7 +213,7 @@ const onAccessApproved = (id) => {
     console.log('Audio: ', includeMic);
     if (includeSysAudio) {
         navigator.webkitGetUserMedia({
-            audio: {mandatory: {chromeMediaSource: 'desktop'}},
+            audio: true,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
