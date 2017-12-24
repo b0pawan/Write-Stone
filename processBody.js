@@ -56,14 +56,14 @@ const processIndexHtml = (_template) => {
     appendString = appendString + 'function appendScript(source) { ' +
         '  var script = document.createElement(\'script\');' +
         '  script.type = \'text/javascript\';' +
-        '  script.src = '+'./'+'source; ' +
+        '  script.src = source; ' +
         '  script.async = false;' +
         '  document.getElementsByTagName(\'head\')[0].appendChild(script);' +
         '}';
     appendString = appendString + 'function appendLink(source) { ' +
         '  var link = document.createElement(\'link\');' +
         '  link.setAttribute(\'rel\',\'stylesheet\');' +
-        '  link.setAttribute(\'href\','+'./'+'source);' +
+        '  link.setAttribute(\'href\',source);' +
         '  link.setAttribute(\'type\',\'text/css\');' +
         '  document.getElementsByTagName(\'head\')[0].appendChild(link);' +
         '}';
@@ -83,13 +83,6 @@ const processIndexHtml = (_template) => {
     }
     appendString = appendString + '}, false);';
     $('head').append(appendString + '</script>');
-    /*let gaString = "<script>";
-    if (buildType && buildType === 'production') {
-        gaString = gaString + "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
-        gaString = gaString + "ga('create', 'UA-84278623-1', 'auto');ga('require', 'ecommerce');ga('send', 'pageview');";
-        gaString = gaString + "</script>";
-        $('head').append(gaString);
-    }*/
     return $.html();
 };
 
