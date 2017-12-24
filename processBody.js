@@ -1,17 +1,18 @@
 const path = require('path'),
-fs = require('fs-extra'),
-cheerio = require('cheerio'),
+    fs = require('fs-extra'),
+    cheerio = require('cheerio'),
     cleancss = require('clean-css');
 
-const rootPath = path.normalize(__dirname+ '/..');
+const rootPath = path.normalize(__dirname);
+console.log(rootPath);
 const homeBuildDir = process.argv[2];
 const buildType = process.argv[3];
 const DIST = path.join(rootPath, 'dist');
 let index;
-if(homeBuildDir && homeBuildDir.length>0){
-  index = path.join(path.join(rootPath, homeBuildDir), 'index.html');
-}else {
-  index = path.join(path.join(rootPath, 'dist'), 'index.html');
+if (homeBuildDir && homeBuildDir.length > 0) {
+    index = path.join(path.join(rootPath, homeBuildDir), 'index.html');
+} else {
+    index = path.join(path.join(rootPath, 'dist'), 'index.html');
 }
 
 const processIndexHtml = (_template) => {
@@ -90,7 +91,7 @@ if (fs.existsSync(index)) {
     const template = processIndexHtml(fs.readFileSync(index));
     fs.removeSync(index);
     fs.writeFile(index, template, (err) => {
-        if (err){
+        if (err) {
             console.log(err);
         }
         // success case, the file was saved
