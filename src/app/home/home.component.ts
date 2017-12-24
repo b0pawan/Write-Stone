@@ -19,8 +19,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
     ngOnInit() {
-        if (!(this.media.isActive('xs') || this.media.isActive('sm'))) {
-        }
         this.titleService.setTitle("home");
         this.titleService.setMetaTags("home");
     }

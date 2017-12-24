@@ -1,7 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
 import {app, BrowserWindow, ipcMain} from "electron";
-import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 
@@ -25,7 +24,7 @@ export class ElectronService {
                     height: 600,
                     width: 800
                 });
-                mainWindow.loadURL('/index.html');
+                mainWindow.loadURL('');
                 this.initializePickerDialog();
                 // open dev tools to check console.
                 mainWindow.webContents.openDevTools();
@@ -60,7 +59,7 @@ export class ElectronService {
             height: 390,
             width: 680
         });
-        this.pickerDialog.loadURL('/picker.html');
+        this.pickerDialog.loadURL('picker');
 
         this.pickerDialog.on('closed', (event) => {
             this.logger.log(this.className, 'picker window close');
