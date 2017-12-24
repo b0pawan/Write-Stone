@@ -17,8 +17,9 @@
     "build-win32": "node --max-old-space-size=4096 node_modules/electron-packager ./src WriteStoneRecorderApp --overwrite --asar=true --platform=win32 --arch=ia32 --icon=src/Icon.icns --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Recorder App\"",
     "build-linux": "node --max-old-space-size=4096 node_modules/electron-packager ./src WriteStoneRecorderApp --overwrite --asar=true --platform=linux --arch=x64 --icon=src/Icon.icns --prune=true --out=release-builds",
     "start": "electron ."
+
   },
-  "main": "src/main.js",
+  "main": "dist/electron.js",
   "bin": {
     "write-stone-recorder-app": "./launch.js"
   },
