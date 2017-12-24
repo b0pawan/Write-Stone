@@ -55,7 +55,6 @@ const processIndexHtml = (_template) => {
 
     let appendString = '<script>';
     appendString = appendString + 'function appendScript(source) { ' +
-        '  source = "serve://dist/"+ source; '+
         '  console.log("appendScript ",source); ' +
         '  var script = document.createElement(\'script\');' +
         '  script.type = \'text/javascript\';' +
@@ -64,7 +63,6 @@ const processIndexHtml = (_template) => {
         '  document.getElementsByTagName(\'head\')[0].appendChild(script);' +
         '}';
     appendString = appendString + 'function appendLink(source) { ' +
-        '  source = "serve://dist/"+ source; '+
         '  console.log("appendLink ", source); ' +
         '  var link = document.createElement(\'link\');' +
         '  link.setAttribute(\'rel\',\'stylesheet\');' +
@@ -78,9 +76,9 @@ const processIndexHtml = (_template) => {
         appendString = appendString + 'appendLink(\'' + linkhref + '\');';
     }
 
-    appendString = appendString + "if (window.document.documentMode) {";
+    /*appendString = appendString + "if (window.document.documentMode) {";
     appendString = appendString + "appendScript('ie-polyfills.min.js');";
-    appendString = appendString + "}";
+    appendString = appendString + "}";*/
 
     for (const index in scriptSrcs) {
         const src = scriptSrcs[index];
