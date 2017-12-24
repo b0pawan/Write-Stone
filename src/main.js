@@ -1,8 +1,7 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
-
 let mainWindow;
 let pickerDialog;
-
+let picketStatus = false;
 const initializePickerDialog = () => {
     pickerDialog = new BrowserWindow({
         parent: mainWindow,
@@ -13,11 +12,11 @@ const initializePickerDialog = () => {
         width: 680
     });
     pickerDialog.loadURL('file://' + __dirname + '/picker.html');
+    picketStatus = true;
 };
 
 app.on('ready', () => {
     global.ffmpegpath = require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked');
-
     mainWindow = new BrowserWindow({
         height: 600,
         width: 800
@@ -29,18 +28,34 @@ app.on('ready', () => {
     mainWindow.webContents.openDevTools();
     // picker dialog reinitialize after being closed.
     pickerDialog.on('closed', (event) => {
-        // console.log('picker window closed ', event);
+        console.log('picker window closed ');
+        picketStatus = false;
         initializePickerDialog();
+    });
+
+    pickerDialog.on('show', (event) => {
+        console.log('picker window show ');
+    });
+
+    pickerDialog.on('hide', (event) => {
+        console.log('picker window hide ');
     });
 });
 
 ipcMain.on('show-picker', (event, options) => {
-    pickerDialog.show();
+    if (picketStatus) {
+        pickerDialog.show();
+    }else {
+        initializePickerDialog();
+        pickerDialog.show();
+    }
     pickerDialog.webContents.send('get-sources', options);
 });
 
 
 ipcMain.on('source-id-selected', (event, sourceId) => {
-    pickerDialog.close();
+    if (picketStatus) {
+        pickerDialog.close();
+    }
     mainWindow.webContents.send('source-id-selected', sourceId);
 });
