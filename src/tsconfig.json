@@ -6,11 +6,7 @@
     "module": "es2015",
     "types": [
       "hammerjs",
-      "jasmine",
       "node",
-      "html2canvas",
-      "highcharts",
-      "jspdf",
       "modernizr",
       "stacktrace-js"
     ],
@@ -23,6 +19,7 @@
     "**/*.spec.ts",
     "server.js",
     "server",
+    "electron",
     "service-worker",
     "node_modules",
     "manifest.json",

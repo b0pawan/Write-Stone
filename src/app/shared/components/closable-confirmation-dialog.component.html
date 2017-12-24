@@ -1,0 +1,16 @@
+<div class="confirmation-dialog" (swipe)="dialogRef.close()">
+    <div fxLayout="row" fxLayoutAlign="center center" matDialogTitle class="title">
+        <div fxFlex="90">
+            {{config.confirmationTitle}}
+        </div>
+        <div fxFlex="10">
+            <mat-icon class="md-18 clickable" (click)="dialogRef.close()">&#xE888;</mat-icon>
+        </div>
+    </div>
+    <div mat-dialog-content class="body">{{config.confirmationText}}</div>
+    <div mat-dialog-actions fxLayout="row" fxLayoutWrap="" fxLayoutAlign="space-around center">
+        <div *ngFor="let action of config.confirmationActions;" fxFlex="40" fxFlex.lt-md="60" ngClass.lt-md="mar-b-10">
+            <button mat-button="" (click)="dialogRef.close(action)" class="{{action[2]}}">{{action[1]}}</button>
+        </div>
+    </div>
+</div>

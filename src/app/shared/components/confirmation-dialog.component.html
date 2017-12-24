@@ -1,0 +1,9 @@
+<div class="confirmation-dialog">
+    <div matDialogTitle class="title">{{config.confirmationTitle}}</div>
+    <div mat-dialog-content class="body">{{config.confirmationText}}</div>
+    <div mat-dialog-actions fxLayout="row" fxLayoutWrap="" fxLayoutAlign="space-around center">
+        <div *ngFor="let action of config.confirmationActions;" fxFlex="25">
+            <button mat-button="" (click)="dialogRef.close(action)" class="{{action[2]}}">{{action[1]}}</button>
+        </div>
+    </div>
+</div>

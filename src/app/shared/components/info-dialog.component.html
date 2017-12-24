@@ -1,0 +1,9 @@
+<div matDialogTitle class="info-dialog-title">{{config.infoTitle}}</div>
+<div mat-dialog-content style="text-align: justify">
+    <div *ngFor="let text of config.infoText;" class="info-dialog-text"><p>{{text}}</p></div>
+</div>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="start start">
+    <div fxFlex class="right-align">
+        <button class="info-dialog-button" (click)="dialogRef.close()">Ok</button>
+    </div>
+</div>
