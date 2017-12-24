@@ -8,10 +8,11 @@ declare var mainWindow: any;
 
 @Injectable()
 export class ElectronService {
-    public mainWindow : any;
+    public mainWindow: any;
     public pickerDialog: any;
-    public picketStatus : boolean;
+    public picketStatus: boolean;
     public className: string;
+
     constructor(private logger: Logger) {
         this.picketStatus = false;
         this.className = "ElectronService";
@@ -26,21 +27,21 @@ export class ElectronService {
             height: 390,
             width: 680
         });
-        this.pickerDialog.loadURL('file://' + __dirname + '/picker.html');
+        this.pickerDialog.loadURL('picker.html');
 
         this.pickerDialog.on('closed', (event) => {
-            this.logger.log(this.className,'picker window close');
+            this.logger.log(this.className, 'picker window close');
             this.picketStatus = false;
             this.initializePickerDialog();
         });
 
         this.pickerDialog.on('show', (event) => {
-            this.logger.log(this.className,'picker window show ');
+            this.logger.log(this.className, 'picker window show ');
 
         });
 
         this.pickerDialog.on('hide', (event) => {
-            this.logger.log(this.className,'picker window hide ');
+            this.logger.log(this.className, 'picker window hide ');
         });
     };
 
@@ -54,7 +55,7 @@ export class ElectronService {
                 height: 600,
                 width: 800
             });
-            mainWindow.loadURL('file://' + __dirname + '/index.html');
+            mainWindow.loadURL('index.html');
             this.initializePickerDialog();
             // open dev tools to check console.
             mainWindow.webContents.openDevTools();
@@ -63,7 +64,7 @@ export class ElectronService {
         ipcMain.on('show-picker', (event, options) => {
             if (this.pickerDialog && this.picketStatus) {
                 this.pickerDialog.show();
-            }else {
+            } else {
                 this.initializePickerDialog();
                 this.pickerDialog.show();
             }
