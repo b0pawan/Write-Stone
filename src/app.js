@@ -207,9 +207,19 @@ const onAccessApproved = (id) => {
     return
   }
   console.log('Window ID: ', id);
-  navigator.webkitGetUserMedia({
-    audio: false,
-    video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: id,
-      maxWidth: window.screen.width, maxHeight: window.screen.height } }
-  }, getMediaStream, getUserMediaError)
+
+  if (includeMic) {
+      navigator.webkitGetUserMedia({
+          audio: {
+              mandatory: { chromeMediaSource: 'desktop'}
+          },
+          video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: id, maxWidth: window.screen.width, maxHeight: window.screen.height } }
+      }, getMediaStream, getUserMediaError)
+  } else {
+      navigator.webkitGetUserMedia({
+          audio: false,
+          video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: id, maxWidth: window.screen.width, maxHeight: window.screen.height } }
+      }, getMediaStream, getUserMediaError)
+  }
+
 };
