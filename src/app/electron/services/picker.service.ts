@@ -4,16 +4,17 @@ import {desktopCapturer, ipcRenderer} from "electron";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import * as domifyImport from "domify";
+import {UtilityService} from "../../core/services/utility.service";
 
 @Injectable()
 export class PickerService {
 
-    constructor(private logger: Logger) {
+    constructor(private logger: Logger, private utility : UtilityService) {
 
     }
 
     init() {
-        document.onkeydown = function (evt) {
+        this.utility.document.onkeydown = function (evt) {
             evt = evt || window.event;
             // Press esc key.
             if (evt.keyCode === 27) {
@@ -24,7 +25,7 @@ export class PickerService {
         ipcRenderer.on('get-sources', (event, options) => {
             desktopCapturer.getSources(options, (error, sources) => {
                 if (error) throw error;
-                let sourcesList = document.querySelector('.capturer-list');
+                let sourcesList = this.utility.document.querySelector('.capturer-list');
                 for (let source of sources) {
                     let thumb = source.thumbnail.toDataURL();
                     if (!thumb) continue;

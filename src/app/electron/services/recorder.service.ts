@@ -150,7 +150,7 @@ export class RecorderService {
         let url = URL.createObjectURL(blob);
         let a = document.createElement('a');
         document.body.appendChild(a);
-        a.style = 'display: none';
+        // a.style = 'display: none';
         a.href = url;
         a.download = this.getFileName();
         a.click();
