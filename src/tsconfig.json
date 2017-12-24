@@ -1,0 +1,31 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../out-tsc/app",
+    "baseUrl": "./",
+    "module": "es2015",
+    "types": [
+      "hammerjs",
+      "jasmine",
+      "node",
+      "html2canvas",
+      "highcharts",
+      "jspdf",
+      "modernizr",
+      "stacktrace-js"
+    ],
+    "typeRoots": [
+      "../node_modules/@types"
+    ]
+  },
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts",
+    "server.js",
+    "server",
+    "service-worker",
+    "node_modules",
+    "manifest.json",
+    "ie-polyfills.js"
+  ]
+}

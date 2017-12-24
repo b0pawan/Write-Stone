@@ -1,5 +1,4 @@
 const {desktopCapturer, ipcRenderer, remote} = require('electron');
-const domify = require('domify');
 
 let localStream;
 let microAudioStream;
@@ -211,6 +210,7 @@ const onAccessApproved = (id) => {
     }
     console.log('Window ID: ', id);
     console.log('Audio: ', includeMic);
+    console.log('System Audio: ', includeSysAudio);
     if (includeSysAudio) {
         navigator.webkitGetUserMedia({
             audio: true,

@@ -2,6 +2,7 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 let mainWindow;
 let pickerDialog;
 let picketStatus = false;
+const className = 'main';
 const initializePickerDialog = () => {
     pickerDialog = new BrowserWindow({
         parent: mainWindow,
@@ -12,7 +13,21 @@ const initializePickerDialog = () => {
         width: 680
     });
     pickerDialog.loadURL('file://' + __dirname + '/picker.html');
-    picketStatus = true;
+
+    pickerDialog.on('closed', (event) => {
+        console.log(className,'picker window close');
+        picketStatus = false;
+        initializePickerDialog();
+    });
+
+    pickerDialog.on('show', (event) => {
+        console.log(className,'picker window show ');
+
+    });
+
+    pickerDialog.on('hide', (event) => {
+        console.log(className,'picker window hide ');
+    });
 };
 
 app.on('ready', () => {
@@ -23,27 +38,12 @@ app.on('ready', () => {
     });
     mainWindow.loadURL('file://' + __dirname + '/index.html');
     initializePickerDialog();
-
     // open dev tools to check console.
     mainWindow.webContents.openDevTools();
-    // picker dialog reinitialize after being closed.
-    pickerDialog.on('closed', (event) => {
-        console.log('picker window closed ');
-        picketStatus = false;
-        initializePickerDialog();
-    });
-
-    pickerDialog.on('show', (event) => {
-        console.log('picker window show ');
-    });
-
-    pickerDialog.on('hide', (event) => {
-        console.log('picker window hide ');
-    });
 });
 
 ipcMain.on('show-picker', (event, options) => {
-    if (picketStatus) {
+    if (pickerDialog && picketStatus) {
         pickerDialog.show();
     }else {
         initializePickerDialog();
@@ -54,8 +54,8 @@ ipcMain.on('show-picker', (event, options) => {
 
 
 ipcMain.on('source-id-selected', (event, sourceId) => {
-    if (picketStatus) {
+    if (picketStatus && sourceId && sourceId != null) {
         pickerDialog.close();
+        mainWindow.webContents.send('source-id-selected', sourceId);
     }
-    mainWindow.webContents.send('source-id-selected', sourceId);
 });
