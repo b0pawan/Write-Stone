@@ -12,7 +12,6 @@ import {BrowserSupportService} from "./core/services/browser-support.service";
 import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-connectivity-display.module";
 import {RecorderService} from "./electron/services/recorder.service";
 import {PickerService} from "./electron/services/picker.service";
-import {ElectronService} from "./electron/services/electron.service";
 
 @NgModule({
     imports: [
@@ -39,9 +38,8 @@ import {ElectronService} from "./electron/services/electron.service";
 })
 
 export class AppModule {
-    constructor(private bss : BrowserSupportService, private electronService: ElectronService, private recorderService: RecorderService, private pickerService: PickerService) {
+    constructor(private bss : BrowserSupportService, private recorderService: RecorderService, private pickerService: PickerService) {
         if (this.bss.isPlatformBrowser) {
-            this.electronService.init();
             this.recorderService.init();
             this.pickerService.init();
         }

@@ -16,6 +16,7 @@
   },
   "exclude": [
     "test.ts",
+    "electron.js",
     "**/*.spec.ts",
     "server.js",
     "server",

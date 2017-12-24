@@ -1,16 +1,23 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
-import {desktopCapturer, ipcRenderer} from "electron";
+import {desktopCapturer, ipcRenderer, ipcMain, BrowserWindow} from "electron";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import * as domifyImport from "domify";
 import {UtilityService} from "../../core/services/utility.service";
 
+declare var mainWindow: any;
+
 @Injectable()
 export class PickerService {
 
-    constructor(private logger: Logger, private utility : UtilityService) {
+    public pickerDialog: any;
+    public pickerStatus: boolean;
+    public className: string;
 
+    constructor(private logger: Logger, private utility : UtilityService) {
+        this.pickerStatus = false;
+        this.className = 'PickerService';
     }
 
     init() {
@@ -22,6 +29,7 @@ export class PickerService {
             }
         };
 
+        this.initializePickerDialog();
         ipcRenderer.on('get-sources', (event, options) => {
             desktopCapturer.getSources(options, (error, sources) => {
                 if (error) throw error;
@@ -46,5 +54,50 @@ export class PickerService {
                 }
             })
         });
+
+        ipcMain.on('show-picker', (event, options) => {
+            if (this.pickerDialog && this.pickerStatus) {
+                this.pickerDialog.show();
+            } else {
+                this.initializePickerDialog();
+                this.pickerDialog.show();
+            }
+            this.pickerDialog.webContents.send('get-sources', options);
+        });
+
+
+        ipcMain.on('source-id-selected', (event, sourceId) => {
+            if (this.pickerStatus && sourceId && sourceId != null) {
+                this.pickerDialog.close();
+                mainWindow.webContents.send('source-id-selected', sourceId);
+            }
+        });
     }
+
+     initializePickerDialog() {
+        this.pickerDialog = new BrowserWindow({
+            parent: mainWindow,
+            skipTaskbar: true,
+            modal: true,
+            show: false,
+            height: 390,
+            width: 680
+        });
+        this.pickerDialog.loadURL('picker');
+
+        this.pickerDialog.on('closed', (event) => {
+            this.logger.log(this.className, 'picker window close');
+            this.pickerStatus = false;
+            this.initializePickerDialog();
+        });
+
+        this.pickerDialog.on('show', (event) => {
+            this.logger.log(this.className, 'picker window show ');
+
+        });
+
+        this.pickerDialog.on('hide', (event) => {
+            this.logger.log(this.className, 'picker window hide ');
+        });
+    };
 }
