@@ -55,7 +55,7 @@ const processIndexHtml = (_template) => {
 
     let appendString = '<script>';
     appendString = appendString + 'function appendScript(source) { ' +
-        '  source = "serve://"+ source; '+
+        '  source = "serve://dist/"+ source; '+
         '  console.log("appendScript ",source); ' +
         '  var script = document.createElement(\'script\');' +
         '  script.type = \'text/javascript\';' +
@@ -64,7 +64,7 @@ const processIndexHtml = (_template) => {
         '  document.getElementsByTagName(\'head\')[0].appendChild(script);' +
         '}';
     appendString = appendString + 'function appendLink(source) { ' +
-        '  source = "serve://"+ source; '+
+        '  source = "serve://dist/"+ source; '+
         '  console.log("appendLink ", source); ' +
         '  var link = document.createElement(\'link\');' +
         '  link.setAttribute(\'rel\',\'stylesheet\');' +
@@ -72,7 +72,7 @@ const processIndexHtml = (_template) => {
         '  link.setAttribute(\'type\',\'text/css\');' +
         '  document.getElementsByTagName(\'head\')[0].appendChild(link);' +
         '}';
-    //appendString = appendString + 'document.addEventListener("DOMContentLoaded", function(event) { console.log("DOMContentLoaded fired"); ';
+    appendString = appendString + 'document.addEventListener("DOMContentLoaded", function(event) { console.log("DOMContentLoaded fired"); ';
     for (const index in styles) {
         const linkhref = styles[index];
         appendString = appendString + 'appendLink(\'' + linkhref + '\');';
@@ -86,7 +86,7 @@ const processIndexHtml = (_template) => {
         const src = scriptSrcs[index];
         appendString = appendString + 'appendScript(\'' + src + '\');';
     }
-    // appendString = appendString + '}, false);';
+    appendString = appendString + '}, false);';
     $('head').append(appendString + '</script>');
     return $.html();
 };

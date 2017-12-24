@@ -5,9 +5,9 @@ const rootPath = path.normalize(__dirname);
 const protocolServe = require('electron-protocol-serve');
 // Create the protocol
 console.log('Root path ', rootPath);
-const protocolServeName = protocolServe({ cwd : rootPath, app, protocol , name: 'serve', endpoint: ''});
+const protocolServeName = protocolServe({ cwd : rootPath, app, protocol});
 //const protocolServeName = protocolServe({ cwd : rootPath, app, protocol});
-protocol.registerStandardSchemes([protocolServeName], { secure: false });
+protocol.registerStandardSchemes([protocolServeName]);
 
 let mainWindow;
 app.on('ready', () => {
@@ -16,7 +16,7 @@ app.on('ready', () => {
         height: 600,
         width: 800
     });
-    mainWindow.loadURL('serve://index.html');
+    mainWindow.loadURL('serve://dist');
     // initializePickerDialog();
     // open dev tools to check console.
     mainWindow.webContents.openDevTools();
