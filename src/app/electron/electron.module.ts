@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatSnackBarModule} from "@angular/material";
+import {ELECTRON_SERVICES} from "./services";
 
 @NgModule({
   imports: [
@@ -8,6 +9,6 @@ import {MatSnackBarModule} from "@angular/material";
     MatSnackBarModule
   ],
   exports: [],
-  declarations: []
+  declarations: [ELECTRON_SERVICES]
 })
 export class ElectronAppModule { }

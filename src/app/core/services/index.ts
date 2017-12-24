@@ -6,7 +6,7 @@ import {HttpErrorService} from "./http/http-error.service";
 import {Logger} from "../logger/logger";
 import {BrowserSupportService} from "./browser-support.service";
 
-export const FC_SERVICES = [
+export const WS_SERVICES = [
     HttpService,
     SnackBarService,
     TitleService,

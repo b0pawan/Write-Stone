@@ -1,3 +1,4 @@
+/*
 const {app, BrowserWindow, ipcMain} = require('electron');
 let mainWindow;
 let pickerDialog;
@@ -59,3 +60,4 @@ ipcMain.on('source-id-selected', (event, sourceId) => {
         mainWindow.webContents.send('source-id-selected', sourceId);
     }
 });
+*/

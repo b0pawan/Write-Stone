@@ -1,1 +1,1 @@
-export const FC_GUARDS = [];
+export const WS_GUARDS = [];

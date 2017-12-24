@@ -1,12 +1,13 @@
 import {ErrorHandler, ModuleWithProviders, NgModule, Optional, SkipSelf} from "@angular/core";
-import {FC_SERVICES} from "./services/index";
-import {FC_GUARDS} from "./guards/index";
+import {WS_SERVICES} from "./services/index";
+import {WS_GUARDS} from "./guards/index";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {CommonInterceptor} from "./services/http/common.interceptor";
 import {AuthInterceptor} from "./services/http/auth.interceptor";
 import {CSRFInterceptor} from "./services/http/csrf.interceptor";
 import {ErrorInterceptor} from "./services/http/error.interceptor";
 import {WSErrorHandler} from "./handler/wsErrorHandler";
+import {ElectronAppModule} from "../electron/electron.module";
 
 
 export function interceptorProvider() {
@@ -39,9 +40,9 @@ export function provideErrorHandler() {
 
 
 @NgModule({
-    imports: [HttpClientModule],
-    exports: [HttpClientModule],
-    providers: [FC_SERVICES, FC_GUARDS, interceptorProvider(), provideErrorHandler()],
+    imports: [HttpClientModule, ElectronAppModule],
+    exports: [HttpClientModule, ElectronAppModule],
+    providers: [WS_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
 })
 export class CoreModule {
 

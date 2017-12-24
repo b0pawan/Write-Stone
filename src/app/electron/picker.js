@@ -1,3 +1,4 @@
+/*
 const {desktopCapturer, ipcRenderer} = require('electron');
 
 document.onkeydown = function (evt) {
@@ -32,3 +33,4 @@ ipcRenderer.on('get-sources', (event, options) => {
     }
   })
 });
+*/
