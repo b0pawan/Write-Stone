@@ -55,7 +55,7 @@ const enableButtons = () => {
 
 const microAudioCheck = () => {
     includeSysAudio = false;
-    // document.querySelector('#system-audio').checked = false;
+    document.querySelector('#system-audio').checked = false;
     // Mute video so we don't play loopback audio.
     const video = document.querySelector('video');
     video.muted = true;
