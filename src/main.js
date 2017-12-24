@@ -22,6 +22,8 @@ app.on('ready', () => {
 
   mainWindow.loadURL('file://' + __dirname + '/index.html');
   pickerDialog.loadURL('file://' + __dirname + '/picker.html');
+  // open dev tools to check console.
+  mainWindow.webContents.openDevTools()
 });
 
 ipcMain.on('show-picker', (event, options) => {
