@@ -7,7 +7,7 @@ import {UtilityService} from "./core/services/utility.service";
 import {BrowserSupportService} from "./core/services/browser-support.service";
 
 @Component({
-    selector: 'fincash-app',
+    selector: 'ws-app',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
 })

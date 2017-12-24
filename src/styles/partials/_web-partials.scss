@@ -1,0 +1,211 @@
+//***********************IMPORTS********************************
+@import 'colors';
+
+//***********************VARIABLES********************************
+
+//font
+$font-stack: 'Roboto', sans-serif;
+
+//*********************************MIXINS*****************************
+
+@mixin cta($height) {
+  height: $height;
+  width: 100%;
+  cursor: pointer;
+  @if ($height == 60px) {
+    font-size: 18px !important;
+  } @else if ($height==50px) {
+    font-size: 16px !important;
+  } @else if ($height==36px) {
+    font-size: 14px !important;
+  }
+}
+
+@mixin hollow-cta($height) {
+  height: $height;
+  color: $brand-secondary !important;
+  border: 1px solid $brand-primary !important;
+  border-radius: 2px !important;
+  width: 100%;
+  @if ($height == 70px) {
+    font-size: 18px !important;
+  } @else if ($height==50px) {
+    font-size: 16px !important;
+  } @else if ($height==36px) {
+    font-size: 14px !important;
+  }
+}
+
+@mixin heading($size, $weight) {
+  font-size: $size;
+  font-weight: $weight;
+}
+
+@mixin circle($size, $color){
+  width: $size;
+  height: $size;
+  background-color: $color;
+  border-radius: 50%;
+  padding: 9px 9px;
+}
+@mixin circularBorder($size, $color){
+  border: $size solid $color;
+  border-radius: 50%;
+}
+
+@mixin blurInOut ($from, $to, $time) {
+  animation: blurInOut $time;
+  @keyframes blurInOut {
+    0% {
+      -webkit-filter: blur($from);
+      filter:blur($from);    }
+    100% {
+      -webkit-filter: blur($to);
+      filter:blur($to);    }
+  }
+
+}
+
+@mixin dropElement($time, $time-function, $start, $iteration, $from, $to){
+  animation: $time $time-function $start $iteration dropPart;
+  @keyframes dropPart {
+    0% {
+      transform: translateY($from);
+    }
+    100% {
+      transform: translateY($to);
+    }
+  }
+}
+@mixin slideElement($time, $time-function, $start, $iteration, $from, $to){
+  animation: $time $time-function $start $iteration slide;
+  @keyframes slide {
+    0% {
+      transform: translateX($from);
+    }
+    100% {
+      transform: translateX($to);
+    }
+  }
+}
+
+@mixin flipInElement($time){
+  animation: $time flip forwards ;
+  @keyframes flip {
+    0% {
+      -ms-transform: rotateY(90deg);
+      -webkit-transform: rotateY(90deg);
+      transform: rotateY(90deg);
+    }
+    100% {
+      -ms-transform: rotateY(0deg);
+      -webkit-transform: rotateY(0deg);
+      transform: rotateY(0deg);
+    }
+  }
+}
+@mixin shake(){
+  -webkit-animation: 0.3s shake;
+  animation: 0.3s shake;
+  @-webkit-keyframes shake {
+    0% { transform: translateX(0%);}
+    25% { transform: translateX(50%);}
+    50% { transform: translateX(-50%);}
+    75% { transform: translateX(50%);}
+    100% { transform: translateX(-50%);}
+  }@keyframes shake {
+    0% { transform: translateX(0%);}
+    25% { transform: translateX(50%);}
+    50% { transform: translateX(-50%);}
+    75% { transform: translateX(50%);}
+    100% { transform: translateX(-50%);}
+  }
+}
+
+@mixin rotate($deg){
+  transform: rotate($deg);
+  -webkit-transform: rotate($deg);
+  -moz-transform: rotate($deg);
+  -ms-transform: rotate($deg);
+}
+
+
+@mixin scaleUp($times, $box-shadow-color) {
+  box-shadow: 0px 0px 20px $box-shadow-color;
+  z-index: 2;
+  -webkit-transform: scale($times);
+  -ms-transform: scale($times);
+  -moz-transform: scale($times);
+  transform: scale($times);
+}
+@mixin fadeInElement($time) {
+  -webkit-animation: fadeIn $time; /* Safari 4.0 - 8.0 */
+  animation: fadeIn $time;
+
+    @-webkit-keyframes fadeIn {
+          from { opacity: 0; }
+          to {opacity: 1;}
+        }
+    @keyframes fadeIn {
+      from {  opacity: 0;  }
+      to {  opacity: 1;  }
+    }
+}
+@mixin fadeOutElement($time) {
+  -webkit-animation: fadeOut $time; /* Safari 4.0 - 8.0 */
+  animation: fadeOut $time;
+
+  @-webkit-keyframes fadeOut {
+    from { opacity: 1; }
+    to {opacity: 0;}
+  }
+  @keyframes fadeOut {
+    from {  opacity: 1;  }
+    to {  opacity: 0;  }
+  }
+}
+
+@mixin ripple(){
+  -webkit-animation: ripple 1s; /* Safari 4.0 - 8.0 */
+  animation: ripple 1s;
+
+  @-webkit-keyframes ripple {
+    0%{opacity: 1;box-shadow: 0 0 5px #9ecaed;}
+    50%{opacity: 0.6;box-shadow: 0 0 20px #9ecaed;}
+    100%{opacity: 1;box-shadow: none;}
+  }
+  @keyframes ripple {
+    0%{opacity: 1;box-shadow: 0 0 5px #9ecaed;}
+    50%{opacity: 0.6;box-shadow: 0 0 20px #9ecaed;}
+    100%{opacity: 1;box-shadow: none;}
+  }
+}
+
+@mixin highlight-box($color){
+  -webkit-animation: boxshadow 2s infinite; /* Safari 4.0 - 8.0 */
+  animation:boxshadow 2s infinite;
+  animation-delay: 1s;
+
+  @-webkit-keyframes boxshadow {
+    0%{  box-shadow: 0px 0px 0px $color;    }
+    100%{  box-shadow: 0px 0px 20px $color;    }
+  }
+  @keyframes boxshadow {
+    0%{  box-shadow: 0px 0px 0px $color;    }
+    100%{  box-shadow: 0px 0px 20px $color;    }
+  }
+}
+
+@mixin customScrollBar() {
+  /* works for chrome only */
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 11px rgba(0, 0, 0, 0.3);
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $medium-grey;
+    outline: 1px solid $brand-primary;
+  }
+}

@@ -1,0 +1,463 @@
+/* You can add global styles to this file, and also import other style files */
+//***********************IMPORTS********************************
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,700');
+@import 'styles/partials/web-partials';
+@import "styles/ws-blue";
+@import "styles/web";
+
+//***********************MATERIAL ICONS SIZES********************************
+
+.factsheet-icon {
+  color: $brand-secondary;
+}
+
+// Rules for using icons as black on a light background.
+.material-icons {
+  vertical-align: middle;
+
+  &.md-dark {
+    color: rgba(0, 0, 0, 0.54);
+    &.md-inactive {
+      color: rgba(0, 0, 0, 0.26);
+    }
+  }
+
+  &.md-light {
+    color: rgba(255, 255, 255, 1);
+    .md-inactive {
+      color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  &.md-brand-secondary {
+    color: $brand-secondary;
+  }
+
+  &.md-green {
+    color: $green;
+  }
+}
+
+@for $i from 1 to 13 {
+  .material-icons.md-#{8 + ($i*2)} {
+    font-size: 8px + ($i*2);
+    height: 8px + ($i*2);
+    line-height: 8px + ($i*2);
+    width: 8px + ($i*2);
+  }
+}
+
+@for $i from 1 to 4 {
+  .material-icons.md-#{12 * ($i+1)} {
+    font-size: 12px * ($i+1);
+    height: 12px * ($i+1);
+    line-height: 12px * ($i+1);
+    width: 12px * ($i+1);
+  }
+
+}
+
+/**************** txt-size***************************/
+@for $i from 1 to 42 {
+  .txt-#{1*($i)} {
+    font-size: 1px * ($i) !important;
+  }
+
+}
+
+/******************* letter spacing****************/
+@for $i from 1 to 5 {
+  .ls-#{$i} {
+    letter-spacing: 1px * ($i);
+  }
+}
+
+//***********************ALIGN********************************
+.left-align {
+  text-align: left !important;
+}
+
+.right-align {
+  text-align: right !important;
+}
+
+.center-align {
+  text-align: center !important;
+}
+
+.justify-content {
+  text-align: justify !important;
+}
+
+.float-right {
+  float: right;
+}
+
+.float-left {
+  float: left;
+}
+
+//***********************position********************************
+.pos-rel {
+  position: relative;
+}
+
+.pos-abs {
+  position: absolute;
+}
+
+//***********************form********************************
+input.upper {
+  text-transform: uppercase;
+}
+
+.form-error {
+  color: $material-warn;
+  font-size: 75%;
+  font-weight: 400;
+}
+
+.error {
+  @include fadeInElement(0.3s);
+  color: $error;
+}
+
+.success {
+  @include fadeInElement(0.3s);
+  color: $success;
+}
+
+//***********************padding & margins********************************
+
+.no-padding {
+  padding: 0 !important;
+}
+
+.no-margin {
+  margin: 0 !important;
+}
+
+@for $i from 1 to 17 {
+  .pad-#{5 * $i} {
+    padding: 5px * $i !important;
+  }
+
+  .pad-tb-#{5 * $i} {
+    padding-top: 5px * $i !important;
+    padding-bottom: 5px * $i !important;
+  }
+
+  .pad-lr-#{5 * $i} {
+    padding-left: 5px * $i !important;
+    padding-right: 5px * $i !important;
+  }
+
+  .pad-t-#{5 * $i} {
+    padding-top: 5px * $i !important;
+  }
+
+  .pad-b-#{5 * $i} {
+    padding-bottom: 5px * $i !important;
+  }
+
+  .mar-#{5 * $i} {
+    margin: 5px * $i !important;
+  }
+
+  .mar-tb-#{5 * $i} {
+    margin-top: 5px * $i !important;
+    margin-bottom: 5px * $i !important;
+  }
+
+  .mar-lr-#{5 * $i} {
+    margin-left: 5px * $i !important;
+    margin-right: 5px * $i !important;
+  }
+
+  .mar-t-#{5 * $i} {
+    margin-top: 5px * $i !important;
+  }
+
+  .mar-b-#{5 * $i} {
+    margin-bottom: 5px * $i !important;
+  }
+  .mar-r-#{5 * $i} {
+    margin-right: 5px * $i !important;
+  }
+  .mar-l-#{5 * $i} {
+    margin-left: 5px * $i !important;
+  }
+}
+
+
+/***********border **********************/
+
+.no-border {
+  border: none !important;
+  border-radius: 0 !important;
+  border-collapse: inherit;
+}
+
+.grey-border {
+  border: 1px solid $medium-grey;
+}
+.border-l-grey {
+  border-left: 1px solid $medium-grey;
+}
+
+.border-lr-grey {
+  border-left: 1px solid $medium-grey;
+  border-right: 1px solid $medium-grey;
+}
+
+.border-t-grey {
+  border-top: 1px solid $medium-grey;
+}
+.border-b-bs {
+  border-bottom: 1px solid $brand-secondary;
+}
+
+//***********************CTA********************************
+
+.cta-60 {
+  @include cta(60px);
+}
+
+.cta-50 {
+  @include cta(50px);
+}
+
+.cta-40 {
+  @include cta(40px);
+}
+
+.cta-36 {
+  @include cta(36px);
+}
+
+.hollow-cta-30 {
+  @include hollow-cta(30px);
+}
+
+.hollow-cta-36 {
+  @include hollow-cta(36px);
+}
+
+.hollow-cta-50 {
+  @include hollow-cta(50px);
+}
+
+.hollow-cta-40 {
+  @include hollow-cta(40px);
+}
+
+//***********************HEADING********************************
+
+.heading-32-blue {
+  @include heading(32px, 300);
+  color: $brand-primary;
+}
+
+.heading-24-dark-grey {
+  @include heading(24px, 400);
+  color: $text-dark-grey;
+}
+
+.heading-24-white {
+  @include heading(24px, 400);
+  color: $white;
+}
+
+.heading-32-dark-grey {
+  @include heading(32px, 400);
+  color: $text-dark-grey;
+}
+
+.heading-32-dark-grey-bold {
+  @include heading(32px, 600);
+  color: $text-dark-grey;
+}
+
+.heading-32 {
+  @include heading(32px, 400);
+}
+
+.sub-heading-16-medium-grey {
+  @include heading(16px, 400);
+  color: $text-medium-grey;
+}
+
+.heading-16-dark-grey {
+  @include heading(16px, 400);
+  color: $text-dark-grey;
+}
+
+.heading-24 {
+  @include heading(24px, 400);
+}
+
+.heading-24-bold {
+  @include heading(24px, 600);
+  color: $text-dark-grey;
+}
+
+.heading-24-white {
+  @include heading(24px, 400);
+  color: $white;
+}
+
+.heading-24-blue {
+  @include heading(24px, 600);
+  color: $brand-secondary;
+}
+
+.heading-20 {
+  @include heading(20px, 400);
+}
+
+.heading-20-dark-grey {
+  @include heading(20px, 400);
+  color: $text-dark-grey;
+}
+
+.heading-20-white {
+  @include heading(20px, 400);
+  color: $white;
+}
+
+.heading-18-blue {
+  @include heading(18px, 400);
+  color: $brand-primary;
+}
+
+.heading-18-blue-bold {
+  @include heading(18px, 600);
+  color: $brand-secondary;
+}
+
+.heading-18-black {
+  @include heading(18px, 400);
+}
+
+.heading-18-dark-grey {
+  @include heading(18px, 400);
+  color: $text-dark-grey;
+}
+
+.heading-18-grey-bold {
+  @include heading(18px, 600);
+  color: $text-dark-grey;
+}
+
+.heading-14-grey {
+  @include heading(14px, 400);
+  color: $text-medium-grey;
+}
+
+.heading-16 {
+  @include heading(16px, 400);
+}
+
+.heading-14-grey-bold {
+  @include heading(14px, 600);
+  color: $text-dark-grey;
+}
+
+.heading-14-bold {
+  @include heading(14px, 700);
+}
+
+.heading-14 {
+  @include heading(14px, 400);
+}
+
+.heading-12 {
+  @include heading(12px, 400);
+}
+
+.font-12 {
+  font-size: 12px;
+}
+
+.border-radius-zero {
+  border-radius: 0;
+}
+
+body {
+  font-family: $font-stack;
+  font-size: 14px;
+  max-width: 2000px;
+  margin: 0 auto;
+  padding: 0;
+  background-color: $white;
+}
+
+a, a:hover, a:active, a:focus, a:visited {
+  text-decoration: none;
+}
+
+//************ visibility ********************
+.display-inline-block {
+  display: inline-block !important;
+}
+
+.display-none {
+  display: none !important;
+}
+
+.vis-hidden {
+  visibility: hidden !important;
+}
+
+.op-0-5 {
+  opacity: 0.5;
+}
+
+.op-0-6 {
+  opacity: 0.6;
+}
+
+.op-0-7 {
+  opacity: 0.7;
+}
+
+.op-0-8 {
+  opacity: 0.8;
+}
+
+/******* image style *******/
+
+.img-block-center {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+//*********** select **************
+.no-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none;
+}
+
+/**************************width*************/
+
+.width-100 {
+  width: 100%;
+}
+
+.width-60 {
+  width: 60%;
+}
+
+/**************** height*/
+
+.auto-height {
+  flex: 1 0 auto !important;
+}
+
+@media all and (display-mode: standalone) {
+}
