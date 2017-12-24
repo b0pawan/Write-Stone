@@ -9,6 +9,7 @@ import {SharedModule} from "./shared/shared.module";
 import {ServiceWorkerModule} from "@angular/service-worker";
 import {environment} from "../environments/environment";
 import {BrowserSupportService} from "./core/services/browser-support.service";
+import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-connectivity-display.module";
 
 @NgModule({
     imports: [
@@ -16,12 +17,14 @@ import {BrowserSupportService} from "./core/services/browser-support.service";
         BrowserAnimationsModule,
         ServiceWorkerModule.register('/worker-basic.min.js', {scope: '/', enabled : environment.serviceWorker}),
         CoreModule.forRoot(),
+        HttpConnectivityDisplayModule,
         SharedModule,
         routes
     ],
     exports: [
         BrowserModule,
         CoreModule,
+        HttpConnectivityDisplayModule,
         SharedModule,
         AppComponent,
         HOME_COMPONENTS
