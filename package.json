@@ -8,16 +8,18 @@
     "Electron",
     "DesktopCapture",
     "WebRTC",
-    "Angular5",
+    "Angular 5",
     "Angular CLI",
-    "Angular Material"
+    "Angular Material 2"
   ],
   "scripts": {
     "build-mac": "node --max-old-space-size=4096 node_modules/electron-packager ./src WriteStoneRecorderApp  --platform=darwin --arch=x64 --version=0.36.0 --icon=src/Icon.icns",
     "build-win32": "node --max-old-space-size=4096 node_modules/electron-packager ./src WriteStoneRecorderApp --overwrite --asar=true --platform=win32 --arch=ia32 --icon=src/Icon.icns --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Recorder App\"",
     "build-linux": "node --max-old-space-size=4096 node_modules/electron-packager ./src WriteStoneRecorderApp --overwrite --asar=true --platform=linux --arch=x64 --icon=src/Icon.icns --prune=true --out=release-builds",
+    "build:dev": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng build --app 0 --output-path=dist --prod --env=dev --aot --build-optimizer --vendor-chunk --named-chunks --base-href=/",
+    "build:uat": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng build --app 0 --output-path=dist --prod --env=uat --aot --build-optimizer --vendor-chunk --named-chunks --base-href=/",
+    "build:prod": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng build --app 0 --output-path=dist --prod --aot --build-optimizer --vendor-chunk --base-href=/",
     "start": "electron ."
-
   },
   "main": "dist/electron.js",
   "bin": {
@@ -71,6 +73,7 @@
     "tslib": "^1.8.0",
     "tslint": "~5.8.0",
     "nedb": "^1.8.0",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "stacktrace-js": "^2.0.0"
   }
 }

@@ -1,7 +1,7 @@
 import {Inject, Injectable, PLATFORM_ID} from "@angular/core";
 import {Logger} from "../logger/logger";
 import {DOCUMENT, isPlatformBrowser, isPlatformServer, PlatformLocation} from "@angular/common";
-import "../../../lib/modernizr.js";
+import "../../lib/modernizr.js";
 import {environment} from "../../../environments/environment";
 import {UtilityService} from "./utility.service";
 
