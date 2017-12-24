@@ -211,16 +211,31 @@ const onAccessApproved = (id) => {
     }
     console.log('Window ID: ', id);
     console.log('Audio: ', includeMic);
-    navigator.webkitGetUserMedia({
-        audio: false,
-        video: {
-            mandatory: {
-                chromeMediaSource: 'desktop',
-                chromeMediaSourceId: id,
-                maxWidth: window.screen.width,
-                maxHeight: window.screen.height
+    if (includeSysAudio) {
+        navigator.webkitGetUserMedia({
+            audio: {mandatory: {chromeMediaSource: 'desktop'}},
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: id,
+                    maxWidth: window.screen.width,
+                    maxHeight: window.screen.height
+                }
             }
-        }
-    }, getMediaStream, getUserMediaError)
+        }, getMediaStream, getUserMediaError)
+    } else {
+        navigator.webkitGetUserMedia({
+            audio: false,
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: id,
+                    maxWidth: window.screen.width,
+                    maxHeight: window.screen.height
+                }
+            }
+        }, getMediaStream, getUserMediaError)
+    }
+
 
 };
