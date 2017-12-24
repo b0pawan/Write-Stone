@@ -1,10 +1,11 @@
 const {app, BrowserWindow, protocol} = require('electron');
 const path = require('path');
+// const rootPath = path.normalize(__dirname + '/..');
 const rootPath = path.normalize(__dirname);
 const protocolServe = require('electron-protocol-serve');
 // Create the protocol
 console.log('Root path ', rootPath);
-const protocolServeName = protocolServe(rootPath, { app, protocol });
+const protocolServeName = protocolServe({ cwd : rootPath, app, protocol , name: 'serve', endpoint: ''});
 protocol.registerStandardSchemes([protocolServeName], { secure: true });
 
 let mainWindow;

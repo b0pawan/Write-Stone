@@ -3,7 +3,7 @@ fs = require('fs-extra'),
 cheerio = require('cheerio'),
     cleancss = require('clean-css');
 
-const rootPath = path.normalize(__dirname);
+const rootPath = path.normalize(__dirname+ '/..');
 const homeBuildDir = process.argv[2];
 const buildType = process.argv[3];
 const DIST = path.join(rootPath, 'dist');
