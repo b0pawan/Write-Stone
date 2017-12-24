@@ -57,7 +57,6 @@ const enableButtons = () => {
 const microAudioCheck = () => {
   // includeSysAudio = false
   // document.querySelector('#system-audio').checked = false
-
   // Mute video so we don't play loopback audio.
   var video = document.querySelector('video');
   video.muted = true;
@@ -69,8 +68,7 @@ const microAudioCheck = () => {
   console.log('Audio =', includeMic);
 
   if (includeMic) {
-    navigator.webkitGetUserMedia({ audio: true, video: false },
-        getMicroAudio, getUserMediaError)
+    navigator.webkitGetUserMedia({ audio: true, video: false }, getMicroAudio, getUserMediaError)
   }
 };
 
@@ -187,7 +185,7 @@ const getMediaStream = (stream) => {
     return
   }
   recorder.ondataavailable = recorderOnDataAvailable;
-  recorder.onstop = () => { console.log('recorderOnStop fired') }
+  recorder.onstop = () => { console.log('recorderOnStop fired') };
   recorder.start();
   console.log('Recorder is started.');
   disableButtons();
