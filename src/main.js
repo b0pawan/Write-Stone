@@ -29,7 +29,7 @@ app.on('ready', () => {
     mainWindow.webContents.openDevTools();
     // picker dialog reinitialize after being closed.
     pickerDialog.on('closed', (event) => {
-        console.log('picker window closed ', event);
+        // console.log('picker window closed ', event);
         initializePickerDialog();
     });
 });
