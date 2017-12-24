@@ -10,6 +10,7 @@ import {ServiceWorkerModule} from "@angular/service-worker";
 import {environment} from "../environments/environment";
 import {BrowserSupportService} from "./core/services/browser-support.service";
 import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-connectivity-display.module";
+import {ElectronAppModule} from "./electron/electron.module";
 
 @NgModule({
     imports: [
@@ -18,6 +19,7 @@ import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-co
         ServiceWorkerModule.register('/worker-basic.min.js', {scope: '/', enabled : environment.serviceWorker}),
         CoreModule.forRoot(),
         HttpConnectivityDisplayModule,
+        ElectronAppModule,
         SharedModule,
         routes
     ],
@@ -25,6 +27,7 @@ import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-co
         BrowserModule,
         CoreModule,
         HttpConnectivityDisplayModule,
+        ElectronAppModule,
         SharedModule,
         AppComponent,
         HOME_COMPONENTS
