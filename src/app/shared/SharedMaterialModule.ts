@@ -111,6 +111,6 @@ export class FCHammerConfig extends GestureConfig {
     declarations: [],
     providers: [{provide: HAMMER_GESTURE_CONFIG, useClass: FCHammerConfig}]
 })
-export class FincashMaterialModule {
+export class SharedMaterialModule {
 }
 

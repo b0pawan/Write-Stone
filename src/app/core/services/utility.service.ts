@@ -3,6 +3,10 @@ import {Logger} from "../logger/logger";
 import {isPlatformBrowser, isPlatformWorkerApp, isPlatformWorkerUi, PlatformLocation} from "@angular/common";
 import {DOCUMENT} from "@angular/platform-browser";
 import {Observable} from "rxjs/Observable";
+import "rxjs/add/observable/timer";
+import "rxjs/add/observable/interval";
+import {take} from "rxjs/operators";
+
 @Injectable()
 export class UtilityService {
     isPlatformBrowser: boolean;
@@ -60,7 +64,7 @@ export class UtilityService {
     public scrollToFirstError(elClassName: string = 'form-error') {
 
         if (isPlatformBrowser(this.platformId) || isPlatformWorkerApp(this.platformId) || isPlatformWorkerUi(this.platformId)) {
-            const interValSub = Observable.interval(500).take(1).subscribe(() => {
+            const interValSub = Observable.interval(500).pipe(take(1)).subscribe(() => {
                 const HTMLColl: HTMLCollection = this._document.getElementsByClassName(elClassName);
                 if (HTMLColl && HTMLColl.item(0)) {
                     const clientRect = HTMLColl.item(0).getBoundingClientRect();

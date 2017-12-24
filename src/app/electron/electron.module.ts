@@ -1,15 +1,11 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {MatSnackBarModule} from "@angular/material";
 import {ELECTRON_SERVICES} from "./services";
 import {PickerComponent} from "./picker.component";
 
 @NgModule({
-  imports: [
-    CommonModule,
-    MatSnackBarModule
-  ],
-  exports: [],
-  declarations: [ELECTRON_SERVICES, PickerComponent]
+  imports: [],
+  exports: [PickerComponent],
+  providers: [ELECTRON_SERVICES],
+  declarations: [PickerComponent]
 })
 export class ElectronAppModule { }

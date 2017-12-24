@@ -3,6 +3,9 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Subscription} from "rxjs/Subscription";
 import {Logger} from "../logger/logger";
 import {isNullOrUndefined} from "util";
+import "rxjs/add/observable/interval"
+import "rxjs/add/observable/timer"
+import {take} from "rxjs/operators";
 
 export class ProgressBarService {
     className : string;
@@ -53,7 +56,7 @@ export class ProgressBarService {
         //this.resetProgressBar();
         this.showBarProgress.next(true);
         if(!isNullOrUndefined(autoCancel) && autoCancel){
-            this.onDemandsubscription = Observable.interval(300).take(25).subscribe(index =>{
+            this.onDemandsubscription = Observable.interval(300).pipe(take(25)).subscribe(index =>{
                 //this.logger.debug(this.className," take val >>> ", index)
                 this.incrementProgress();
                 if(index == 24){
@@ -125,7 +128,7 @@ export class ProgressBarService {
      */
     resetProgressBar(){
         this.fullProgress();
-        let _subscription  : Subscription = Observable.interval(200).take(1).subscribe(()=>{
+        let _subscription  : Subscription = Observable.interval(200).pipe(take(1)).subscribe(()=>{
             this.showBarProgress.next(false);
             this.mode = "determinate";
             this.barValue.next(0);

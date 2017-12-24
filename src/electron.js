@@ -2,7 +2,6 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const url = require('url');
 let mainWindow;
-let className = 'electron';
 
 app.on('ready', () => {
     global.ffmpegpath = require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked');
@@ -15,7 +14,7 @@ app.on('ready', () => {
         protocol: 'file:',
         slashes: true
     }));
-    initializePickerDialog();
+    // initializePickerDialog();
     // open dev tools to check console.
     mainWindow.webContents.openDevTools();
 });

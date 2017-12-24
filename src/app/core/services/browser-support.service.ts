@@ -28,10 +28,6 @@ export class BrowserSupportService {
         if (this.isPlatformBrowser) {
             this.baseUrl = this.platformLocation['location'].origin;
         }
-
-        if (environment.hybridApplication) {
-            this.isHybridApplication = true;
-        }
     }
 
     /**
@@ -42,8 +38,8 @@ export class BrowserSupportService {
             const featureList = ["flexbox", "canvas", "flexwrap", "mediaqueries", "svg", "promises"];
             const missingFeaturesList = featureList.filter(feature => !Modernizr[feature]);
             if (missingFeaturesList.length > 0) {
-                const url = environment.browserSupportMissingURL + this.prepareUrlSuffix(featureList);
-                this.utilityService.redirectionByWindow(url);
+                // const url = environment.browserSupportMissingURL + this.prepareUrlSuffix(featureList);
+                // this.utilityService.redirectionByWindow(url);
             } else {
                 this.logger.debug("This browser supports all basic features required");
             }

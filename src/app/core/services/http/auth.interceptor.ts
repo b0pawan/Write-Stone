@@ -2,23 +2,23 @@ import {Injectable} from '@angular/core';
 import {HttpEvent, HttpEventType, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {Observable} from "rxjs/Observable";
 import {Logger} from "../../logger/logger";
-import {environment} from "../../../../environments/environment";
+import {tap} from "rxjs/operators";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
     className: string;
-
-    constructor(private logger: Logger, private tokenStore: AuthTokenStore) {
+    constructor(private logger: Logger) {
         this.className = 'AuthInterceptor';
     }
 
     public setToken(value: any) {
-        this.tokenStore.tokenSubject.next(value);
+        // this.tokenStore.tokenSubject.next(value);
     }
 
     public getToken() {
-        return this.tokenStore.tokenSubject.getValue();
+        return '';
+        // return this.tokenStore.tokenSubject.getValue();
     }
 
     /**
@@ -39,9 +39,9 @@ export class AuthInterceptor implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         if (req.url.indexOf('/secure') !== -1) {
             const authReq = req.clone({headers: this.setHttpClientHeader(req.headers)});
-            return next.handle(authReq).do(httpEvent => {
+            return next.handle(authReq).pipe(tap(httpEvent => {
                 this.extractSecureData(httpEvent);
-            });
+            }));
         } else {
             return next.handle(req);
         }
@@ -53,10 +53,10 @@ export class AuthInterceptor implements HttpInterceptor {
             const body = httpEvent.body;
             if (!body['success'] && (body['refreshtoken'] || body['unauthorizedAccess'])) {
                 //  this.loginService.logOutUser(environment.dloginUrl, false);
-                this.tokenStore.logout.next({state: false, url: environment.dloginUrl});
+                // this.tokenStore.logout.next({state: false, url: environment.dloginUrl});
             } else {
-                const headerToken = httpEvent.headers.get(environment.authToken);
-                this.tokenStore.processToken(body, headerToken, false);
+                // const headerToken = httpEvent.headers.get(environment.authToken);
+                // this.tokenStore.processToken(body, headerToken, false);
             }
         }
     }

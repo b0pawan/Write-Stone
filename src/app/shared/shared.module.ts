@@ -2,18 +2,18 @@ import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {RouterModule} from "@angular/router";
 import {FlexLayoutModule} from "@angular/flex-layout";
-import {FincashMaterialModule} from "./FincashMaterialModule";
 import {FC_PIPES} from "./pipes/index";
 import {SHARED_COMPONENTS, SHARED_DIALOGS} from "./components/index";
 import {SHARED_DIRECTIVES} from "./directives/index";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {SharedMaterialModule} from "./SharedMaterialModule";
 
 
 @NgModule({
     imports: [
         CommonModule,
         FlexLayoutModule,
-        FincashMaterialModule,
+        SharedMaterialModule,
         RouterModule,
     ],
     exports: [
@@ -22,7 +22,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
         FormsModule,
         ReactiveFormsModule,
         FlexLayoutModule,
-        FincashMaterialModule,
+        SharedMaterialModule,
         FC_PIPES,
         SHARED_COMPONENTS,
         SHARED_DIRECTIVES
