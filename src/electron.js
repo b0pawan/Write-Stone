@@ -7,18 +7,12 @@ const rootPath = path.normalize(__dirname);
 if (process.env.PACKAGE !== 'true'){
     require('electron-reload')(__dirname);
 }
-const protocolServe = require('electron-protocol-serve');
 // Create the protocol
 console.log('Root path ', rootPath);
-const protocolServeName = protocolServe({ cwd : rootPath, app, protocol});
-//const protocolServeName = protocolServe({ cwd : rootPath, app, protocol});
-protocol.registerStandardSchemes([protocolServeName]);
 
 let mainWindow;
 let pickerDialog;
 let pickerStatus;
-
-app.commandLine.appendSwitch('incognito');
 
 app.on('ready', () => {
     global.ffmpegpath = require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked');

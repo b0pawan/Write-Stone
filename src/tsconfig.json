@@ -8,7 +8,8 @@
       "hammerjs",
       "node",
       "modernizr",
-      "stacktrace-js"
+      "stacktrace-js",
+      "core-js"
     ],
     "typeRoots": [
       "../node_modules/@types"

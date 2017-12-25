@@ -66,6 +66,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
 
         this._electronService.ipcRenderer.on('picker-closed-status', (event, state) => {
+            console.log(' picker-closed-status ', state);
             this.ngZone.run(()=> {
                 this.logger.debug(this.className,' picker status ' , state);
                 this.disableButtonSubject.next(state);
@@ -193,14 +194,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
     };
 
-    disableButtons() {
-        this.disableButtonSubject.next(true);
-    };
-
-    enableButtons() {
-        this.disableButtonSubject.next(false);
-    };
-
     microAudioCheck() {
         this.includeSysAudio = false;
         // this.utilityService.document.querySelector('#system-audio').checked = false;
@@ -302,9 +295,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
     stopRecording() {
-        this.logger.debug('Stopping record and starting download');
+        this.logger.debug('Stopping record');
         this.stopButtonSubject.next(true);
-        this.enableButtons();
+        this.disableButtonSubject.next(false);
         this.recorder.stop();
         this.localStream.getVideoTracks()[0].stop();
     };

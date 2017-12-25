@@ -8,6 +8,7 @@ import {CSRFInterceptor} from "./services/http/csrf.interceptor";
 import {ErrorInterceptor} from "./services/http/error.interceptor";
 import {WSErrorHandler} from "./handler/wsErrorHandler";
 import {ElectronAppModule} from "../electron/electron.module";
+import {VideoPlayerModule} from "../player/player.module";
 
 export function interceptorProvider() {
     return [
@@ -39,8 +40,8 @@ export function provideErrorHandler() {
 
 
 @NgModule({
-    imports: [HttpClientModule, ElectronAppModule],
-    exports: [HttpClientModule, ElectronAppModule],
+    imports: [HttpClientModule, ElectronAppModule, VideoPlayerModule],
+    exports: [HttpClientModule, ElectronAppModule, VideoPlayerModule],
     providers: [WS_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
 })
 export class CoreModule {
