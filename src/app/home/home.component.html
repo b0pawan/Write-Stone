@@ -2,37 +2,37 @@
     <video id="video" controls class="video-js" data-setup='{}'></video>
 </div>
 <div fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-icon-button="" color="primary" (click)="recordDesktop()" [disabled]="disabled">
+    <button mat-icon-button="" color="primary" (click)="recordDesktop()" [disabled]="disabled | async">
         <mat-icon class="colr-bs"  matTooltip="Record Desktop"><i class="material-icons">desktop_windows</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="recordWindow()" [disabled]="disabled">
+    <button mat-icon-button="" color="primary" (click)="recordWindow()" [disabled]="disabled | async">
         <mat-icon class="colr-bs"  matTooltip="Record Window"><i class="material-icons">screen_share</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="recordCamera()" [disabled]="disabled">
+    <button mat-icon-button="" color="primary" (click)="recordCamera()" [disabled]="disabled | async">
         <mat-icon class="colr-bs"  matTooltip="Record Camera"><i class="material-icons">camera</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="playVideo()" [disabled]="disabled">
+    <button mat-icon-button="" color="primary" (click)="playVideo()" [disabled]="disabled | async">
         <mat-icon class="colr-bs"  matTooltip="Play File"><i class="material-icons">play_circle_filled</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="sysAudioCheck()" [disabled]="disabled">
+    <button mat-icon-button="" color="primary" (click)="sysAudioCheck()" [disabled]="disabled | async">
         <mat-icon *ngIf="recorderService.includeSysAudio" class="colr-bs"  matTooltip="System Audio"><i class="material-icons">mic</i></mat-icon>
         <mat-icon *ngIf="!recorderService.includeSysAudio" class="colr-bs"  matTooltip="System Audio"><i class="material-icons">mic_off</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="microAudioCheck()" [disabled]="disabled">
+    <button mat-icon-button="" color="primary" (click)="microAudioCheck()" [disabled]="disabled | async">
         <mat-icon *ngIf="recorderService.includeMic" class="colr-bs"  matTooltip="MIC Audio"><i class="material-icons">camera_enhance</i></mat-icon>
         <mat-icon *ngIf="!recorderService.includeMic" class="colr-bs"  matTooltip="MIC Audio"><i class="material-icons">perm_camera_mic</i></mat-icon>
     </button>
     <!--<label> <input type="checkbox" id="system-audio" value="false">Include System Audio</label>-->
 </div>
 <hr/>
-<div *ngIf="disabled" fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-icon-button="" color="primary" (click)="stopRecording()" [disabled]="!disabled">
+<div *ngIf="(disabled | async) === true" fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-icon-button="" color="primary" (click)="stopRecording()" [disabled]="!(disabled | async)">
         <mat-icon class="colr-bs"  matTooltip="Stop Recording"><i class="material-icons">stop</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="play()" [disabled]="!disabled">
+    <button mat-icon-button="" color="primary" (click)="play()" [disabled]="!(disabled | async)">
         <mat-icon class="colr-bs"  matTooltip="Play"><i class="material-icons">play_arrow</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="download()" [disabled]="!disabled">
+    <button mat-icon-button="" color="primary" (click)="download()" [disabled]="!(disabled | async)">
         <mat-icon class="colr-bs"  matTooltip="Save"><i class="material-icons">save</i></mat-icon>
     </button>
 </div>

@@ -6,18 +6,15 @@ import {Logger} from "../../core/logger/logger";
 import {UtilityService} from "../../core/services/utility.service";
 import {BrowserSupportService} from "../../core/services/browser-support.service";
 import {Subject} from "rxjs/Subject";
-import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 @Injectable()
 export class PickerService {
 
     public className: string;
     public sourcesList: Subject<any>;
-    public pickerStatusSubject: BehaviorSubject<boolean>;
     constructor(private logger: Logger, private utility : UtilityService, private _electronService: ElectronService, private bss: BrowserSupportService) {
         this.className = 'PickerService';
         this.sourcesList = new Subject<any>();
-        this.pickerStatusSubject = new BehaviorSubject<boolean>(false);
     }
 
     init() {

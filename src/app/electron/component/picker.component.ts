@@ -39,7 +39,7 @@ export class PickerComponent implements OnInit, OnDestroy {
         this.titleService.setTitle("picker");
         this.titleService.setMetaTags("picker");
         this.sourcesSubs = this.pickerService.sourcesList.subscribe((sources) => {
-            this.pickerService.pickerStatusSubject.next(true);
+            this.recorderService.disableButtonSubject.next(false);
             this.logger.debug(this.className, 'sources count ', sources.length);
             const sourcesItems = [];
             for (let source of sources) {
@@ -58,7 +58,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     sourceOnClick(source_id) {
         this.logger.debug(this.className, " source id " , source_id);
         this._electronService.ipcRenderer.send('source-id-selected', source_id);
-        this.pickerService.pickerStatusSubject.next(false);
+        this.recorderService.disableButtonSubject.next(true);
     }
 
 

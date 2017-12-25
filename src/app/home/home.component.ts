@@ -19,13 +19,11 @@ declare var navigator: any;
     encapsulation: ViewEncapsulation.None
 })
 export class HomeComponent implements OnInit, OnDestroy {
-    public disabled: boolean;
-    disButtonSubs: Subscription;
+    public disabled: Observable<boolean>;
     private className: string;
-    pickerStatusSubs: Subscription;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService,
                 public recorderService : RecorderService, public pickerService : PickerService, private _electronService: ElectronService) {
-        this.disabled = false;
+        this.disabled = this.recorderService.disableButtonSubject.asObservable();
         this.className = 'HomeComponent';
     }
 
@@ -33,26 +31,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.titleService.setTitle("home");
         this.titleService.setMetaTags("home");
-        this.disButtonSubs = this.recorderService.disableButtonSubject.subscribe((val) => {
-            if (val === true) {
-                this.disableButtons();
-            }else {
-                this.enableButtons();
-            }
-        });
-
-        this.pickerStatusSubs = this.pickerService.pickerStatusSubject.asObservable().subscribe((status)=>{
-            this.recorderService.disableButtonSubject.next(status);
-        });
     }
 
     ngOnDestroy() {
-        if (this.disButtonSubs){
-            this.disButtonSubs.unsubscribe();
-        }
-        if (this.pickerStatusSubs) {
-            this.pickerStatusSubs.unsubscribe();
-        }
+
     }
 
     getFileName() {
@@ -70,7 +52,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     disableButtons() {
-        this.disabled = true;
         /*document.querySelector('#record-desktop').disabled = true;
         document.querySelector('#record-camera').disabled = true;
         document.querySelector('#record-window').disabled = true;
@@ -80,7 +61,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     enableButtons() {
-        this.disabled = false;
         /*document.querySelector('#record-desktop').disabled = false;
         document.querySelector('#record-camera').disabled = false;
         document.querySelector('#record-window').disabled = false;
