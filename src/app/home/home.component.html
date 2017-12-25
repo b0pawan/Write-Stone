@@ -3,48 +3,47 @@
         <!--<app-video-player></app-video-player>-->
         <video id="video" controls class="video-js" data-setup='{}'></video>
     </div>
-    <div  *ngIf="!disabled" fxLayout="row" fxLayoutAlign="center center" fxFill="">
+    <div *ngIf="!recorderOn" fxLayout="row" fxLayoutAlign="center center" fxFill="">
         <button mat-icon-button="" color="primary" (click)="recordDesktop()">
-            <mat-icon matTooltip="Desktop"><i class="material-icons">desktop_windows</i></mat-icon>
+            <mat-icon><i class="material-icons">desktop_windows</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="recordWindow()">
-            <mat-icon  matTooltip="Window"><i class="material-icons">screen_share</i></mat-icon>
+            <mat-icon><i class="material-icons">screen_share</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="recordCamera()">
-            <mat-icon  matTooltip="Camera"><i class="material-icons">camera</i></mat-icon>
+            <mat-icon><i class="material-icons">camera</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="playVideo()">
-            <mat-icon  matTooltip="File"><i class="material-icons">play_circle_filled</i></mat-icon>
+            <mat-icon><i class="material-icons">play_circle_filled</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="sysAudioCheck()">'
             <span *ngIf="includeSysAudio">
-            <mat-icon matTooltip="System Audio"><i class="material-icons">mic</i></mat-icon>
+            <mat-icon><i class="material-icons">mic</i></mat-icon>
         </span>
             <span *ngIf="!includeSysAudio">
-            <mat-icon matTooltip="System Audio"><i class="material-icons">mic_none</i></mat-icon>
+            <mat-icon><i class="material-icons">mic_none</i></mat-icon>
         </span>
         </button>
         <button mat-icon-button="" color="primary" (click)="microAudioCheck()">
         <span *ngIf="includeMic">
-            <mat-icon matTooltip="Camera Audio"><i class="material-icons">camera_enhance</i></mat-icon>
+            <mat-icon><i class="material-icons">camera_enhance</i></mat-icon>
         </span>
             <span *ngIf="!includeMic">
-            <mat-icon matTooltip="Camera Audio"><i class="material-icons">perm_camera_mic</i></mat-icon>
+            <mat-icon><i class="material-icons">perm_camera_mic</i></mat-icon>
         </span>
         </button>
-        <button mat-icon-button="" color="primary" (click)="stopRecording()">
-            <mat-icon matTooltip="Stop"><i class="material-icons">stop</i></mat-icon>
-        </button>
+    </div>
+    <div *ngIf="recorderStopped" fxLayout="row" fxLayoutAlign="center center" fxFill="">
         <button mat-icon-button="" color="primary" (click)="download()">
-            <mat-icon matTooltip="Save"><i class="material-icons">save</i></mat-icon>
+            <mat-icon><i class="material-icons">save</i></mat-icon>
         </button>
     </div>
-    <div *ngIf="disabled" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="stopRecording()" *ngIf="!stopped">
-            <mat-icon   matTooltip="Stop Recording"><i class="material-icons">stop</i></mat-icon>
+    <div *ngIf="recorderOn" fxLayout="row" fxLayoutAlign="center center" fxFill="">
+        <button mat-icon-button="" color="primary" (click)="stopRecording()">
+            <mat-icon><i class="material-icons">stop</i></mat-icon>
         </button>
-        <button mat-icon-button="" color="primary" (click)="download()" *ngIf="stopped">
-            <mat-icon   matTooltip="Save"><i class="material-icons">save</i></mat-icon>
+        <button mat-icon-button="" color="primary" (click)="download()">
+            <mat-icon><i class="material-icons">save</i></mat-icon>
         </button>
     </div>
 </div>

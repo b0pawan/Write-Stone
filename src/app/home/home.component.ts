@@ -24,8 +24,8 @@ declare var navigator: any;
     encapsulation: ViewEncapsulation.None
 })
 export class HomeComponent implements OnInit, OnDestroy {
-    public disabled: boolean;
-    public stopped: boolean;
+    public recorderOn: boolean;
+    public recorderStopped: boolean;
     disabledObs: Observable<boolean>;
     stoppedObs: Observable<boolean>;
     className: string;
@@ -96,12 +96,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.disabledSubscription = this.disabledObs.subscribe((state) => {
             this.logger.debug(this.className, ' play disabled ', state);
-            this.disabled = state;
+            this.recorderOn = state;
         });
 
         this.stoppedSubscription = this.stoppedObs.subscribe((state) => {
             this.logger.debug(this.className, ' Recording Stopped ', state);
-            this.stopped = state;
+            this.recorderStopped = state;
         });
 
     }
@@ -155,13 +155,15 @@ export class HomeComponent implements OnInit, OnDestroy {
                         }
                     };
                     this.recorder.onstop = () => {
-                        this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired')
+                        this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired');
+                        this.stopButtonSubject.next(true);
+                        this.disableButtonSubject.next(false);
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
-                    // this.disableButtonSubject.next(true);;
+                    this.disableButtonSubject.next(true);
                 } catch (e) {
                     this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
@@ -228,7 +230,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     reset() {
         let video = this.utilityService.document.querySelector('video');
-        video.srcObject = '';
+        // video.srcObject = '';
         video.controls = false;
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
@@ -273,13 +275,15 @@ export class HomeComponent implements OnInit, OnDestroy {
                         }
                     };
                     this.recorder.onstop = () => {
-                        this.logger.debug(this.className, 'camera ', 'recorderOnStop fired')
+                        this.logger.debug(this.className, 'camera ', 'recorderOnStop fired');
+                        this.stopButtonSubject.next(true);
+                        this.disableButtonSubject.next(false);
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'camera ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
-                    // this.disableButtonSubject.next(true);
+                    this.disableButtonSubject.next(true);
                 } catch (e) {
                     this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
                     return
@@ -298,7 +302,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.recorder.stop();
             if (this.localStream && this.localStream.getVideoTracks().length > 0) {
                 this.localStream.getVideoTracks()[0].stop();
-                this.stopButtonSubject.next(true);
             }
         }
     };
