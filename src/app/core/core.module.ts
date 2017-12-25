@@ -9,7 +9,6 @@ import {ErrorInterceptor} from "./services/http/error.interceptor";
 import {WSErrorHandler} from "./handler/wsErrorHandler";
 import {ElectronAppModule} from "../electron/electron.module";
 
-
 export function interceptorProvider() {
     return [
         {

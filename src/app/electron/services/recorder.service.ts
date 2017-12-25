@@ -1,11 +1,12 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
-import {desktopCapturer, ipcRenderer, remote} from "electron";
+// import {desktopCapturer, ipcRenderer, remote} from "electron";
 // const {desktopCapturer, ipcRenderer, remote} = require('electron');
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import {take} from "rxjs/operators";
+import {ElectronService} from 'ngx-electron';
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -20,7 +21,7 @@ export class RecorderService {
     public includeMic: boolean;
     public includeSysAudio: boolean;
 
-    constructor(private logger: Logger) {
+    constructor(private logger: Logger, private _electronService: ElectronService) {
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
         this.includeMic = false;
@@ -29,7 +30,7 @@ export class RecorderService {
     }
 
     init() {
-        ipcRenderer.on('source-id-selected', (event, sourceId) => {
+        this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
             // Users have cancel the picker dialog.
             if (!sourceId) return;
             this.logger.log(sourceId);
@@ -43,7 +44,7 @@ export class RecorderService {
     };
 
     playVideo() {
-        remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
+        this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
             this.logger.log(filename);
             /*let video = document.querySelector('video');
             video.muted = false;
@@ -105,12 +106,12 @@ export class RecorderService {
 
     recordDesktop() {
         this.cleanRecord();
-        ipcRenderer.send('show-picker', {types: ['screen']});
+        this._electronService.ipcRenderer.send('show-picker', {types: ['screen']});
     };
 
     recordWindow() {
         this.cleanRecord();
-        ipcRenderer.send('show-picker', {types: ['window']});
+        this._electronService.ipcRenderer.send('show-picker', {types: ['window']});
     };
 
     recordCamera() {
