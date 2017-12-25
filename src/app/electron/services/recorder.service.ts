@@ -5,6 +5,7 @@ import "rxjs/add/observable/interval";
 import {ElectronService} from 'ngx-electron';
 import {BrowserSupportService} from "../../core/services/browser-support.service";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {UtilityService} from "../../core/services/utility.service";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -20,7 +21,7 @@ export class RecorderService {
     public includeSysAudio: boolean;
     public disableButtonSubject: BehaviorSubject<boolean>;
 
-    constructor(private logger: Logger, private _electronService: ElectronService, private bss: BrowserSupportService) {
+    constructor(private logger: Logger, private _electronService: ElectronService, private bss: BrowserSupportService, private utilityService: UtilityService) {
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
         this.includeMic = false;
@@ -48,7 +49,7 @@ export class RecorderService {
 
 
     getMediaStream(stream) {
-        let video = document.querySelector('video');
+        let video = this.utilityService.document.querySelector('video');
         video.src = URL.createObjectURL(stream);
         this.localStream = stream;
         stream.onended = () => {
