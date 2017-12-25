@@ -12,6 +12,7 @@ import {VideoPlayerComponent} from "./player.component";
         VgControlsModule,
         VgOverlayPlayModule
     ],
+    exports: [VideoPlayerComponent],
     declarations: [ VideoPlayerComponent ]
 })
 export class VideoPlayerModule {
