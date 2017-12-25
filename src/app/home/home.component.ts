@@ -253,9 +253,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.cleanRecord();
         const callbackFunc = (stream) => {
             // let video = this.utilityService.document.querySelector('video');
-            const video = {};
-            video['src'] = URL.createObjectURL(stream);
-            video['type'] = 'video/webm';
 
             stream.onended = () => {
                 this.logger.debug('Media stream ended.')
@@ -263,7 +260,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
             this.localStream = stream;
 
-            let videoTracks = this.localStream.getVideoTracks();
+            // let videoTracks = this.localStream.getVideoTracks();
+
             if (this.includeMic) {
                 this.logger.debug('Adding audio track.');
                 let audioTracks = this.microAudioStream.getAudioTracks();
@@ -295,6 +293,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.logger.debug('recorderOnStop fired')
             };
             this.recorder.start();
+            const video = {};
+            video['src'] = URL.createObjectURL(this.localStream);
+            video['type'] = 'video/webm';
             this.logger.debug('Recorder is started.');
             this.videoSourceService.source.next(video);
             // this.disableButtonSubject.next(true);

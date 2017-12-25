@@ -20,7 +20,11 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.sourceSubs = this.videoSourceService.source.asObservable().subscribe( (src) => {
             this.logger.debug(this.className, ' source ' , this.source);
-            this.source = src;
+            if (src !=null ) {
+                this.source = this.videoSourceService.saveData(this.source.src);
+            }else {
+                this.source = null;
+            }
         });
     }
     ngOnDestroy() {
