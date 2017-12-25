@@ -1,9 +1,12 @@
 <div class="capturer-container dn">
-    <div class="cr">
-        <ul class="capturer-list">
-            <ng-template ngFor let-source [ngForOf]="sourcesList | async">
-                <li><a (click)="sourceOnClick(source.source_id)"><img src="{{source.thumb_nail}}"><span>{{source.title_text}}</span></a></li>
-            </ng-template>
+    <div class="cr" *ngIf="(sourcesList | async).length > 0">
+        <ul class="capturer-list" *ngFor="let source of sourcesList | async">
+            <li>
+                <a (click)="sourceOnClick(source.source_id)">
+                    <img src="{{source.thumb_nail}}">
+                    <span>{{source.title_text}}</span>
+                </a>
+            </li>
         </ul>
     </div>
 </div>
