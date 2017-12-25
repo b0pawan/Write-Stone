@@ -25,7 +25,6 @@ export class PickerComponent implements OnInit, OnDestroy {
     sourcesList: BehaviorSubject<any[]>;
     sourcesSubs: Subscription;
     sourcesObs: Observable<any[]>;
-    pickerObs: Observable<boolean>;
 
     public constructor(public logger: Logger, private router: Router, private utilityService: UtilityService,
                        private browserSupport: BrowserSupportService, private titleService: TitleService,
@@ -35,14 +34,12 @@ export class PickerComponent implements OnInit, OnDestroy {
         this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;
         this.sourcesList = new BehaviorSubject<any[]>([]);
         this.sourcesObs = this.sourcesList.asObservable();
-        this.pickerObs = this.pickerService.pickerSubject.asObservable();
     }
 
     ngOnInit() {
         this.titleService.setTitle("picker");
         this.titleService.setMetaTags("picker");
         this.sourcesSubs = this.pickerService.sourcesList.subscribe((sources) => {
-            this.pickerService.pickerSubject.next(true);
             this.logger.debug(this.className, 'sources count ', sources.length);
             const sourcesItems = [];
             for (let source of sources) {
@@ -61,7 +58,6 @@ export class PickerComponent implements OnInit, OnDestroy {
     sourceOnClick(source_id) {
         this.logger.debug(this.className, " source id " , source_id);
         this._electronService.ipcRenderer.send('source-id-selected', source_id);
-        this.pickerService.pickerSubject.next(false);
     }
 
 
