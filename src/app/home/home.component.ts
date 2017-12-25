@@ -31,6 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     className: string;
     localStream: any;
     microAudioStream: any;
+    sysAudioStream: any;
     recordedChunks: any[];
     numRecordedChunks: number;
     recorder: any;
@@ -40,6 +41,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     public stopButtonSubject: BehaviorSubject<boolean>;
     disabledSubscription: Subscription;
     stoppedSubscription: Subscription;
+    screenObs: Observable<any>;
+    screenSubscription: Subscription;
 
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
@@ -52,6 +55,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.stopButtonSubject = new BehaviorSubject<boolean>(false);
         this.disabledObs = this.disableButtonSubject.asObservable();
         this.stoppedObs = this.stopButtonSubject.asObservable();
+        this.screenObs = this.pickerService.screen.asObservable();
+
     }
 
 
@@ -64,6 +69,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.logger.debug(this.className, sourceId);
                 this.onAccessApproved(sourceId);
             });
+        });
+
+        this.screenSubscription = this.screenObs.subscribe((screen) => {
+            this._electronService.ipcRenderer.send('source-id-selected', screen.id);
         });
 
         this._electronService.ipcRenderer.on('picker-closed-status', (event, state) => {
@@ -104,18 +113,21 @@ export class HomeComponent implements OnInit, OnDestroy {
                 };
                 let videoTracks = this.localStream.getVideoTracks();
                 /*if (this.includeMic) {
-                    this.logger.debug('Adding audio track.');
+                    this.logger.debug(this.className, 'screen capture ','Adding audio track.');
                     let audioTracks = this.microAudioStream.getAudioTracks();
                     this.localStream.addTrack(audioTracks[0]);
                 }*/
                 if (this.includeSysAudio) {
                     this.logger.debug(this.className, 'screen capture ', 'Adding system audio track.');
-                    let audioTracks = this.localStream.getAudioTracks();
+                    /*let audioTracks = this.localStream.getAudioTracks();
                     if (audioTracks.length === 0) {
                         this.logger.debug('screen capture ', 'No audio track in screen stream.');
                     } else {
                         this.localStream.addTrack(audioTracks[0]);
-                    }
+                    }*/
+                    this.logger.debug(this.className, 'screen capture ','Adding audio track.');
+                    let audioTracks = this.sysAudioStream.getAudioTracks();
+                    this.localStream.addTrack(audioTracks[0]);
                 } else {
                     this.logger.debug(this.className, 'screen capture ', 'Not adding audio track.')
                 }
@@ -233,6 +245,18 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.includeSysAudio = !this.includeSysAudio;
             // this.includeMic = false;
             this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
+            navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+                this.ngZone.run(() => {
+                    this.logger.debug(this.className, 'Received audio stream.');
+                    stream.onended = () => {
+                        this.logger.debug(this.className, 'Micro audio ended.')
+                    };
+                    this.sysAudioStream = stream;
+                });
+            }, (err) => {
+                this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
+                this.logger.error(this.className, err);
+            });
         });
     };
 
@@ -248,7 +272,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     recordDesktop() {
         this.reset();
-        this._electronService.ipcRenderer.send('show-picker', {types: ['screen']});
+        this._electronService.ipcRenderer.send('screen-capture', {types: ['screen']});
     };
 
     recordWindow() {
@@ -369,6 +393,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     ngOnDestroy() {
+
+        if (this.screenSubscription) {
+            this.screenSubscription.unsubscribe();
+        }
 
         if (this.disabledSubscription) {
             this.disabledSubscription.unsubscribe();

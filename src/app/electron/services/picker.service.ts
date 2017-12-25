@@ -12,10 +12,12 @@ export class PickerService {
 
     public className: string;
     public sourcesList: Subject<any>;
+    public screen: Subject<any>;
     constructor(private logger: Logger, private utility : UtilityService, private _electronService: ElectronService, private bss: BrowserSupportService,
                 private ngZone: NgZone) {
         this.className = 'PickerService';
         this.sourcesList = new Subject<any>();
+        this.screen = new Subject<any>();
     }
 
     init() {
@@ -37,6 +39,19 @@ export class PickerService {
                             throw error;
                         }
                         this.sourcesList.next(sources);
+                    });
+
+                })
+            });
+
+            this._electronService.ipcRenderer.on('get-screen-source', (event, options) => {
+                this._electronService.desktopCapturer.getSources(options, (error, sources) => {
+                    this.ngZone.run(()=> {
+                        if (error) {
+                            this.logger.error(this.className, error);
+                            throw error;
+                        }
+                        this.screen.next(sources[0]);
                     });
 
                 })

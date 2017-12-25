@@ -41,6 +41,12 @@ app.on('ready', () => {
         console.log('electron', 'main window closed');
     });
 
+
+
+    ipcMain.on('screen-capture', (event, options) => {
+        mainWindow.webContents.send('get-screen-source', options);
+    });
+
     ipcMain.on('show-picker', (event, options) => {
         if (pickerDialog && pickerStatus) {
         } else {
