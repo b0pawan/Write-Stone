@@ -4,7 +4,7 @@ import {Logger} from "./core/logger/logger";
 import {Subscription} from "rxjs/Subscription";
 import {UtilityService} from "./core/services/utility.service";
 import {BrowserSupportService} from "./core/services/browser-support.service";
-import {MediaChange, ObservableMedia} from "@angular/flex-layout";
+import {ObservableMedia} from "@angular/flex-layout";
 
 @Component({
     selector: 'ws-app',
@@ -44,18 +44,22 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     public deviceType() : void {
-        this.logger.log(this.className, " (max-height: 400px) and (max-width: 690px) " ,  this.media.isActive("(max-height: 400px) and (max-width: 690px)"));
-        if (this.media.isActive("(max-height: 400px) and (max-width: 690px)")){
-            this.router.navigateByUrl('/picker').then(()=>{
-                this.logger.log(this.className, " navigated to picker route");
-            }).catch((err) => {
-                this.logger.error(err);
-            })
-        }
 
         this.observableMediaSubscription = this.media.subscribe((change) => {
             this.logger.log(this.className, change.mqAlias);
+            if (change.mqAlias === 'sm') {
+                this.navigateToPicker();
+            }
         });
+
+    }
+
+    navigateToPicker() {
+        this.router.navigateByUrl('/picker').then(()=>{
+            this.logger.log(this.className, " navigated to picker route");
+        }).catch((err) => {
+            this.logger.error(err);
+        })
     }
 
     /**

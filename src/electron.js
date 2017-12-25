@@ -21,8 +21,10 @@ let pickerStatus;
 app.on('ready', () => {
     global.ffmpegpath = require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked');
     mainWindow = new BrowserWindow({
-        height: 600,
-        width: 800
+        height: 768,
+        width: 1024,
+        minHeight: 768,
+        minWidth: 1024
     });
     if (process.env.PACKAGE === 'true'){
         mainWindow.loadURL(url.format({
@@ -63,8 +65,11 @@ const initializePickerDialog = () => {
         skipTaskbar: true,
         modal: true,
         show: false,
-        height: 390,
-        width: 680
+        resizable: false,
+        height: 600,
+        width: 800,
+        maxHeight: 600,
+        maxWidth: 800
     });
 
     if (process.env.PACKAGE === 'true'){
