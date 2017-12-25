@@ -4,7 +4,6 @@ import {Logger} from "../../core/logger/logger";
 import {UtilityService} from "../../core/services/utility.service";
 import {BrowserSupportService} from "../../core/services/browser-support.service";
 import {TitleService} from "../../core/services/title.service";
-import {RecorderService} from "../services/recorder.service";
 import {PickerService} from "../services/picker.service";
 import {Subscription} from "rxjs/Subscription";
 import {ElectronService} from "ngx-electron";
@@ -27,7 +26,7 @@ export class PickerComponent implements OnInit, OnDestroy {
 
     public constructor(public logger: Logger, private router: Router, private utilityService: UtilityService,
                        private browserSupport: BrowserSupportService, private titleService: TitleService,
-                       public recorderService : RecorderService, public pickerService : PickerService, private _electronService: ElectronService) {
+                       public pickerService : PickerService, private _electronService: ElectronService) {
         // initialize userObject from token;
         this.className = 'PickerComponent';
         this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;
@@ -39,7 +38,7 @@ export class PickerComponent implements OnInit, OnDestroy {
         this.titleService.setTitle("picker");
         this.titleService.setMetaTags("picker");
         this.sourcesSubs = this.pickerService.sourcesList.subscribe((sources) => {
-            this.recorderService.disableButtonSubject.next(false);
+            // this.recorderService.disableButtonSubject.next(false);
             this.logger.debug(this.className, 'sources count ', sources.length);
             const sourcesItems = [];
             for (let source of sources) {
@@ -58,7 +57,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     sourceOnClick(source_id) {
         this.logger.debug(this.className, " source id " , source_id);
         this._electronService.ipcRenderer.send('source-id-selected', source_id);
-        this.recorderService.disableButtonSubject.next(true);
+        // this.recorderService.disableButtonSubject.next(true);
     }
 
 

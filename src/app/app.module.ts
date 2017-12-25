@@ -39,10 +39,9 @@ import {Logger} from "./core/logger/logger";
 })
 
 export class AppModule {
-    constructor(private bss : BrowserSupportService, private recorderService: RecorderService, private pickerService: PickerService, private logger: Logger) {
+    constructor(private bss : BrowserSupportService, private pickerService: PickerService, private logger: Logger) {
         this.logger.log("AppModule browser >>> ", this.bss.isPlatformBrowser);
         if (this.bss.isPlatformBrowser) {
-            this.recorderService.init();
             this.pickerService.init();
         }
     }

@@ -15,12 +15,12 @@
         <mat-icon class="colr-bs"  matTooltip="Play File"><i class="material-icons">play_circle_filled</i></mat-icon>
     </button>
     <button mat-icon-button="" color="primary" (click)="sysAudioCheck()">
-        <mat-icon *ngIf="recorderService.includeSysAudio" class="colr-bs"  matTooltip="System Audio"><i class="material-icons">mic</i></mat-icon>
-        <mat-icon *ngIf="!recorderService.includeSysAudio" class="colr-bs"  matTooltip="System Audio"><i class="material-icons">mic_off</i></mat-icon>
+        <mat-icon *ngIf="includeSysAudio" class="colr-bs"  matTooltip="System Audio"><i class="material-icons">mic</i></mat-icon>
+        <mat-icon *ngIf="!includeSysAudio" class="colr-bs"  matTooltip="System Audio"><i class="material-icons">mic_off</i></mat-icon>
     </button>
     <button mat-icon-button="" color="primary" (click)="microAudioCheck()">
-        <mat-icon *ngIf="recorderService.includeMic" class="colr-bs"  matTooltip="MIC Audio"><i class="material-icons">camera_enhance</i></mat-icon>
-        <mat-icon *ngIf="!recorderService.includeMic" class="colr-bs"  matTooltip="MIC Audio"><i class="material-icons">perm_camera_mic</i></mat-icon>
+        <mat-icon *ngIf="includeMic" class="colr-bs"  matTooltip="MIC Audio"><i class="material-icons">camera_enhance</i></mat-icon>
+        <mat-icon *ngIf="!includeMic" class="colr-bs"  matTooltip="MIC Audio"><i class="material-icons">perm_camera_mic</i></mat-icon>
     </button>
     <!--<label> <input type="checkbox" id="system-audio" value="false">Include System Audio</label>-->
 </div>
