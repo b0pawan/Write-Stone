@@ -54,11 +54,6 @@ app.on('ready', () => {
         }
     });
 
-    // mainWindow.loadURL(url.format());
-
-    // initializePickerDialog();
-    // open dev tools to check console.
-    // mainWindow.webContents.openDevTools();
 });
 
 
