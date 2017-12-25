@@ -92,9 +92,9 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.logger.debug('Access rejected.');
             return
         }
-        this.logger.debug(this.className,'Window ID: ', id);
-        this.logger.debug(this.className,'Audio: ', this.includeMic);
-        this.logger.debug(this.className,'System Audio: ', this.includeSysAudio);
+        this.logger.debug(this.className, 'Window ID: ', id);
+        this.logger.debug(this.className, 'Audio: ', this.includeMic);
+        this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
 
         const callbackFunc = (stream) => {
             this.ngZone.run(() => {
@@ -109,12 +109,13 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.localStream.addTrack(audioTracks[0]);
                 }*/
                 if (this.includeSysAudio) {
-                    this.logger.debug(this.className, 'screen capture ','Adding system audio track.');
+                    this.logger.debug(this.className, 'screen capture ', 'Adding system audio track.');
                     let audioTracks = this.localStream.getAudioTracks();
-                    /*if (audioTracks.length < 1) {
+                    if (audioTracks.length === 0) {
                         this.logger.debug('screen capture ', 'No audio track in screen stream.');
-                    }*/
-                    this.localStream.addTrack(audioTracks[0]);
+                    } else {
+                        this.localStream.addTrack(audioTracks[0]);
+                    }
                 } else {
                     this.logger.debug(this.className, 'screen capture ', 'Not adding audio track.')
                 }
@@ -128,7 +129,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                         }
                     };
                     this.recorder.onstop = () => {
-                        this.logger.debug(this.className,'screen capture ', 'recorderOnStop fired')
+                        this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired')
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
@@ -139,7 +140,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                     // this.videoSourceService.source.next(video);
                     // this.disableButtonSubject.next(true);;
                 } catch (e) {
-                    this.logger.error(this.className,'screen capture ', 'Exception while creating MediaRecorder: ', e);
+                    this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
             });
@@ -158,7 +159,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                     }
                 }
             }, callbackFunc, (err) => {
-                this.logger.debug(this.className,'screen capture ', ' getUserMedia() with audio failed.');
+                this.logger.debug(this.className, 'screen capture ', ' getUserMedia() with audio failed.');
                 this.logger.error(this.className, err);
             })
         } else {
@@ -173,8 +174,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                     }
                 }
             }, callbackFunc, (err) => {
-                this.logger.debug(this.className,'screen capture ', ' getUserMedia() without audio failed.');
-                this.logger.error(this.className, err);;
+                this.logger.debug(this.className, 'screen capture ', ' getUserMedia() without audio failed.');
+                this.logger.error(this.className, err);
+                ;
             })
         }
     };
@@ -260,12 +262,12 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.ngZone.run(() => {
                 this.localStream = stream;
                 this.localStream.onended = () => {
-                    this.logger.debug(this.className, 'camera ','Media stream ended.')
+                    this.logger.debug(this.className, 'camera ', 'Media stream ended.')
                 };
 
                 let videoTracks = this.localStream.getVideoTracks();
                 if (this.includeMic) {
-                    this.logger.debug(this.className, 'camera ','Adding audio track.');
+                    this.logger.debug(this.className, 'camera ', 'Adding audio track.');
                     let audioTracks = this.microAudioStream.getAudioTracks();
                     this.localStream.addTrack(audioTracks[0]);
                 }
@@ -281,7 +283,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 }*/
 
                 try {
-                    this.logger.debug(this.className, 'camera ','Start recording the stream.');
+                    this.logger.debug(this.className, 'camera ', 'Start recording the stream.');
                     this.recorder = new MediaRecorder(this.localStream);
                     this.recorder.ondataavailable = (event) => {
                         if (event.data && event.data.size > 0) {
@@ -290,10 +292,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                         }
                     };
                     this.recorder.onstop = () => {
-                        this.logger.debug(this.className, 'camera ','recorderOnStop fired')
+                        this.logger.debug(this.className, 'camera ', 'recorderOnStop fired')
                     };
                     this.recorder.start();
-                    this.logger.debug(this.className, 'camera ','Recorder is started.');
+                    this.logger.debug(this.className, 'camera ', 'Recorder is started.');
                     // const video = {};
                     let video = this.utilityService.document.querySelector('video');
                     video.src = URL.createObjectURL(this.localStream);
@@ -302,7 +304,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                     // this.videoSourceService.source.next(video);
                     // this.disableButtonSubject.next(true);
                 } catch (e) {
-                    this.logger.error(this.className, 'camera ','Exception while creating MediaRecorder: ', e);
+                    this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
             });
