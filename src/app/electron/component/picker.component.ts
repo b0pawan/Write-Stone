@@ -51,17 +51,6 @@ export class PickerComponent implements OnInit, OnDestroy {
             }
             this.sourcesList.next(sourcesItems);
             this.logger.debug(this.className, ' sources ' , sourcesItems);
-            /*let links = sourcesList.querySelectorAll('a');
-            for (let i = 0; i < links.length; ++i) {
-                let closure = (i) => {
-                    return (e) => {
-                        e.preventDefault();
-                        this._electronService.ipcRenderer.send('source-id-selected', sources[i].id);
-                        sourcesList.innerHTML = '';
-                    }
-                };
-                links[i].onclick = closure(i);
-            }*/
         });
     }
 

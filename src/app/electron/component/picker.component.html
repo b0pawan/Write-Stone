@@ -1,7 +1,7 @@
 <div class="capturer-container dn">
-    <div class="cr" *ngIf="(sourcesObs | async).length > 0">
+    <div class="cr">
         <ul class="capturer-list" *ngFor="let source of sourcesObs | async">
-            <li>
+            <li *ngIf="source != null">
                 <a (click)="sourceOnClick(source.source_id)">
                     <img src="{{source.thumb_nail}}">
                     <span>{{source.title_text}}</span>
