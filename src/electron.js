@@ -4,7 +4,7 @@ const path = require('path');
 const url = require('url');
 // const rootPath = path.normalize(__dirname + '/..');
 const rootPath = path.normalize(__dirname);
-if (process.env.PACKAGE === 'true'){
+if (process.env.PACKAGE !== 'true'){
     require('electron-reload')(__dirname);
 }
 const protocolServe = require('electron-protocol-serve');
