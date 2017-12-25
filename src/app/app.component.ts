@@ -52,6 +52,10 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.logger.error(err);
             })
         }
+
+        this.observableMediaSubscription = this.media.subscribe((change) => {
+            this.logger.log(this.className, change.mqAlias);
+        });
     }
 
     /**

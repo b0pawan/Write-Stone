@@ -21,9 +21,11 @@ declare var navigator: any;
 export class HomeComponent implements OnInit, OnDestroy {
     public disabled: boolean;
     disButtonSubs: Subscription;
+    private className: string;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService,
                 public recorderService : RecorderService, public pickerService : PickerService, private _electronService: ElectronService) {
         this.disabled = false;
+        this.className = 'HomeComponent';
     }
 
 
@@ -38,7 +40,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
         });
     }
-
 
     ngOnDestroy() {
         if (this.disButtonSubs){

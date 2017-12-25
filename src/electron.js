@@ -66,11 +66,18 @@ const initializePickerDialog = () => {
         height: 390,
         width: 680
     });
-    pickerDialog.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
+
+    if (process.env.PACKAGE === 'true'){
+        pickerDialog.loadURL(url.format({
+            pathname: path.join(__dirname, 'index.html'),
+            protocol: 'file:',
+            slashes: true
+        }));
+        pickerDialog.webContents.openDevTools();
+    } else {
+        pickerDialog.loadURL(process.env.HOST);
+        pickerDialog.webContents.openDevTools();
+    }
 
     pickerDialog.on('closed', (event) => {
         console.log('electron', 'picker window close');

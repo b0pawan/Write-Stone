@@ -7,9 +7,9 @@ import {environment} from "../../../environments/environment";
  *
  * level - How much detail you want to see in the logs, 0 being off, 1 being the less detailed, 5 being the most. Defaults to WARN.
  * global - Whether you want the created logger object to be exposed in the global scope. Defaults to false.
- * globalAs - The window's property name that will hold the logger object created. Defaults to 'fc.logger'.
+ * globalAs - The window's property name that will hold the logger object created. Defaults to 'ws.logger'.
  * store - Whether you want the level config to be saved in the local storage so it doesn't get lost when you refresh. Defaults to false.
- * storeAs - The local storage key that will be used to save the level config if the store setting is true. Defaults to 'fc.logger'.
+ * storeAs - The local storage key that will be used to save the level config if the store setting is true. Defaults to 'ws.logger'.
  *
  * Created by Pawan.
  *
@@ -32,9 +32,9 @@ const CONSOLE_DEBUG_METHOD = console["debug"] ? "debug" : "log";
 const DEFAULT_OPTIONS: Options = {
     level: 4,
     global: false,
-    globalAs: "fc.logger",
+    globalAs: "ws.logger",
     store: false,
-    storeAs: "fc.logger"
+    storeAs: "ws.logger"
 };
 enum LogLevel { OFF = 0, ERROR = 1, WARN = 2, INFO = 3, DEBUG = 4, LOG = 5 }
 
