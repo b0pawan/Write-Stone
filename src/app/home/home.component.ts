@@ -112,7 +112,20 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.logger.debug('Access rejected.');
                 return
             }
-            const screenRecorder = (stream) => {
+            this.logger.debug(this.className, 'Window ID: ', id);
+            this.logger.debug(this.className, 'Audio: ', this.includeMic);
+            this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
+            navigator.webkitGetUserMedia({
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: id,
+                        maxWidth: window.screen.width,
+                        maxHeight: window.screen.height
+                    }
+                }
+            }, (stream) => {
                 this.localStream = stream;
                 this.localStream.onended = () => {
                     this.logger.debug(this.className, 'screen capture ', 'Media stream ended.')
@@ -120,15 +133,15 @@ export class HomeComponent implements OnInit, OnDestroy {
                 let videoTracks = this.localStream.getVideoTracks();
                 if (this.includeSysAudio) {
                     this.logger.debug(this.className, 'screen capture ', 'Adding system audio track.');
-                    let audioTracks = this.localStream.getAudioTracks();
+                    /*let audioTracks = this.localStream.getAudioTracks();
                     if (audioTracks.length === 0) {
                         this.logger.debug('screen capture ', 'No audio track in screen stream.');
                     } else {
                         this.localStream.addTrack(audioTracks[0]);
-                    }
-                    /*this.logger.debug(this.className, 'screen capture ', 'Adding audio track.');
+                    }*/
+                    this.logger.debug(this.className, 'screen capture ', 'Adding audio track.');
                     let audioTracks = this.sysAudioStream.getAudioTracks();
-                    this.localStream.addTrack(audioTracks[0]);*/
+                    this.localStream.addTrack(audioTracks[0]);
                 } else {
                     this.logger.debug(this.className, 'screen capture ', 'Not adding audio track.')
                 }
@@ -153,43 +166,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
-            };
-
-            this.logger.debug(this.className, 'Window ID: ', id);
-            this.logger.debug(this.className, 'Audio: ', this.includeMic);
-            this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
-            if (this.includeSysAudio && screen) {
-                navigator.webkitGetUserMedia({
-                    audio: {
-                        mandatory: {
-                            chromeMediaSource: 'desktop'
-                        }
-                    },
-                    video: {
-                        mandatory: {
-                            chromeMediaSource: 'desktop'
-                        }
-                    }
-                }, screenRecorder, (err) => {
-                    this.logger.debug(this.className, 'screen capture ', ' getUserMedia() with audio failed.');
-                    this.logger.error(this.className, err);
-                })
-            } else {
-                navigator.webkitGetUserMedia({
-                    audio: false,
-                    video: {
-                        mandatory: {
-                            chromeMediaSource: 'desktop',
-                            chromeMediaSourceId: id,
-                            maxWidth: window.screen.width,
-                            maxHeight: window.screen.height
-                        }
-                    }
-                }, screenRecorder, (err) => {
-                    this.logger.debug(this.className, 'screen capture ', ' getUserMedia() without audio failed.');
-                    this.logger.error(this.className, err);
-                })
-            }
+            }, (err) => {
+                this.logger.debug(this.className, 'screen capture ', ' getUserMedia() failed.');
+                this.logger.error(this.className, err);
+            })
         });
     };
 
@@ -206,29 +186,21 @@ export class HomeComponent implements OnInit, OnDestroy {
                 video.muted = false;
                 video.src = filename;
                 video.controls = true;
-                // video['type'] = 'video/webm';
-                // this.videoSourceService.source.next(video);
             });
         });
     };
 
     microAudioCheck() {
         this.ngZone.run(() => {
-            // this.includeSysAudio = false;
-            // Mute video so we don't play loopback audio.
-            /*const video = this.utilityService.document.querySelector('video');
-            video.muted = true;*/
             this.includeMic = !this.includeMic;
             this.logger.debug(this.className, 'Audio =', this.includeMic);
             if (this.includeMic) {
                 navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
-                    this.ngZone.run(() => {
-                        this.logger.debug(this.className, 'Received audio stream.');
-                        stream.onended = () => {
-                            this.logger.debug(this.className, 'Micro audio ended.')
-                        };
-                        this.microAudioStream = stream;
-                    });
+                    this.logger.debug(this.className, 'Received audio stream.');
+                    stream.onended = () => {
+                        this.logger.debug(this.className, 'Micro audio ended.')
+                    };
+                    this.microAudioStream = stream;
                 }, (err) => {
                     this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
                     this.logger.error(this.className, err);
@@ -239,20 +211,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     sysAudioCheck() {
         this.ngZone.run(() => {
-            // Mute video so we don't play loopback audio
-            // let video = this.utilityService.document.querySelector('video');
-            // video.muted = true;
             this.includeSysAudio = !this.includeSysAudio;
-            // this.includeMic = false;
             this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
             navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
-                this.ngZone.run(() => {
-                    this.logger.debug(this.className, 'Received audio stream.');
-                    stream.onended = () => {
-                        this.logger.debug(this.className, 'Micro audio ended.')
-                    };
-                    this.sysAudioStream = stream;
-                });
+                this.logger.debug(this.className, 'Received audio stream.');
+                stream.onended = () => {
+                    this.logger.debug(this.className, 'Micro audio ended.')
+                };
+                this.sysAudioStream = stream;
             }, (err) => {
                 this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
                 this.logger.error(this.className, err);
@@ -262,8 +228,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     reset() {
         let video = this.utilityService.document.querySelector('video');
+        video.srcObject = '';
         video.controls = false;
-        // this.videoSourceService.source.next(null);
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
     };
@@ -332,13 +298,12 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.recorder.stop();
             if (this.localStream && this.localStream.getVideoTracks().length > 0) {
                 this.localStream.getVideoTracks()[0].stop();
-                // this.stopButtonSubject.next(true);
-                // this.disableButtonSubject.next(false);
+                this.stopButtonSubject.next(true);
             }
         }
     };
 
-    play() {
+    /*play() {
         if (this.recordedChunks && this.recordedChunks.length > 0) {
             // Unmute video.
             let video = this.utilityService.document.querySelector('video');
@@ -350,7 +315,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             // video['type'] = 'video/webm';
             // this.videoSourceService.source.next(video);
         }
-    };
+    };*/
 
     download() {
         if (this.recordedChunks && this.recordedChunks.length > 0) {

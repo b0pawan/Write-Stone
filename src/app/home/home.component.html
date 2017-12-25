@@ -3,7 +3,7 @@
         <!--<app-video-player></app-video-player>-->
         <video id="video" controls class="video-js" data-setup='{}'></video>
     </div>
-    <div fxLayout="row" fxLayoutAlign="center center" fxFill="">
+    <div  *ngIf="!disabled" fxLayout="row" fxLayoutAlign="center center" fxFill="">
         <button mat-icon-button="" color="primary" (click)="recordDesktop()">
             <mat-icon matTooltip="Desktop"><i class="material-icons">desktop_windows</i></mat-icon>
         </button>
@@ -35,23 +35,16 @@
         <button mat-icon-button="" color="primary" (click)="stopRecording()">
             <mat-icon matTooltip="Stop"><i class="material-icons">stop</i></mat-icon>
         </button>
-        <button mat-icon-button="" color="primary" (click)="play()">
-            <mat-icon matTooltip="Play"><i class="material-icons">play_arrow</i></mat-icon>
-        </button>
         <button mat-icon-button="" color="primary" (click)="download()">
             <mat-icon matTooltip="Save"><i class="material-icons">save</i></mat-icon>
         </button>
     </div>
-    <!--
-    <div *ngIf="disabled || stopped" fxLayout="row" fxLayoutAlign="center center" fxFill="">
+    <div *ngIf="disabled" fxLayout="row" fxLayoutAlign="center center" fxFill="">
         <button mat-icon-button="" color="primary" (click)="stopRecording()" *ngIf="!stopped">
             <mat-icon   matTooltip="Stop Recording"><i class="material-icons">stop</i></mat-icon>
-        </button>
-        <button mat-icon-button="" color="primary" (click)="play()" *ngIf="stopped">
-            <mat-icon   matTooltip="Play"><i class="material-icons">play_arrow</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="download()" *ngIf="stopped">
             <mat-icon   matTooltip="Save"><i class="material-icons">save</i></mat-icon>
         </button>
-    </div>-->
+    </div>
 </div>
