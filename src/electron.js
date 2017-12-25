@@ -15,6 +15,9 @@ const protocolServeName = protocolServe({ cwd : rootPath, app, protocol});
 protocol.registerStandardSchemes([protocolServeName]);
 
 let mainWindow;
+let pickerDialog;
+let pickerStatus;
+
 app.on('ready', () => {
     global.ffmpegpath = require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked');
     mainWindow = new BrowserWindow({
@@ -34,19 +37,19 @@ app.on('ready', () => {
     }
 
     ipcMain.on('show-picker', (event, options) => {
-        if (this.pickerDialog && this.pickerStatus) {
-            this.pickerDialog.show();
+        if (pickerDialog && pickerStatus) {
+            pickerDialog.show();
         } else {
             initializePickerDialog();
-            this.pickerDialog.show();
+            pickerDialog.show();
         }
-        this.pickerDialog.webContents.send('get-sources', options);
+        pickerDialog.webContents.send('get-sources', options);
     });
 
 
     ipcMain.on('source-id-selected', (event, sourceId) => {
-        if (this.pickerStatus && sourceId && sourceId != null) {
-            this.pickerDialog.close();
+        if (pickerStatus && sourceId && sourceId != null) {
+            pickerDialog.close();
             mainWindow.webContents.send('source-id-selected', sourceId);
         }
     });
@@ -60,7 +63,7 @@ app.on('ready', () => {
 
 
 const initializePickerDialog = () => {
-    this.pickerDialog = new BrowserWindow({
+    pickerDialog = new BrowserWindow({
         parent: mainWindow,
         skipTaskbar: true,
         modal: true,
@@ -68,15 +71,15 @@ const initializePickerDialog = () => {
         height: 390,
         width: 680
     });
-    this.pickerDialog.loadURL('picker');
+    pickerDialog.loadURL('picker');
 
-    this.pickerDialog.on('closed', (event) => {
+    pickerDialog.on('closed', (event) => {
         this.logger.log(this.className, 'picker window close');
-        this.pickerStatus = false;
+        pickerStatus = false;
         initializePickerDialog();
     });
 
-    this.pickerDialog.on('show', (event) => {
+    pickerDialog.on('show', (event) => {
         this.logger.log(this.className, 'picker window show ');
 
     });

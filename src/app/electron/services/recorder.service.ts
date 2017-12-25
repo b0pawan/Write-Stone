@@ -1,12 +1,11 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
-// import {desktopCapturer, ipcRenderer, remote} from "electron";
-// const {desktopCapturer, ipcRenderer, remote} = require('electron');
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import {take} from "rxjs/operators";
 import {ElectronService} from 'ngx-electron';
+import {BrowserSupportService} from "../../core/services/browser-support.service";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -21,7 +20,7 @@ export class RecorderService {
     public includeMic: boolean;
     public includeSysAudio: boolean;
 
-    constructor(private logger: Logger, private _electronService: ElectronService) {
+    constructor(private logger: Logger, private _electronService: ElectronService, private bss: BrowserSupportService) {
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
         this.includeMic = false;
@@ -30,12 +29,14 @@ export class RecorderService {
     }
 
     init() {
-        this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
-            // Users have cancel the picker dialog.
-            if (!sourceId) return;
-            this.logger.log(sourceId);
-            this.onAccessApproved(sourceId);
-        });
+        if (this.bss.isPlatformBrowser) {
+            this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
+                // Users have cancel the picker dialog.
+                if (!sourceId) return;
+                this.logger.log(sourceId);
+                this.onAccessApproved(sourceId);
+            });
+        }
     }
 
     getFileName() {
