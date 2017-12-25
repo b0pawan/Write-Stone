@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
-    <app-video-player></app-video-player>
-    <!--<video id="video" controls class="video-js" data-setup='{}'></video>-->
+    <!--<app-video-player></app-video-player>-->
+    <video id="video" controls class="video-js" data-setup='{}'></video>
 </div>
 <div fxLayout="row" fxLayoutAlign="space-between center" *ngIf="!disabled">
     <button mat-icon-button="" color="primary" (click)="recordDesktop()">
@@ -17,7 +17,7 @@
     </button>
     <button mat-icon-button="" color="primary" (click)="sysAudioCheck()">
         <mat-icon *ngIf="includeSysAudio" class="colr-bs"  matTooltip="Disable System Audio"><i class="material-icons">mic</i></mat-icon>
-        <mat-icon *ngIf="!includeSysAudio" class="colr-bs"  matTooltip="Enable System Audio"><i class="material-icons">mic_off</i></mat-icon>
+        <mat-icon *ngIf="!includeSysAudio" class="colr-bs"  matTooltip="Enable System Audio"><i class="material-icons">mic_none</i></mat-icon>
     </button>
     <button mat-icon-button="" color="primary" (click)="microAudioCheck()">
         <mat-icon *ngIf="includeMic" class="colr-bs"  matTooltip="Disable Camera Audio"><i class="material-icons">camera_enhance</i></mat-icon>

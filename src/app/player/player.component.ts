@@ -21,7 +21,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         this.sourceSubs = this.videoSourceService.source.asObservable().subscribe( (src) => {
             this.logger.debug(this.className, ' source ' , this.source);
             if (src !=null ) {
-                this.source = this.videoSourceService.saveData(this.source.src);
+                this.source = this.videoSourceService.saveData(src);
             }else {
                 this.source = null;
             }

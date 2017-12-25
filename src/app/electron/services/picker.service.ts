@@ -30,9 +30,7 @@ export class PickerService {
             };
 
             this._electronService.ipcRenderer.on('get-sources', (event, options) => {
-                // this.logger.debug(this.className, "ipcRenderer.on('get-sources')");
                 this._electronService.desktopCapturer.getSources(options, (error, sources) => {
-                    // this.logger.debug(this.className, "desktopCapturer.getSources()");
                     this.ngZone.run(()=> {
                         if (error) {
                             this.logger.error(this.className, error);
