@@ -1,5 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
-    <video id="video" controls class="video-js" data-setup='{}'></video>
+    <app-player></app-player>
+    <!--<video id="video" controls class="video-js" data-setup='{}'></video>-->
 </div>
 <div fxLayout="row" fxLayoutAlign="space-between center" *ngIf="!disabled">
     <button mat-icon-button="" color="primary" (click)="recordDesktop()">
