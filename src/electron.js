@@ -56,6 +56,7 @@ app.on('ready', () => {
 
 
     ipcMain.on('source-id-selected', (event, sourceId) => {
+        console.log('source-id-selected', sourceId, ' picker status ', pickerStatus);
         if (pickerStatus && sourceId && sourceId != null) {
             pickerDialog.close();
             mainWindow.webContents.send('source-id-selected', sourceId);
@@ -104,7 +105,7 @@ const initializePickerDialog = () => {
 
     pickerDialog.on('show', (event) => {
         console.log('electron', 'picker window show ');
-
+        pickerStatus = true;
     });
 
     pickerDialog.on('hide', (event) => {

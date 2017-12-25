@@ -9,6 +9,7 @@ import {PickerService} from "../services/picker.service";
 import {Subscription} from "rxjs/Subscription";
 import {ElectronService} from "ngx-electron";
 import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: 'ws-picker',
@@ -22,6 +23,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     private isPlatformBrowser: boolean;
     sourcesList: Subject<any[]>;
     sourcesSubs: Subscription;
+    sourcesObs: Observable<any[]>;
 
     public constructor(public logger: Logger, private router: Router, private utilityService: UtilityService,
                        private browserSupport: BrowserSupportService, private titleService: TitleService,
@@ -30,6 +32,7 @@ export class PickerComponent implements OnInit, OnDestroy {
         this.className = 'PickerComponent';
         this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;
         this.sourcesList = new Subject<any[]>();
+        this.sourcesObs = this.sourcesList.asObservable();
     }
 
     ngOnInit() {
