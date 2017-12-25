@@ -1,24 +1,26 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
-import * as domifyImport from "domify";
 import {ElectronService} from 'ngx-electron';
 import {Logger} from "../../core/logger/logger";
 import {UtilityService} from "../../core/services/utility.service";
 import {BrowserSupportService} from "../../core/services/browser-support.service";
+import {Subject} from "rxjs/Subject";
 
 @Injectable()
 export class PickerService {
 
     public className: string;
-
+    public sourcesList: Subject<any>;
     constructor(private logger: Logger, private utility : UtilityService, private _electronService: ElectronService, private bss: BrowserSupportService) {
         this.className = 'PickerService';
+        this.sourcesList = new Subject<any>();
     }
 
     init() {
         if (this.bss.isPlatformBrowser && this._electronService.isElectronApp) {
-            this.utility.document.onkeydown = function (evt) {
+            this.utility.document.onkeydown = (evt) => {
+                this.logger.log(this.className, "onkeydown called");
                 evt = evt || window.event;
                 // Press esc key.
                 if (evt.keyCode === 27) {
@@ -27,27 +29,14 @@ export class PickerService {
             };
 
             this._electronService.ipcRenderer.on('get-sources', (event, options) => {
+                this.logger.log(this.className, "ipcRenderer.on('get-sources')");
                 this._electronService.desktopCapturer.getSources(options, (error, sources) => {
-                    if (error) throw error;
-                    let sourcesList = this.utility.document.querySelector('.capturer-list');
-                    for (let source of sources) {
-                        let thumb = source.thumbnail.toDataURL();
-                        if (!thumb) continue;
-                        let title = source.name.slice(0, 20);
-                        let item = `<li><a href="#"><img src="${thumb}"><span>${title}</span></a></li>`;
-                        sourcesList.appendChild(domifyImport(item));
+                    this.logger.log(this.className, "desktopCapturer.getSources()");
+                    if (error) {
+                        this.logger.error(this.className, error);
+                        throw error;
                     }
-                    let links = sourcesList.querySelectorAll('a');
-                    for (let i = 0; i < links.length; ++i) {
-                        let closure = (i) => {
-                            return (e) => {
-                                e.preventDefault();
-                                this._electronService.ipcRenderer.send('source-id-selected', sources[i].id);
-                                sourcesList.innerHTML = '';
-                            }
-                        };
-                        links[i].onclick = closure(i);
-                    }
+                    this.sourcesList.next(sources);
                 })
             });
         }

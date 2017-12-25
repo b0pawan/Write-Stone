@@ -1,6 +1,9 @@
 <div class="capturer-container dn">
     <div class="cr">
-        <div class="row">Select the window you want to Record</div>
-        <ul class="capturer-list"></ul>
+        <ul class="capturer-list">
+            <ng-template ngFor let-source [ngForOf]="sourcesList | async">
+                <li><a (click)="sourceOnClick(source.source_id)"><img src="{{source.thumb_nail}}"><span>{{source.title_text}}</span></a></li>
+            </ng-template>
+        </ul>
     </div>
 </div>

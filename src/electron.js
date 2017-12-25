@@ -45,12 +45,13 @@ app.on('ready', () => {
 
     ipcMain.on('show-picker', (event, options) => {
         if (pickerDialog && pickerStatus) {
-            pickerDialog.show();
         } else {
             initializePickerDialog();
-            pickerDialog.show();
         }
-        pickerDialog.webContents.send('get-sources', options);
+        setTimeout(()=> {
+            pickerDialog.show();
+            pickerDialog.webContents.send('get-sources', options);
+        }, 2000);
     });
 
 
