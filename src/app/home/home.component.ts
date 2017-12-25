@@ -22,6 +22,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     public disabled: boolean;
     disButtonSubs: Subscription;
     private className: string;
+    pickerStatusSubs: Subscription;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService,
                 public recorderService : RecorderService, public pickerService : PickerService, private _electronService: ElectronService) {
         this.disabled = false;
@@ -39,11 +40,18 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.enableButtons();
             }
         });
+
+        this.pickerStatusSubs = this.pickerService.pickerStatusSubject.asObservable().subscribe((status)=>{
+            this.recorderService.disableButtonSubject.next(status);
+        });
     }
 
     ngOnDestroy() {
         if (this.disButtonSubs){
             this.disButtonSubs.unsubscribe();
+        }
+        if (this.pickerStatusSubs) {
+            this.pickerStatusSubs.unsubscribe();
         }
     }
 
