@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {ELECTRON_SERVICES} from "./services";
-import {PickerComponent} from "./picker.component";
 import {NgxElectronModule} from "ngx-electron";
+import {PickerComponent} from "./component/picker.component";
 
 @NgModule({
   imports: [NgxElectronModule],
