@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
     <video id="video" controls class="video-js" data-setup='{}'></video>
 </div>
-<div fxLayout="row" fxLayoutAlign="space-between center" *ngIf="(disabled | async) === false">
+<div fxLayout="row" fxLayoutAlign="space-between center" *ngIf="!disabled">
     <button mat-icon-button="" color="primary" (click)="recordDesktop()">
         <mat-icon class="colr-bs"  matTooltip="Record Desktop"><i class="material-icons">desktop_windows</i></mat-icon>
     </button>
@@ -23,15 +23,14 @@
         <mat-icon *ngIf="!includeMic" class="colr-bs"  matTooltip="Enable Camera Audio"><i class="material-icons">perm_camera_mic</i></mat-icon>
     </button>
 </div>
-<hr/>
-<div *ngIf="(disabled | async) === true || (stopped | async) === true" fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-icon-button="" color="primary" (click)="stopRecording()" *ngIf="(stopped | async) === false">
+<div *ngIf="disabled || stopped" fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-icon-button="" color="primary" (click)="stopRecording()" *ngIf="!stopped">
         <mat-icon class="colr-bs"  matTooltip="Stop Recording"><i class="material-icons">stop</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="play()" *ngIf="(stopped | async) === false">
+    <button mat-icon-button="" color="primary" (click)="play()" *ngIf="stopped">
         <mat-icon class="colr-bs"  matTooltip="Play"><i class="material-icons">play_arrow</i></mat-icon>
     </button>
-    <button mat-icon-button="" color="primary" (click)="download()" *ngIf="(stopped | async) === true">
+    <button mat-icon-button="" color="primary" (click)="download()" *ngIf="stopped">
         <mat-icon class="colr-bs"  matTooltip="Save"><i class="material-icons">save</i></mat-icon>
     </button>
 </div>

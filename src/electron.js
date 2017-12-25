@@ -103,6 +103,7 @@ const initializePickerDialog = () => {
     pickerDialog.on('closed', (event) => {
         console.log('electron', 'picker window close');
         pickerStatus = false;
+        mainWindow.webContents.send('picker-closed-status', true);
     });
 
     pickerDialog.on('show', (event) => {

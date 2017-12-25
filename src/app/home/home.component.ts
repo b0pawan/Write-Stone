@@ -23,9 +23,10 @@ declare var navigator: any;
     encapsulation: ViewEncapsulation.None
 })
 export class HomeComponent implements OnInit, OnDestroy {
-    public disabled: Observable<boolean>;
-    public stopped: Observable<boolean>;
-    public pickerObs: Observable<boolean>;
+    public disabled:boolean;
+    public stopped: boolean;
+    disabledObs: Observable<boolean>;
+    stoppedObs: Observable<boolean>;
     className: string;
     localStream: any;
     microAudioStream: any;
@@ -36,7 +37,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     includeSysAudio: boolean;
     public disableButtonSubject: BehaviorSubject<boolean>;
     public stopButtonSubject: BehaviorSubject<boolean>;
-    pickerSubscription: Subscription;
+    disabledSubscription: Subscription;
+    stoppedSubscription: Subscription;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone) {
         this.className = 'HomeComponent';
@@ -46,9 +48,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.includeSysAudio = false;
         this.disableButtonSubject = new BehaviorSubject<boolean>(false);
         this.stopButtonSubject = new BehaviorSubject<boolean>(false);
-        this.disabled = this.disableButtonSubject.asObservable();
-        this.stopped = this.stopButtonSubject.asObservable();
-        this.pickerObs = this.pickerService.pickerSubject.asObservable();
+        this.disabledObs = this.disableButtonSubject.asObservable();
+        this.stoppedObs = this.stopButtonSubject.asObservable();
     }
 
 
@@ -63,10 +64,24 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.onAccessApproved(sourceId);
             });
         });
-        this.pickerSubscription = this.pickerObs.subscribe((state) => {
-            this.logger.debug(this.className,' picker status ' , state);
-            this.disableButtonSubject.next(state);
+
+        this._electronService.ipcRenderer.on('picker-closed-status', (event, state) => {
+            this.ngZone.run(()=> {
+                this.logger.debug(this.className,' picker status ' , state);
+                this.disableButtonSubject.next(state);
+            });
         });
+
+        this.disabledSubscription = this.disabledObs.subscribe((state) => {
+            this.logger.debug(this.className,' play disabled ' , state);
+            this.disabled = state;
+        });
+
+        this.stoppedSubscription = this.stoppedObs.subscribe((state) => {
+            this.logger.debug(this.className,' Recording Stopped ' , state);
+            this.stopped = state;
+        });
+
     }
 
 
@@ -154,8 +169,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     ngOnDestroy() {
-        if (this.pickerSubscription) {
-            this.pickerSubscription.unsubscribe();
+
+        if (this.disabledSubscription) {
+            this.disabledSubscription.unsubscribe();
+        }
+        if (this.stoppedSubscription) {
+            this.stoppedSubscription.unsubscribe();
         }
     }
 
@@ -182,14 +201,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.disableButtonSubject.next(false);
     };
 
-    getMicroAudio(stream) {
-        this.logger.debug('Received audio stream.');
-        stream.onended = () => {
-            this.logger.debug('Micro audio ended.')
-        };
-        this.microAudioStream = stream;
-    }
-
     microAudioCheck() {
         this.includeSysAudio = false;
         // this.utilityService.document.querySelector('#system-audio').checked = false;
@@ -199,7 +210,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.includeMic = !this.includeMic;
         this.logger.debug('Audio =', this.includeMic);
         if (this.includeMic) {
-            navigator.webkitGetUserMedia({audio: true, video: false}, this.getMicroAudio, () => {
+            navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+                this.logger.debug('Received audio stream.');
+                stream.onended = () => {
+                    this.logger.debug('Micro audio ended.')
+                };
+                this.microAudioStream = stream;
+            }, () => {
                 this.logger.debug('getUserMedia() with audio failed.');
             });
         }
