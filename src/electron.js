@@ -1,4 +1,4 @@
-const {desktopCapturer, app, BrowserWindow, protocol, ipcMain, ipcRenderer} = require('electron');
+const {app, BrowserWindow, protocol, ipcMain} = require('electron');
 require('dotenv').config();
 const path = require('path');
 const url = require('url');
@@ -71,7 +71,11 @@ const initializePickerDialog = () => {
         height: 390,
         width: 680
     });
-    pickerDialog.loadURL('picker');
+    pickerDialog.loadURL(url.format({
+        pathname: path.join(__dirname, 'index.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
 
     pickerDialog.on('closed', (event) => {
         this.logger.log(this.className, 'picker window close');
