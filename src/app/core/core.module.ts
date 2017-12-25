@@ -42,9 +42,9 @@ export function provideErrorHandler() {
 
 
 @NgModule({
-    imports: [HttpClientModule, NgxElectronModule],
-    exports: [HttpClientModule, NgxElectronModule],
-    providers: [WS_SERVICES, ELECTRON_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
+    imports: [HttpClientModule, ElectronAppModule],
+    exports: [HttpClientModule, ElectronAppModule],
+    providers: [WS_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
 })
 export class CoreModule {
 

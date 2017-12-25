@@ -16,7 +16,6 @@ import {ElectronAppModule} from "../electron/electron.module";
         CommonModule,
         FlexLayoutModule,
         SharedMaterialModule,
-        ElectronAppModule,
         RouterModule,
         VideoPlayerModule
     ],
@@ -27,7 +26,6 @@ import {ElectronAppModule} from "../electron/electron.module";
         ReactiveFormsModule,
         FlexLayoutModule,
         SharedMaterialModule,
-        ElectronAppModule,
         VideoPlayerModule,
         FC_PIPES,
         SHARED_COMPONENTS,
