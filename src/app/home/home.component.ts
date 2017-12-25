@@ -24,10 +24,16 @@ declare var navigator: any;
     encapsulation: ViewEncapsulation.None
 })
 export class HomeComponent implements OnInit, OnDestroy {
-    public recorderOn: boolean;
-    public recorderStopped: boolean;
-    disabledObs: Observable<boolean>;
-    stoppedObs: Observable<boolean>;
+    recorderButtons: boolean;
+    recorderStopped: boolean;
+    recordingButtonsObs: Observable<boolean>;
+    recorderStatusObs: Observable<boolean>;
+    recordingButtonSubject: BehaviorSubject<boolean>;
+    recorderStatusSubject: BehaviorSubject<boolean>;
+    recordingButtonSubscription: Subscription;
+    recorderStatusSubscription: Subscription;
+    screenObs: Observable<any>;
+    screenSubscription: Subscription;
     className: string;
     localStream: any;
     microAudioStream: any;
@@ -37,12 +43,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     recorder: any;
     includeMic: boolean;
     includeSysAudio: boolean;
-    public disableButtonSubject: BehaviorSubject<boolean>;
-    public stopButtonSubject: BehaviorSubject<boolean>;
-    disabledSubscription: Subscription;
-    stoppedSubscription: Subscription;
-    screenObs: Observable<any>;
-    screenSubscription: Subscription;
 
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
@@ -51,10 +51,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.numRecordedChunks = 0;
         this.includeMic = false;
         this.includeSysAudio = false;
-        this.disableButtonSubject = new BehaviorSubject<boolean>(false);
-        this.stopButtonSubject = new BehaviorSubject<boolean>(false);
-        this.disabledObs = this.disableButtonSubject.asObservable();
-        this.stoppedObs = this.stopButtonSubject.asObservable();
+        this.recordingButtonSubject = new BehaviorSubject<boolean>(true);
+        this.recorderStatusSubject = new BehaviorSubject<boolean>(false);
+        this.recordingButtonsObs = this.recordingButtonSubject.asObservable();
+        this.recorderStatusObs = this.recorderStatusSubject.asObservable();
         this.screenObs = this.pickerService.screen.asObservable();
 
     }
@@ -90,16 +90,16 @@ export class HomeComponent implements OnInit, OnDestroy {
             // console.log(' picker-closed-status ', state);
             this.ngZone.run(() => {
                 this.logger.debug(this.className, ' picker status ', state);
-                this.disableButtonSubject.next(state);
+                this.recordingButtonSubject.next(!state);
             });
         });
 
-        this.disabledSubscription = this.disabledObs.subscribe((state) => {
-            this.logger.debug(this.className, ' play disabled ', state);
-            this.recorderOn = state;
+        this.recordingButtonSubscription = this.recordingButtonsObs.subscribe((state) => {
+            this.logger.debug(this.className, '  Recording Buttons ', state);
+            this.recorderButtons = state;
         });
 
-        this.stoppedSubscription = this.stoppedObs.subscribe((state) => {
+        this.recorderStatusSubscription = this.recorderStatusObs.subscribe((state) => {
             this.logger.debug(this.className, ' Recording Stopped ', state);
             this.recorderStopped = state;
         });
@@ -156,14 +156,14 @@ export class HomeComponent implements OnInit, OnDestroy {
                     };
                     this.recorder.onstop = () => {
                         this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired');
-                        this.stopButtonSubject.next(true);
-                        this.disableButtonSubject.next(false);
+                        this.recorderStatusSubject.next(true);
+                        this.recordingButtonSubject.next(true);
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
-                    this.disableButtonSubject.next(true);
+                    this.recordingButtonSubject.next(false);
                 } catch (e) {
                     this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
@@ -276,14 +276,14 @@ export class HomeComponent implements OnInit, OnDestroy {
                     };
                     this.recorder.onstop = () => {
                         this.logger.debug(this.className, 'camera ', 'recorderOnStop fired');
-                        this.stopButtonSubject.next(true);
-                        this.disableButtonSubject.next(false);
+                        this.recorderStatusSubject.next(true);
+                        this.recordingButtonSubject.next(true);
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'camera ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
-                    this.disableButtonSubject.next(true);
+                    this.recordingButtonSubject.next(false);
                 } catch (e) {
                     this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
                     return
@@ -359,11 +359,11 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.screenSubscription.unsubscribe();
         }
 
-        if (this.disabledSubscription) {
-            this.disabledSubscription.unsubscribe();
+        if (this.recordingButtonSubscription) {
+            this.recordingButtonSubscription.unsubscribe();
         }
-        if (this.stoppedSubscription) {
-            this.stoppedSubscription.unsubscribe();
+        if (this.recorderStatusSubscription) {
+            this.recorderStatusSubscription.unsubscribe();
         }
     }
 }
