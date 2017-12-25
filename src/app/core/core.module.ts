@@ -40,8 +40,8 @@ export function provideErrorHandler() {
 
 
 @NgModule({
-    imports: [HttpClientModule, ElectronAppModule, VideoPlayerModule],
-    exports: [HttpClientModule, ElectronAppModule, VideoPlayerModule],
+    imports: [HttpClientModule, ElectronAppModule],
+    exports: [HttpClientModule, ElectronAppModule],
     providers: [WS_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
 })
 export class CoreModule {

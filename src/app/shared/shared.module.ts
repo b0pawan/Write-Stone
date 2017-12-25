@@ -7,6 +7,7 @@ import {SHARED_COMPONENTS, SHARED_DIALOGS} from "./components/index";
 import {SHARED_DIRECTIVES} from "./directives/index";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SharedMaterialModule} from "./SharedMaterialModule";
+import {VideoPlayerModule} from "../player/player.module";
 
 
 @NgModule({
@@ -15,6 +16,7 @@ import {SharedMaterialModule} from "./SharedMaterialModule";
         FlexLayoutModule,
         SharedMaterialModule,
         RouterModule,
+        VideoPlayerModule
     ],
     exports: [
         CommonModule,
@@ -23,6 +25,7 @@ import {SharedMaterialModule} from "./SharedMaterialModule";
         ReactiveFormsModule,
         FlexLayoutModule,
         SharedMaterialModule,
+        VideoPlayerModule,
         FC_PIPES,
         SHARED_COMPONENTS,
         SHARED_DIRECTIVES
