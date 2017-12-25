@@ -170,19 +170,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     playVideo() {
+        this.recorderStatusSubject.next(false);
         this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
-            this.ngZone.run(() => {
-                this.logger.debug(filename);
-                // const video = {};
-                let video = this.utilityService.document.querySelector('video');
-                video.muted = false;
-                video.src = filename;
-                video.controls = true;
-            });
+            if (filename) {
+                this.ngZone.run(() => {
+                    // this.logger.debug(filename);
+                    // const video = {};
+                    let video = this.utilityService.document.querySelector('video');
+                    video.muted = false;
+                    if (Array.isArray(filename)) {
+                        video.src = filename[0];
+                    }else {
+                        video.src = filename;
+                    }
+                    video.controls = true;
+                });
+            }
         });
     };
 
     microAudioCheck() {
+        this.recorderStatusSubject.next(false);
         this.includeMic = !this.includeMic;
         this.logger.debug(this.className, 'Audio =', this.includeMic);
         if (this.includeMic) {
@@ -204,6 +212,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     sysAudioCheck() {
+        this.recorderStatusSubject.next(false);
         this.includeSysAudio = !this.includeSysAudio;
         this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
         navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
@@ -229,16 +238,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     recordDesktop() {
+        this.recorderStatusSubject.next(false);
         this.reset();
         this._electronService.ipcRenderer.send('screen-capture', {types: ['screen']});
     };
 
     recordWindow() {
+        this.recorderStatusSubject.next(false);
         this.reset();
         this._electronService.ipcRenderer.send('show-picker', {types: ['window']});
     };
 
     recordCamera() {
+        this.recorderStatusSubject.next(false);
         this.reset();
         navigator.webkitGetUserMedia({
             audio: false,
