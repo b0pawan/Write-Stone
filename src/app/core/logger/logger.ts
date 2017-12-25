@@ -6,13 +6,13 @@ import {environment} from "../../../environments/environment";
 export class Logger {
 
     debug(value: any, ...rest) {
-        if (environment.production) {
+        if (!environment.production) {
             console.log(value, ...rest);
         }
     }
 
     log(value: any, ...rest) {
-        if (environment.production) {
+        if (!environment.production) {
             console.log(value, ...rest);
         }
     }
