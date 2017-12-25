@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewEncapsulation} from "@angular/core";
+import {Component, NgZone, OnDestroy, OnInit, ViewEncapsulation} from "@angular/core";
 import {Logger} from "../core/logger/logger";
 import {Router} from "@angular/router";
 import {TitleService} from "../core/services/title.service";
@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     public stopButtonSubject: BehaviorSubject<boolean>;
     pickerSubscription: Subscription;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
-                private utilityService: UtilityService, private pickerService: PickerService) {
+                private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone) {
         this.className = 'HomeComponent';
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
@@ -56,10 +56,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.titleService.setTitle("home");
         this.titleService.setMetaTags("home");
         this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
-            // Users have cancel the picker dialog.
-            if (!sourceId) return;
-            this.logger.debug(sourceId);
-            this.onAccessApproved(sourceId);
+            this.ngZone.run(()=> {
+                // Users have cancel the picker dialog.
+                if (!sourceId) return;
+                this.logger.debug(sourceId);
+                this.onAccessApproved(sourceId);
+            });
         });
         this.pickerSubscription = this.pickerObs.subscribe((state) => {
             this.logger.debug(this.className,' picker status ' , state);
@@ -163,10 +165,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     playVideo() {
         this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
-            this.logger.debug(filename);
-            let video = this.utilityService.document.querySelector('video');
-            video.muted = false;
-            video.src = filename;
+            this.ngZone.run(()=> {
+                this.logger.debug(filename);
+                let video = this.utilityService.document.querySelector('video');
+                video.muted = false;
+                video.src = filename;
+            });
         });
     };
 

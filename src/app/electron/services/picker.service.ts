@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, NgZone} from "@angular/core";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import {ElectronService} from 'ngx-electron';
@@ -14,7 +14,8 @@ export class PickerService {
     public className: string;
     public sourcesList: Subject<any>;
     public pickerSubject: BehaviorSubject<boolean>;
-    constructor(private logger: Logger, private utility : UtilityService, private _electronService: ElectronService, private bss: BrowserSupportService) {
+    constructor(private logger: Logger, private utility : UtilityService, private _electronService: ElectronService, private bss: BrowserSupportService,
+                private ngZone: NgZone) {
         this.className = 'PickerService';
         this.sourcesList = new Subject<any>();
         this.pickerSubject = new BehaviorSubject<any>(false);
@@ -35,11 +36,14 @@ export class PickerService {
                 // this.logger.debug(this.className, "ipcRenderer.on('get-sources')");
                 this._electronService.desktopCapturer.getSources(options, (error, sources) => {
                     // this.logger.debug(this.className, "desktopCapturer.getSources()");
-                    if (error) {
-                        this.logger.error(this.className, error);
-                        throw error;
-                    }
-                    this.sourcesList.next(sources);
+                    this.ngZone.run(()=> {
+                        if (error) {
+                            this.logger.error(this.className, error);
+                            throw error;
+                        }
+                        this.sourcesList.next(sources);
+                    });
+
                 })
             });
         }
