@@ -9,7 +9,7 @@ import {SharedModule} from "../shared/shared.module";
 @NgModule({
   imports: [NgxElectronModule, SharedModule],
   exports: [PickerComponent, NgxElectronModule],
-  providers: [ELECTRON_SERVICES],
+  providers: [],
   declarations: [PickerComponent]
 })
 export class ElectronAppModule { }

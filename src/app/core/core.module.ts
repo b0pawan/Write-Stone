@@ -9,6 +9,8 @@ import {ErrorInterceptor} from "./services/http/error.interceptor";
 import {WSErrorHandler} from "./handler/wsErrorHandler";
 import {ElectronAppModule} from "../electron/electron.module";
 import {VideoPlayerModule} from "../player/player.module";
+import {ELECTRON_SERVICES} from "../electron/services";
+import {NgxElectronModule} from "ngx-electron";
 
 export function interceptorProvider() {
     return [
@@ -40,9 +42,9 @@ export function provideErrorHandler() {
 
 
 @NgModule({
-    imports: [HttpClientModule, ElectronAppModule],
-    exports: [HttpClientModule, ElectronAppModule],
-    providers: [WS_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
+    imports: [HttpClientModule, NgxElectronModule],
+    exports: [HttpClientModule, NgxElectronModule],
+    providers: [WS_SERVICES, ELECTRON_SERVICES, WS_GUARDS, interceptorProvider(), provideErrorHandler()],
 })
 export class CoreModule {
 
