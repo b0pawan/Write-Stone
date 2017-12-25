@@ -94,25 +94,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     onAccessApproved(id, screen) {
-        this.ngZone.run(() => {
-            if (!id) {
-                this.logger.debug('Access rejected.');
-                return
-            }
-            this.logger.debug(this.className, 'Window ID: ', id);
-            this.logger.debug(this.className, 'Audio: ', this.includeMic);
-            this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
-            navigator.webkitGetUserMedia({
-                audio: false,
-                video: {
-                    mandatory: {
-                        chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: id,
-                        maxWidth: window.screen.width,
-                        maxHeight: window.screen.height
-                    }
+        if (!id) {
+            this.logger.debug('Access rejected.');
+            return
+        }
+        this.logger.debug(this.className, 'Window ID: ', id);
+        this.logger.debug(this.className, 'Audio: ', this.includeMic);
+        this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
+        navigator.webkitGetUserMedia({
+            audio: false,
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: id,
+                    maxWidth: window.screen.width,
+                    maxHeight: window.screen.height
                 }
-            }, (stream) => {
+            }
+        }, (stream) => {
+            this.ngZone.run(() => {
                 this.localStream = stream;
                 this.localStream.onended = () => {
                     this.logger.debug(this.className, 'screen capture ', 'Media stream ended.')
@@ -136,29 +136,32 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.logger.debug(this.className, 'screen capture ', 'Start recording the stream.');
                     this.recorder = new MediaRecorder(this.localStream);
                     this.recorder.ondataavailable = (event) => {
-                        if (event.data && event.data.size > 0) {
-                            this.recordedChunks.push(event.data);
-                            this.numRecordedChunks += event.data.byteLength;
-                        }
+                        this.ngZone.run(() => {
+                            if (event.data && event.data.size > 0) {
+                                this.recordedChunks.push(event.data);
+                                this.numRecordedChunks += event.data.byteLength;
+                            }
+                        });
                     };
                     this.recorder.onstop = () => {
-                        this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired');
-                        this.recorderStatusSubject.next(true);
-                        this.recordingButtonSubject.next(true);
+                        this.ngZone.run(() => {
+                            this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired');
+                            this.recorderStatusSubject.next(true);
+                            this.recordingButtonSubject.next(true);
+                        });
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
-                    this.recordingButtonSubject.next(false);
                 } catch (e) {
                     this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
-            }, (err) => {
-                this.logger.debug(this.className, 'screen capture ', ' getUserMedia() failed.');
-                this.logger.error(this.className, err);
-            })
+            });
+        }, (err) => {
+            this.logger.debug(this.className, 'screen capture ', ' getUserMedia() failed.');
+            this.logger.error(this.className, err);
         });
     };
 
@@ -180,38 +183,40 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     microAudioCheck() {
-        this.ngZone.run(() => {
-            this.includeMic = !this.includeMic;
-            this.logger.debug(this.className, 'Audio =', this.includeMic);
-            if (this.includeMic) {
-                navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+        this.includeMic = !this.includeMic;
+        this.logger.debug(this.className, 'Audio =', this.includeMic);
+        if (this.includeMic) {
+            navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+                this.ngZone.run(() => {
                     this.logger.debug(this.className, 'Received audio stream.');
                     stream.onended = () => {
                         this.logger.debug(this.className, 'Micro audio ended.')
                     };
                     this.microAudioStream = stream;
-                }, (err) => {
-                    this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
-                    this.logger.error(this.className, err);
                 });
-            }
-        });
+            }, (err) => {
+                this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
+                this.logger.error(this.className, err);
+            });
+        }
+
+
     };
 
     sysAudioCheck() {
-        this.ngZone.run(() => {
-            this.includeSysAudio = !this.includeSysAudio;
-            this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
-            navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+        this.includeSysAudio = !this.includeSysAudio;
+        this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
+        navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+            this.ngZone.run(() => {
                 this.logger.debug(this.className, 'Received audio stream.');
                 stream.onended = () => {
                     this.logger.debug(this.className, 'Micro audio ended.')
                 };
                 this.sysAudioStream = stream;
-            }, (err) => {
-                this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
-                this.logger.error(this.className, err);
             });
+        }, (err) => {
+            this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
+            this.logger.error(this.className, err);
         });
     };
 
@@ -235,11 +240,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     recordCamera() {
         this.reset();
-        this.ngZone.run(() => {
-            navigator.webkitGetUserMedia({
-                audio: false,
-                video: {mandatory: {minWidth: 800, minHeight: 600}}
-            }, (stream) => {
+        navigator.webkitGetUserMedia({
+            audio: false,
+            video: {mandatory: {minWidth: 800, minHeight: 600}}
+        }, (stream) => {
+            this.ngZone.run(() => {
                 this.localStream = stream;
                 this.localStream.onended = () => {
                     this.logger.debug(this.className, 'camera ', 'Media stream ended.')
@@ -256,29 +261,32 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.logger.debug(this.className, 'camera ', 'Start recording the stream.');
                     this.recorder = new MediaRecorder(this.localStream);
                     this.recorder.ondataavailable = (event) => {
-                        if (event.data && event.data.size > 0) {
-                            this.recordedChunks.push(event.data);
-                            this.numRecordedChunks += event.data.byteLength;
-                        }
+                        this.ngZone.run(() => {
+                            if (event.data && event.data.size > 0) {
+                                this.recordedChunks.push(event.data);
+                                this.numRecordedChunks += event.data.byteLength;
+                            }
+                        });
                     };
                     this.recorder.onstop = () => {
-                        this.logger.debug(this.className, 'camera ', 'recorderOnStop fired');
-                        this.recorderStatusSubject.next(true);
-                        this.recordingButtonSubject.next(true);
+                        this.ngZone.run(() => {
+                            this.logger.debug(this.className, 'camera ', 'recorderOnStop fired');
+                            this.recorderStatusSubject.next(true);
+                            this.recordingButtonSubject.next(true);
+                        });
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'camera ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
-                    this.recordingButtonSubject.next(false);
                 } catch (e) {
                     this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
-            }, (err) => {
-                this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
-                this.logger.error(this.className, err);
-            })
+            });
+        }, (err) => {
+            this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
+            this.logger.error(this.className, err);
         });
     };
 
@@ -330,6 +338,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     handleStream(stream, mute) {
+        this.recordingButtonSubject.next(false);
         this.logger.debug(this.className, ' handleStream ');
         const video = this.utilityService.document.querySelector('video');
         video.srcObject = stream;
