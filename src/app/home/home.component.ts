@@ -11,6 +11,7 @@ import {Subscription} from "rxjs/Subscription";
 import {ElectronService} from "ngx-electron";
 import {UtilityService} from "../core/services/utility.service";
 
+declare var MediaRecorder: any;
 declare var navigator: any;
 
 @Component({
@@ -69,7 +70,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.recorderService.includeMic = !this.recorderService.includeMic;
         this.logger.debug('Audio =', this.recorderService.includeMic);
         if (this.recorderService.includeMic) {
-            navigator.webkitGetUserMedia({audio: true, video: false}, this.recorderService.getMicroAudio, this.recorderService.getUserMediaError)
+            navigator.webkitGetUserMedia({audio: true, video: false}, this.recorderService.getMicroAudio, ()=> {
+                this.logger.debug('getUserMedia() with audio failed.');
+            });
         }
     };
 
@@ -101,10 +104,57 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     recordCamera() {
         this.cleanRecord();
+        const callbackFunc = (stream)=> {
+            let video = this.utilityService.document.querySelector('video');
+            video.src = URL.createObjectURL(stream);
+            this.recorderService.localStream = stream;
+            stream.onended = () => {
+                this.logger.debug('Media stream ended.')
+            };
+
+            let videoTracks = this.recorderService.localStream.getVideoTracks();
+
+            if (this.recorderService.includeMic) {
+                this.logger.debug('Adding audio track.');
+                let audioTracks = this.recorderService.microAudioStream.getAudioTracks();
+                this.recorderService.localStream.addTrack(audioTracks[0]);
+            }
+            if (this.recorderService.includeSysAudio) {
+                this.logger.debug('Adding system audio track.');
+                let audioTracks = stream.getAudioTracks();
+                if (audioTracks.length < 1) {
+                    this.logger.debug('No audio track in screen stream.')
+                }
+            } else {
+                this.logger.debug('Not adding audio track.')
+            }
+            try {
+                this.logger.debug('Start recording the stream.');
+                this.recorderService.recorder = new MediaRecorder(stream);
+            } catch (e) {
+                console.assert(false, 'Exception while creating MediaRecorder: ' + e);
+                return
+            }
+            this.recorderService.recorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    this.recorderService.recordedChunks.push(event.data);
+                    this.recorderService.numRecordedChunks += event.data.byteLength;
+                }
+            };
+            this.recorderService.recorder.onstop = () => {
+                this.logger.debug('recorderOnStop fired')
+            };
+            this.recorderService.recorder.start();
+            this.logger.debug('Recorder is started.');
+            this.recorderService.disableButtonSubject.next(true);
+        };
+
         navigator.webkitGetUserMedia({
             audio: false,
             video: {mandatory: {minWidth: 1280, minHeight: 720}}
-        }, this.recorderService.getMediaStream, this.recorderService.getUserMediaError)
+        }, callbackFunc, ()=> {
+            this.logger.debug('getUserMedia() without audio failed.');
+        })
     };
 
 

@@ -40,54 +40,6 @@ export class RecorderService {
         }
     }
 
-    recorderOnDataAvailable(event) {
-        if (event.data && event.data.size > 0) {
-            this.recordedChunks.push(event.data);
-            this.numRecordedChunks += event.data.byteLength;
-        }
-    };
-
-
-    getMediaStream(stream) {
-        let video = this.utilityService.document.querySelector('video');
-        video.src = URL.createObjectURL(stream);
-        this.localStream = stream;
-        stream.onended = () => {
-            this.logger.debug('Media stream ended.')
-        };
-
-        let videoTracks = this.localStream.getVideoTracks();
-
-        if (this.includeMic) {
-            this.logger.debug('Adding audio track.');
-            let audioTracks = this.microAudioStream.getAudioTracks();
-            this.localStream.addTrack(audioTracks[0]);
-        }
-        if (this.includeSysAudio) {
-            this.logger.debug('Adding system audio track.');
-            let audioTracks = stream.getAudioTracks();
-            if (audioTracks.length < 1) {
-                this.logger.debug('No audio track in screen stream.')
-            }
-        } else {
-            this.logger.debug('Not adding audio track.')
-        }
-        try {
-            this.logger.debug('Start recording the stream.');
-            this.recorder = new MediaRecorder(stream);
-        } catch (e) {
-            console.assert(false, 'Exception while creating MediaRecorder: ' + e);
-            return
-        }
-        this.recorder.ondataavailable = this.recorderOnDataAvailable;
-        this.recorder.onstop = () => {
-            this.logger.debug('recorderOnStop fired')
-        };
-        this.recorder.start();
-        this.logger.debug('Recorder is started.');
-        this.disableButtonSubject.next(true);
-        // this.disableButtons();
-    };
 
     getMicroAudio(stream) {
         this.logger.debug('Received audio stream.');
@@ -97,9 +49,6 @@ export class RecorderService {
         }
     };
 
-    getUserMediaError() {
-        this.logger.debug('getUserMedia() failed.');
-    };
 
     onAccessApproved(id) {
         if (!id) {
@@ -109,6 +58,52 @@ export class RecorderService {
         this.logger.debug('Window ID: ', id);
         this.logger.debug('Audio: ', this.includeMic);
         this.logger.debug('System Audio: ', this.includeSysAudio);
+
+        const callbackFunc = (stream)=> {
+            let video = this.utilityService.document.querySelector('video');
+            video.src = URL.createObjectURL(stream);
+            this.localStream = stream;
+            stream.onended = () => {
+                this.logger.debug('Media stream ended.')
+            };
+
+            let videoTracks = this.localStream.getVideoTracks();
+
+            if (this.includeMic) {
+                this.logger.debug('Adding audio track.');
+                let audioTracks = this.microAudioStream.getAudioTracks();
+                this.localStream.addTrack(audioTracks[0]);
+            }
+            if (this.includeSysAudio) {
+                this.logger.debug('Adding system audio track.');
+                let audioTracks = stream.getAudioTracks();
+                if (audioTracks.length < 1) {
+                    this.logger.debug('No audio track in screen stream.')
+                }
+            } else {
+                this.logger.debug('Not adding audio track.')
+            }
+            try {
+                this.logger.debug('Start recording the stream.');
+                this.recorder = new MediaRecorder(stream);
+            } catch (e) {
+                console.assert(false, 'Exception while creating MediaRecorder: ' + e);
+                return
+            }
+            this.recorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                    this.numRecordedChunks += event.data.byteLength;
+                }
+            };
+            this.recorder.onstop = () => {
+                this.logger.debug('recorderOnStop fired')
+            };
+            this.recorder.start();
+            this.logger.debug('Recorder is started.');
+            this.disableButtonSubject.next(true);
+        };
+
         if (this.includeSysAudio) {
             navigator.webkitGetUserMedia({
                 audio: true,
@@ -120,7 +115,9 @@ export class RecorderService {
                         maxHeight: window.screen.height
                     }
                 }
-            }, this.getMediaStream, this.getUserMediaError)
+            }, callbackFunc, ()=> {
+                this.logger.debug('getUserMedia() with audio failed.');
+            })
         } else {
             navigator.webkitGetUserMedia({
                 audio: false,
@@ -132,7 +129,9 @@ export class RecorderService {
                         maxHeight: window.screen.height
                     }
                 }
-            }, this.getMediaStream, this.getUserMediaError)
+            }, callbackFunc, ()=> {
+                this.logger.debug('getUserMedia() without audio failed.');
+            })
         }
     };
 }
