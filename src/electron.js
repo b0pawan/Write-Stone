@@ -20,7 +20,8 @@ app.on('ready', () => {
         height: 768,
         width: 1024,
         minHeight: 768,
-        minWidth: 1024
+        minWidth: 1024,
+        closable: true
     });
     // mainWindow.setAutoHideMenuBar(true);
 
@@ -93,7 +94,8 @@ const initializePickerDialog = () => {
         height: 600,
         width: 800,
         maxHeight: 600,
-        maxWidth: 800
+        maxWidth: 800,
+        closable: true
     });
 
     // pickerDialog.setAutoHideMenuBar(true);

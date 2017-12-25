@@ -67,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.ngZone.run(() => {
                 if (!sourceId) return;
                 this.logger.debug(this.className, sourceId);
-                this.onAccessApproved(sourceId);
+                this.onAccessApproved(sourceId, false);
             });
         });
 
@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.ngZone.run(() => {
                 if (!sourceId) return;
                 this.logger.debug(this.className, sourceId);
-                this.onAccessApproved(sourceId);
+                this.onAccessApproved(sourceId, true);
             });
         });
 
@@ -107,7 +107,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
 
-    onAccessApproved(id) {
+    onAccessApproved(id, screen) {
         if (!id) {
             this.logger.debug('Access rejected.');
             return
@@ -156,10 +156,11 @@ export class HomeComponent implements OnInit, OnDestroy {
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
+                    this.handleStream(this.localStream);
                     // video['type'] = 'video/webm';
-                    let video = this.utilityService.document.querySelector('video');
+                    /*let video = this.utilityService.document.querySelector('video');
                     video.src = URL.createObjectURL(this.localStream);
-                    video.controls = true;
+                    video.controls = true;*/
                     // this.videoSourceService.source.next(video);
                     // this.disableButtonSubject.next(true);;
                 } catch (e) {
@@ -331,11 +332,12 @@ export class HomeComponent implements OnInit, OnDestroy {
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'camera ', 'Recorder is started.');
+                    this.handleStream(this.localStream);
                     // const video = {};
-                    let video = this.utilityService.document.querySelector('video');
+                    /*let video = this.utilityService.document.querySelector('video');
                     video.src = URL.createObjectURL(this.localStream);
                     // video['type'] = 'video/webm';
-                    video.controls = true;
+                    video.controls = true;*/
                     // this.videoSourceService.source.next(video);
                     // this.disableButtonSubject.next(true);
                 } catch (e) {
@@ -402,6 +404,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
         }
     };
+
+    handleStream (stream) {
+        const video = this.utilityService.document.querySelector('video');
+        video.srcObject = stream;
+        video.controls = true;
+        video.onloadedmetadata = (e) => {
+            video.play();
+        }
+    }
 
     ngOnDestroy() {
 
