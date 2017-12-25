@@ -22,6 +22,8 @@ app.on('ready', () => {
         minHeight: 768,
         minWidth: 1024
     });
+    // mainWindow.setAutoHideMenuBar(true);
+
     if (process.env.PACKAGE === 'true'){
         mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, 'index.html'),
@@ -81,6 +83,8 @@ const initializePickerDialog = () => {
         maxHeight: 600,
         maxWidth: 800
     });
+
+    // pickerDialog.setAutoHideMenuBar(true);
 
     if (process.env.PACKAGE === 'true'){
         pickerDialog.loadURL(url.format({

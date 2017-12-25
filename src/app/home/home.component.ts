@@ -12,6 +12,7 @@ import "rxjs/add/observable/interval";
 import "rxjs/add/observable/timer";
 import {PickerService} from "../electron/services/picker.service";
 import {Subscription} from "rxjs/Subscription";
+import {VideoSourceService} from "../electron/services/video.sources.";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -40,7 +41,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     disabledSubscription: Subscription;
     stoppedSubscription: Subscription;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
-                private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone) {
+                private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
         this.className = 'HomeComponent';
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
@@ -96,8 +97,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.logger.debug('System Audio: ', this.includeSysAudio);
 
         const callbackFunc = (stream) => {
-            let video = this.utilityService.document.querySelector('video');
-            video.src = URL.createObjectURL(stream);
+            const video = {};
+            // video = this.utilityService.document.querySelector('video');
+            video['src'] = URL.createObjectURL(stream);
+            video['type'] = 'video/webm';
             stream.onended = () => {
                 this.logger.debug('Media stream ended.')
             };
@@ -135,7 +138,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             };
             this.recorder.start();
             this.logger.debug('Recorder is started.');
-            this.disableButtonSubject.next(true);
+            this.videoSourceService.source.next(video);
+            // this.disableButtonSubject.next(true);
         };
 
         if (this.includeSysAudio) {
@@ -187,9 +191,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
             this.ngZone.run(()=> {
                 this.logger.debug(filename);
-                let video = this.utilityService.document.querySelector('video');
-                video.muted = false;
-                video.src = filename;
+                const video = {};
+                // let video = this.utilityService.document.querySelector('video');
+                // video.muted = false;
+                video['src'] = filename;
+                video['type'] = 'video/webm';
+                this.videoSourceService.source.next(video);
             });
         });
     };
@@ -225,8 +232,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     cleanRecord() {
-        let video = this.utilityService.document.querySelector('video');
-        video.controls = false;
+        // let video = this.utilityService.document.querySelector('video');
+        // video.controls = false;
+        this.videoSourceService.source.next(null);
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
     };
@@ -244,12 +252,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     recordCamera() {
         this.cleanRecord();
         const callbackFunc = (stream) => {
-            let video = this.utilityService.document.querySelector('video');
-            video.src = URL.createObjectURL(stream);
+            // let video = this.utilityService.document.querySelector('video');
+            const video = {};
+            video['src'] = URL.createObjectURL(stream);
+            video['type'] = 'video/webm';
+
             stream.onended = () => {
                 this.logger.debug('Media stream ended.')
             };
+
             this.localStream = stream;
+
             let videoTracks = this.localStream.getVideoTracks();
             if (this.includeMic) {
                 this.logger.debug('Adding audio track.');
@@ -283,7 +296,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             };
             this.recorder.start();
             this.logger.debug('Recorder is started.');
-            this.disableButtonSubject.next(true);
+            this.videoSourceService.source.next(video);
+            // this.disableButtonSubject.next(true);
         };
         navigator.webkitGetUserMedia({
             audio: false,
@@ -304,11 +318,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     play() {
         // Unmute video.
-        let video = this.utilityService.document.querySelector('video');
-        video.controls = true;
-        video.muted = false;
+        // let video = this.utilityService.document.querySelector('video');
+        // video.controls = true;
+        // video.muted = false;
         let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-        video.src = window.URL.createObjectURL(blob);
+        const video = {};
+        video['src'] = window.URL.createObjectURL(blob);
+        video['type'] = 'video/webm';
+        this.videoSourceService.source.next(video);
     };
 
     download() {
