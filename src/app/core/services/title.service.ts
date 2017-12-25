@@ -4,12 +4,14 @@ import {metadescription, title} from "../../../properties/title";
 import {Logger} from "../logger/logger";
 import {UtilityService} from "./utility.service";
 import {BrowserSupportService} from "./browser-support.service";
+import {ElectronService} from "ngx-electron";
 
 @Injectable()
 export class TitleService {
 
 
-    constructor(private title: Title, private metaService: Meta, private logger: Logger, private utilityService: UtilityService, private browserSupport: BrowserSupportService) {
+    constructor(private title: Title, private metaService: Meta, private logger: Logger, private utilityService: UtilityService,
+                private browserSupport: BrowserSupportService, private _electronService: ElectronService) {
     }
 
     /**
@@ -42,15 +44,19 @@ export class TitleService {
      * @param data
      */
     public setMetaTags(key: string, data?: any) {
-
+        let metaURL = "";
         let url;
         if (this.browserSupport.isPlatformBrowser) {
-            url = window.location;
+            if (this._electronService.isElectronApp) {
+                metaURL = '';
+            }else {
+                url = window.location;
+                if (url) {
+                    metaURL = url.href;
+                }
+            }
         }
-        let metaURL = "";
-        if (url) {
-            metaURL = url.href;
-        }
+
         let metaTitle = `${title[key]}`;
         if (!metaTitle || metaTitle.length == 0) {
             metaTitle = `${title["home"]}`;
