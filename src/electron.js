@@ -73,17 +73,17 @@ const initializePickerDialog = () => {
     }));
 
     pickerDialog.on('closed', (event) => {
-        this.logger.log(this.className, 'picker window close');
+        console.log('electron', 'picker window close');
         pickerStatus = false;
         initializePickerDialog();
     });
 
     pickerDialog.on('show', (event) => {
-        this.logger.log(this.className, 'picker window show ');
+        console.log('electron', 'picker window show ');
 
     });
 
-    this.pickerDialog.on('hide', (event) => {
-        this.logger.log(this.className, 'picker window hide ');
+    pickerDialog.on('hide', (event) => {
+        console.log('electron', 'picker window hide ');
     });
 };

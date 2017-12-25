@@ -4,6 +4,8 @@ import {Logger} from "../../core/logger/logger";
 import {UtilityService} from "../../core/services/utility.service";
 import {BrowserSupportService} from "../../core/services/browser-support.service";
 import {TitleService} from "../../core/services/title.service";
+import {RecorderService} from "../services/recorder.service";
+import {PickerService} from "../services/picker.service";
 
 @Component({
     selector: 'ws-picker',
@@ -17,7 +19,8 @@ export class PickerComponent implements OnInit, OnDestroy {
     private isPlatformBrowser: boolean;
 
     public constructor(public logger: Logger, private router: Router, private utilityService: UtilityService,
-                       private browserSupport: BrowserSupportService, private titleService: TitleService) {
+                       private browserSupport: BrowserSupportService, private titleService: TitleService,
+                       public recorderService : RecorderService, public pickerService : PickerService) {
         // initialize userObject from token;
         this.className = 'PickerComponent';
         this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;

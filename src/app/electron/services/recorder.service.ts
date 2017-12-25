@@ -1,11 +1,10 @@
 import {Injectable} from "@angular/core";
 import {Logger} from "../../core/logger/logger";
-import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
-import {take} from "rxjs/operators";
 import {ElectronService} from 'ngx-electron';
 import {BrowserSupportService} from "../../core/services/browser-support.service";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -19,13 +18,14 @@ export class RecorderService {
     public recorder: any;
     public includeMic: boolean;
     public includeSysAudio: boolean;
+    public disableButtonSubject: BehaviorSubject<boolean>;
 
     constructor(private logger: Logger, private _electronService: ElectronService, private bss: BrowserSupportService) {
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
         this.includeMic = false;
         this.includeSysAudio = false;
-
+        this.disableButtonSubject = new BehaviorSubject<boolean>(false);
     }
 
     init() {
@@ -39,90 +39,6 @@ export class RecorderService {
         }
     }
 
-    getFileName() {
-        const defaultOutputFileName = "Write-Stone-Stream-" + Date.now() + '.webm';
-        return defaultOutputFileName;
-    };
-
-    playVideo() {
-        this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
-            this.logger.log(filename);
-            /*let video = document.querySelector('video');
-            video.muted = false;
-            video.src = filename;*/
-        });
-    };
-
-    disableButtons() {
-        /*document.querySelector('#record-desktop').disabled = true;
-        document.querySelector('#record-camera').disabled = true;
-        document.querySelector('#record-window').disabled = true;
-        document.querySelector('#record-stop').hidden = false;
-        document.querySelector('#play-button').hidden = true;
-        document.querySelector('#download-button').hidden = true;*/
-    };
-
-    enableButtons() {
-        /*document.querySelector('#record-desktop').disabled = false;
-        document.querySelector('#record-camera').disabled = false;
-        document.querySelector('#record-window').disabled = false;
-        document.querySelector('#record-stop').hidden = true;
-        document.querySelector('#play-button').hidden = true;
-        document.querySelector('#download-button').hidden = true;*/
-    };
-
-    microAudioCheck() {
-        this.includeSysAudio = false;
-        // document.querySelector('#system-audio').checked = false;
-        // Mute video so we don't play loopback audio.
-        /*const video = document.querySelector('video');
-        video.muted = true;*/
-        this.includeMic = !this.includeMic;
-        if (this.includeMic)
-            document.querySelector('#micro-audio-btn').classList.add('active');
-        else
-            document.querySelector('#micro-audio-btn').classList.remove('active');
-        this.logger.log('Audio =', this.includeMic);
-        if (this.includeMic) {
-            navigator.webkitGetUserMedia({audio: true, video: false}, this.getMicroAudio, this.getUserMediaError)
-        }
-    };
-
-    sysAudioCheck() {
-        // Mute video so we don't play loopback audio
-        // const video = document.querySelector('video');
-        // video.muted = true;
-        this.includeSysAudio = !this.includeSysAudio;
-        this.includeMic = false;
-        // document.querySelector('#micro-audio').checked = false;
-        this.logger.log('System Audio =', this.includeSysAudio);
-    };
-
-    cleanRecord() {
-        let video = document.querySelector('video');
-        video.controls = false;
-        this.recordedChunks = [];
-        this.numRecordedChunks = 0;
-    };
-
-    recordDesktop() {
-        this.cleanRecord();
-        this._electronService.ipcRenderer.send('show-picker', {types: ['screen']});
-    };
-
-    recordWindow() {
-        this.cleanRecord();
-        this._electronService.ipcRenderer.send('show-picker', {types: ['window']});
-    };
-
-    recordCamera() {
-        this.cleanRecord();
-        navigator.webkitGetUserMedia({
-            audio: false,
-            video: {mandatory: {minWidth: 1280, minHeight: 720}}
-        }, this.getMediaStream, this.getUserMediaError)
-    };
-
     recorderOnDataAvailable(event) {
         if (event.data && event.data.size > 0) {
             this.recordedChunks.push(event.data);
@@ -130,38 +46,6 @@ export class RecorderService {
         }
     };
 
-    stopRecording() {
-        this.logger.log('Stopping record and starting download');
-        this.enableButtons();
-        /*document.querySelector('#play-button').hidden = false;
-        document.querySelector('#download-button').hidden = false;*/
-        this.recorder.stop();
-        this.localStream.getVideoTracks()[0].stop();
-    };
-
-    play() {
-        // Unmute video.
-        let video = document.querySelector('video');
-        video.controls = true;
-        video.muted = false;
-        let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-        video.src = window.URL.createObjectURL(blob);
-    };
-
-    download() {
-        let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        // a.style = 'display: none';
-        a.href = url;
-        a.download = this.getFileName();
-        a.click();
-        Observable.timer(100).pipe(take(1)).subscribe(()=>{
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        });
-    };
 
     getMediaStream(stream) {
         let video = document.querySelector('video');
@@ -200,7 +84,8 @@ export class RecorderService {
         };
         this.recorder.start();
         this.logger.log('Recorder is started.');
-        this.disableButtons();
+        this.disableButtonSubject.next(true);
+        // this.disableButtons();
     };
 
     getMicroAudio(stream) {
