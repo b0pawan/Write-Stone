@@ -38,6 +38,7 @@ export class PickerService {
                             this.logger.error(this.className, error);
                             throw error;
                         }
+                        this.logger.debug(this.className, ' get-sources ', sources.length);
                         this.sourcesList.next(sources);
                     });
 
@@ -51,7 +52,8 @@ export class PickerService {
                             this.logger.error(this.className, error);
                             throw error;
                         }
-                        this.screen.next(sources[0]);
+                        this.logger.debug(this.className, ' get-screen-source ', sources.length);
+                        this.screen.next(sources);
                     });
 
                 })

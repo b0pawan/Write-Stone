@@ -59,6 +59,11 @@ app.on('ready', () => {
     });
 
 
+    ipcMain.on('screen-selected', (event, sourceId) => {
+        console.log('screen-selected', sourceId);
+        mainWindow.webContents.send('screen-selected', sourceId);
+    });
+
     ipcMain.on('source-id-selected', (event, sourceId) => {
         console.log('source-id-selected', sourceId, ' picker status ', pickerStatus);
         if (pickerStatus && sourceId && sourceId != null) {

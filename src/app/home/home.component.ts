@@ -71,8 +71,19 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
         });
 
+        this._electronService.ipcRenderer.on('screen-selected', (event, sourceId) => {
+            this.ngZone.run(() => {
+                if (!sourceId) return;
+                this.logger.debug(this.className, sourceId);
+                this.onAccessApproved(sourceId);
+            });
+        });
+
         this.screenSubscription = this.screenObs.subscribe((screen) => {
-            this._electronService.ipcRenderer.send('source-id-selected', screen.id);
+            this.logger.debug(this.className, screen);
+            if (screen.length > 0) {
+                this._electronService.ipcRenderer.send('screen-selected', screen[0].id);
+            }
         });
 
         this._electronService.ipcRenderer.on('picker-closed-status', (event, state) => {
