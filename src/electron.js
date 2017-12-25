@@ -38,6 +38,11 @@ app.on('ready', () => {
         mainWindow.webContents.openDevTools();
     }
 
+
+    mainWindow.on('closed', (event) => {
+        console.log('electron', 'main window closed');
+    });
+
     ipcMain.on('show-picker', (event, options) => {
         if (pickerDialog && pickerStatus) {
             pickerDialog.show();
@@ -59,6 +64,11 @@ app.on('ready', () => {
 });
 
 
+app.on('window-all-closed', () => {
+    console.log('electron ', 'window-all-closed ', 'app.quit()');
+    app.quit();
+});
+
 const initializePickerDialog = () => {
     pickerDialog = new BrowserWindow({
         parent: mainWindow,
@@ -66,6 +76,8 @@ const initializePickerDialog = () => {
         modal: true,
         show: false,
         resizable: false,
+        maximizable: false,
+        minimizable: false,
         height: 600,
         width: 800,
         maxHeight: 600,
@@ -87,7 +99,6 @@ const initializePickerDialog = () => {
     pickerDialog.on('closed', (event) => {
         console.log('electron', 'picker window close');
         pickerStatus = false;
-        initializePickerDialog();
     });
 
     pickerDialog.on('show', (event) => {
