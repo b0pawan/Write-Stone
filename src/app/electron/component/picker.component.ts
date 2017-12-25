@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
-import {Logger} from "../core/logger/logger";
-import {UtilityService} from "../core/services/utility.service";
-import {BrowserSupportService} from "../core/services/browser-support.service";
+import {Logger} from "../../core/logger/logger";
+import {UtilityService} from "../../core/services/utility.service";
+import {BrowserSupportService} from "../../core/services/browser-support.service";
 
 @Component({
     selector: 'ws-picker',

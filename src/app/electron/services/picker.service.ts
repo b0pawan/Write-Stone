@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
-import {Logger} from "../../core/logger/logger";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/interval";
 import * as domifyImport from "domify";
-import {UtilityService} from "../../core/services/utility.service";
 import {ElectronService} from 'ngx-electron';
+import {Logger} from "../../core/logger/logger";
+import {UtilityService} from "../../core/services/utility.service";
 import {BrowserSupportService} from "../../core/services/browser-support.service";
 
 @Injectable()
