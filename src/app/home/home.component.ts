@@ -106,39 +106,29 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     }
 
-
     onAccessApproved(id, screen) {
-        if (!id) {
-            this.logger.debug('Access rejected.');
-            return
-        }
-        this.logger.debug(this.className, 'Window ID: ', id);
-        this.logger.debug(this.className, 'Audio: ', this.includeMic);
-        this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
-
-        const callbackFunc = (stream) => {
-            this.ngZone.run(() => {
+        this.ngZone.run(() => {
+            if (!id) {
+                this.logger.debug('Access rejected.');
+                return
+            }
+            const screenRecorder = (stream) => {
                 this.localStream = stream;
                 this.localStream.onended = () => {
                     this.logger.debug(this.className, 'screen capture ', 'Media stream ended.')
                 };
                 let videoTracks = this.localStream.getVideoTracks();
-                /*if (this.includeMic) {
-                    this.logger.debug(this.className, 'screen capture ','Adding audio track.');
-                    let audioTracks = this.microAudioStream.getAudioTracks();
-                    this.localStream.addTrack(audioTracks[0]);
-                }*/
                 if (this.includeSysAudio) {
                     this.logger.debug(this.className, 'screen capture ', 'Adding system audio track.');
-                    /*let audioTracks = this.localStream.getAudioTracks();
+                    let audioTracks = this.localStream.getAudioTracks();
                     if (audioTracks.length === 0) {
                         this.logger.debug('screen capture ', 'No audio track in screen stream.');
                     } else {
                         this.localStream.addTrack(audioTracks[0]);
-                    }*/
-                    this.logger.debug(this.className, 'screen capture ','Adding audio track.');
+                    }
+                    /*this.logger.debug(this.className, 'screen capture ', 'Adding audio track.');
                     let audioTracks = this.sysAudioStream.getAudioTracks();
-                    this.localStream.addTrack(audioTracks[0]);
+                    this.localStream.addTrack(audioTracks[0]);*/
                 } else {
                     this.logger.debug(this.className, 'screen capture ', 'Not adding audio track.')
                 }
@@ -156,53 +146,51 @@ export class HomeComponent implements OnInit, OnDestroy {
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
-                    this.handleStream(this.localStream);
-                    // video['type'] = 'video/webm';
-                    /*let video = this.utilityService.document.querySelector('video');
-                    video.src = URL.createObjectURL(this.localStream);
-                    video.controls = true;*/
+                    this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
                     // this.disableButtonSubject.next(true);;
                 } catch (e) {
                     this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
-            });
-        };
+            };
 
-        this.logger.debug(this.className, ' system mic = ', this.includeSysAudio);
-        if (this.includeSysAudio) {
-            navigator.webkitGetUserMedia({
-                audio: true,
-                video: {
-                    mandatory: {
-                        chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: id,
-                        maxWidth: window.screen.width,
-                        maxHeight: window.screen.height
+            this.logger.debug(this.className, 'Window ID: ', id);
+            this.logger.debug(this.className, 'Audio: ', this.includeMic);
+            this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
+            if (this.includeSysAudio && screen) {
+                navigator.webkitGetUserMedia({
+                    audio: {
+                        mandatory: {
+                            chromeMediaSource: 'desktop'
+                        }
+                    },
+                    video: {
+                        mandatory: {
+                            chromeMediaSource: 'desktop'
+                        }
                     }
-                }
-            }, callbackFunc, (err) => {
-                this.logger.debug(this.className, 'screen capture ', ' getUserMedia() with audio failed.');
-                this.logger.error(this.className, err);
-            })
-        } else {
-            navigator.webkitGetUserMedia({
-                audio: false,
-                video: {
-                    mandatory: {
-                        chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: id,
-                        maxWidth: window.screen.width,
-                        maxHeight: window.screen.height
+                }, screenRecorder, (err) => {
+                    this.logger.debug(this.className, 'screen capture ', ' getUserMedia() with audio failed.');
+                    this.logger.error(this.className, err);
+                })
+            } else {
+                navigator.webkitGetUserMedia({
+                    audio: false,
+                    video: {
+                        mandatory: {
+                            chromeMediaSource: 'desktop',
+                            chromeMediaSourceId: id,
+                            maxWidth: window.screen.width,
+                            maxHeight: window.screen.height
+                        }
                     }
-                }
-            }, callbackFunc, (err) => {
-                this.logger.debug(this.className, 'screen capture ', ' getUserMedia() without audio failed.');
-                this.logger.error(this.className, err);
-                ;
-            })
-        }
+                }, screenRecorder, (err) => {
+                    this.logger.debug(this.className, 'screen capture ', ' getUserMedia() without audio failed.');
+                    this.logger.error(this.className, err);
+                })
+            }
+        });
     };
 
     getFileName() {
@@ -273,13 +261,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     reset() {
-        this.ngZone.run(() => {
-            let video = this.utilityService.document.querySelector('video');
-            video.controls = false;
-            // this.videoSourceService.source.next(null);
-            this.recordedChunks = [];
-            this.numRecordedChunks = 0;
-        });
+        let video = this.utilityService.document.querySelector('video');
+        video.controls = false;
+        // this.videoSourceService.source.next(null);
+        this.recordedChunks = [];
+        this.numRecordedChunks = 0;
     };
 
     recordDesktop() {
@@ -294,29 +280,22 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     recordCamera() {
         this.reset();
-        const callbackFunc = (stream) => {
-            this.ngZone.run(() => {
+        this.ngZone.run(() => {
+            navigator.webkitGetUserMedia({
+                audio: false,
+                video: {mandatory: {minWidth: 800, minHeight: 600}}
+            }, (stream) => {
                 this.localStream = stream;
                 this.localStream.onended = () => {
                     this.logger.debug(this.className, 'camera ', 'Media stream ended.')
                 };
 
-                let videoTracks = this.localStream.getVideoTracks();
+                // let videoTracks = this.localStream.getVideoTracks();
                 if (this.includeMic) {
                     this.logger.debug(this.className, 'camera ', 'Adding audio track.');
                     let audioTracks = this.microAudioStream.getAudioTracks();
                     this.localStream.addTrack(audioTracks[0]);
                 }
-
-                /*if (this.includeSysAudio) {
-                    this.logger.debug('Adding system audio track.');
-                    let audioTracks = this.localStream.getAudioTracks();
-                    if (audioTracks.length < 1) {
-                        this.logger.debug('No audio track in screen stream.')
-                    }
-                } else {
-                    this.logger.debug('Not adding audio track.')
-                }*/
 
                 try {
                     this.logger.debug(this.className, 'camera ', 'Start recording the stream.');
@@ -332,28 +311,18 @@ export class HomeComponent implements OnInit, OnDestroy {
                     };
                     this.recorder.start();
                     this.logger.debug(this.className, 'camera ', 'Recorder is started.');
-                    this.handleStream(this.localStream);
-                    // const video = {};
-                    /*let video = this.utilityService.document.querySelector('video');
-                    video.src = URL.createObjectURL(this.localStream);
-                    // video['type'] = 'video/webm';
-                    video.controls = true;*/
+                    this.handleStream(this.localStream, true);
                     // this.videoSourceService.source.next(video);
                     // this.disableButtonSubject.next(true);
                 } catch (e) {
                     this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
-            });
-        };
-
-        navigator.webkitGetUserMedia({
-            audio: false,
-            video: {mandatory: {minWidth: 800, minHeight: 600}}
-        }, callbackFunc, (err) => {
-            this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
-            this.logger.error(this.className, err);
-        })
+            }, (err) => {
+                this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
+                this.logger.error(this.className, err);
+            })
+        });
     };
 
 
@@ -405,10 +374,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
     };
 
-    handleStream (stream) {
+    handleStream(stream, mute) {
+        this.logger.debug(this.className, ' handleStream ');
         const video = this.utilityService.document.querySelector('video');
         video.srcObject = stream;
         video.controls = true;
+        video.muted = mute;
         video.onloadedmetadata = (e) => {
             video.play();
         }
