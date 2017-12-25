@@ -61,13 +61,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
             this.ngZone.run(() => {
                 if (!sourceId) return;
-                this.logger.debug(sourceId);
+                this.logger.debug(this.className, sourceId);
                 this.onAccessApproved(sourceId);
             });
         });
 
         this._electronService.ipcRenderer.on('picker-closed-status', (event, state) => {
-            console.log(' picker-closed-status ', state);
+            // console.log(' picker-closed-status ', state);
             this.ngZone.run(() => {
                 this.logger.debug(this.className, ' picker status ', state);
                 this.disableButtonSubject.next(state);
@@ -92,58 +92,60 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.logger.debug('Access rejected.');
             return
         }
-        this.logger.debug('Window ID: ', id);
-        this.logger.debug('Audio: ', this.includeMic);
-        this.logger.debug('System Audio: ', this.includeSysAudio);
+        this.logger.debug(this.className,'Window ID: ', id);
+        this.logger.debug(this.className,'Audio: ', this.includeMic);
+        this.logger.debug(this.className,'System Audio: ', this.includeSysAudio);
 
         const callbackFunc = (stream) => {
             this.ngZone.run(() => {
-                stream.onended = () => {
-                    this.logger.debug('Media stream ended.')
-                };
                 this.localStream = stream;
+                this.localStream.onended = () => {
+                    this.logger.debug(this.className, 'screen capture ', 'Media stream ended.')
+                };
                 let videoTracks = this.localStream.getVideoTracks();
-                if (this.includeMic) {
+                /*if (this.includeMic) {
                     this.logger.debug('Adding audio track.');
                     let audioTracks = this.microAudioStream.getAudioTracks();
                     this.localStream.addTrack(audioTracks[0]);
-                }
+                }*/
                 if (this.includeSysAudio) {
-                    this.logger.debug('Adding system audio track.');
-                    let audioTracks = stream.getAudioTracks();
-                    if (audioTracks.length < 1) {
-                        this.logger.debug('No audio track in screen stream.')
-                    }
+                    this.logger.debug(this.className, 'screen capture ','Adding system audio track.');
+                    let audioTracks = this.localStream.getAudioTracks();
+                    /*if (audioTracks.length < 1) {
+                        this.logger.debug('screen capture ', 'No audio track in screen stream.');
+                    }*/
+                    this.localStream.addTrack(audioTracks[0]);
                 } else {
-                    this.logger.debug('Not adding audio track.')
+                    this.logger.debug(this.className, 'screen capture ', 'Not adding audio track.')
                 }
                 try {
-                    this.logger.debug('Start recording the stream.');
-                    this.recorder = new MediaRecorder(stream);
+                    this.logger.debug(this.className, 'screen capture ', 'Start recording the stream.');
+                    this.recorder = new MediaRecorder(this.localStream);
+                    this.recorder.ondataavailable = (event) => {
+                        if (event.data && event.data.size > 0) {
+                            this.recordedChunks.push(event.data);
+                            this.numRecordedChunks += event.data.byteLength;
+                        }
+                    };
+                    this.recorder.onstop = () => {
+                        this.logger.debug(this.className,'screen capture ', 'recorderOnStop fired')
+                    };
+                    this.recorder.start();
+                    this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
+                    // video['type'] = 'video/webm';
+                    let video = this.utilityService.document.querySelector('video');
+                    video.src = URL.createObjectURL(this.localStream);
+                    video.controls = true;
+                    // this.videoSourceService.source.next(video);
+                    // this.disableButtonSubject.next(true);;
                 } catch (e) {
-                    this.logger.error('Exception while creating MediaRecorder: ', e);
+                    this.logger.error(this.className,'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
                 }
-                this.recorder.ondataavailable = (event) => {
-                    if (event.data && event.data.size > 0) {
-                        this.recordedChunks.push(event.data);
-                        this.numRecordedChunks += event.data.byteLength;
-                    }
-                };
-                this.recorder.onstop = () => {
-                    this.logger.debug('recorderOnStop fired')
-                };
-                this.recorder.start();
-                let video = this.utilityService.document.querySelector('video');
-                video.src = URL.createObjectURL(stream);
-                video.controls = true;
-                // video['type'] = 'video/webm';
-                this.logger.debug('Recorder is started.');
-                // this.videoSourceService.source.next(video);
-                this.disableButtonSubject.next(true);
             });
         };
 
+        this.logger.debug(this.className, ' system mic = ', this.includeSysAudio);
         if (this.includeSysAudio) {
             navigator.webkitGetUserMedia({
                 audio: true,
@@ -155,8 +157,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                         maxHeight: window.screen.height
                     }
                 }
-            }, callbackFunc, () => {
-                this.logger.debug('getUserMedia() with audio failed.');
+            }, callbackFunc, (err) => {
+                this.logger.debug(this.className,'screen capture ', ' getUserMedia() with audio failed.');
+                this.logger.error(this.className, err);
             })
         } else {
             navigator.webkitGetUserMedia({
@@ -169,21 +172,12 @@ export class HomeComponent implements OnInit, OnDestroy {
                         maxHeight: window.screen.height
                     }
                 }
-            }, callbackFunc, () => {
-                this.logger.debug('getUserMedia() without audio failed.');
+            }, callbackFunc, (err) => {
+                this.logger.debug(this.className,'screen capture ', ' getUserMedia() without audio failed.');
+                this.logger.error(this.className, err);;
             })
         }
     };
-
-    ngOnDestroy() {
-
-        if (this.disabledSubscription) {
-            this.disabledSubscription.unsubscribe();
-        }
-        if (this.stoppedSubscription) {
-            this.stoppedSubscription.unsubscribe();
-        }
-    }
 
     getFileName() {
         return "Write-Stone-Stream-" + Date.now() + '.webm';
@@ -205,159 +199,180 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     microAudioCheck() {
-        // this.includeSysAudio = false;
-        // this.utilityService.document.querySelector('#system-audio').checked = false;
-        // Mute video so we don't play loopback audio.
-        /*const video = this.utilityService.document.querySelector('video');
-        video.muted = true;*/
         this.ngZone.run(() => {
+            // this.includeSysAudio = false;
+            // Mute video so we don't play loopback audio.
+            /*const video = this.utilityService.document.querySelector('video');
+            video.muted = true;*/
             this.includeMic = !this.includeMic;
-            this.logger.debug('Audio =', this.includeMic);
+            this.logger.debug(this.className, 'Audio =', this.includeMic);
             if (this.includeMic) {
                 navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
                     this.ngZone.run(() => {
-                        this.logger.debug('Received audio stream.');
+                        this.logger.debug(this.className, 'Received audio stream.');
                         stream.onended = () => {
-                            this.logger.debug('Micro audio ended.')
+                            this.logger.debug(this.className, 'Micro audio ended.')
                         };
                         this.microAudioStream = stream;
                     });
-                }, () => {
-                    this.logger.debug('getUserMedia() with audio failed.');
+                }, (err) => {
+                    this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
+                    this.logger.error(this.className, err);
                 });
             }
         });
-
     };
 
     sysAudioCheck() {
         this.ngZone.run(() => {
             // Mute video so we don't play loopback audio
-            let video = this.utilityService.document.querySelector('video');
+            // let video = this.utilityService.document.querySelector('video');
             // video.muted = true;
             this.includeSysAudio = !this.includeSysAudio;
             // this.includeMic = false;
-            this.logger.debug('System Audio =', this.includeSysAudio);
+            this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
         });
-
     };
 
-    cleanRecord() {
-        let video = this.utilityService.document.querySelector('video');
-        video.controls = false;
-        // this.videoSourceService.source.next(null);
-        this.recordedChunks = [];
-        this.numRecordedChunks = 0;
+    reset() {
+        this.ngZone.run(() => {
+            let video = this.utilityService.document.querySelector('video');
+            video.controls = false;
+            // this.videoSourceService.source.next(null);
+            this.recordedChunks = [];
+            this.numRecordedChunks = 0;
+        });
     };
 
     recordDesktop() {
-        this.cleanRecord();
+        this.reset();
         this._electronService.ipcRenderer.send('show-picker', {types: ['screen']});
     };
 
     recordWindow() {
-        this.cleanRecord();
+        this.reset();
         this._electronService.ipcRenderer.send('show-picker', {types: ['window']});
     };
 
     recordCamera() {
-        this.cleanRecord();
+        this.reset();
         const callbackFunc = (stream) => {
             this.ngZone.run(() => {
-                stream.onended = () => {
-                    this.logger.debug('Media stream ended.')
+                this.localStream = stream;
+                this.localStream.onended = () => {
+                    this.logger.debug(this.className, 'camera ','Media stream ended.')
                 };
 
-                this.localStream = stream;
                 let videoTracks = this.localStream.getVideoTracks();
-
                 if (this.includeMic) {
-                    this.logger.debug('Adding audio track.');
+                    this.logger.debug(this.className, 'camera ','Adding audio track.');
                     let audioTracks = this.microAudioStream.getAudioTracks();
                     this.localStream.addTrack(audioTracks[0]);
                 }
-                if (this.includeSysAudio) {
+
+                /*if (this.includeSysAudio) {
                     this.logger.debug('Adding system audio track.');
-                    let audioTracks = stream.getAudioTracks();
+                    let audioTracks = this.localStream.getAudioTracks();
                     if (audioTracks.length < 1) {
                         this.logger.debug('No audio track in screen stream.')
                     }
                 } else {
                     this.logger.debug('Not adding audio track.')
-                }
+                }*/
+
                 try {
-                    this.logger.debug('Start recording the stream.');
-                    this.recorder = new MediaRecorder(stream);
+                    this.logger.debug(this.className, 'camera ','Start recording the stream.');
+                    this.recorder = new MediaRecorder(this.localStream);
+                    this.recorder.ondataavailable = (event) => {
+                        if (event.data && event.data.size > 0) {
+                            this.recordedChunks.push(event.data);
+                            this.numRecordedChunks += event.data.byteLength;
+                        }
+                    };
+                    this.recorder.onstop = () => {
+                        this.logger.debug(this.className, 'camera ','recorderOnStop fired')
+                    };
+                    this.recorder.start();
+                    this.logger.debug(this.className, 'camera ','Recorder is started.');
+                    // const video = {};
+                    let video = this.utilityService.document.querySelector('video');
+                    video.src = URL.createObjectURL(this.localStream);
+                    // video['type'] = 'video/webm';
+                    video.controls = true;
+                    // this.videoSourceService.source.next(video);
+                    // this.disableButtonSubject.next(true);
                 } catch (e) {
-                    this.logger.error('Exception while creating MediaRecorder: ', e);
+                    this.logger.error(this.className, 'camera ','Exception while creating MediaRecorder: ', e);
                     return
                 }
-                this.recorder.ondataavailable = (event) => {
-                    if (event.data && event.data.size > 0) {
-                        this.recordedChunks.push(event.data);
-                        this.numRecordedChunks += event.data.byteLength;
-                    }
-                };
-                this.recorder.onstop = () => {
-                    this.logger.debug('recorderOnStop fired')
-                };
-                this.recorder.start();
-                // const video = {};
-                let video = this.utilityService.document.querySelector('video');
-                video.src = URL.createObjectURL(this.localStream);
-                // video['type'] = 'video/webm';
-                video.controls = true;
-                this.logger.debug('Recorder is started.');
-                // this.videoSourceService.source.next(video);
-                // this.disableButtonSubject.next(true);
             });
         };
+
         navigator.webkitGetUserMedia({
             audio: false,
-            video: {mandatory: {minWidth: 1024, minHeight: 768}}
-        }, callbackFunc, () => {
-            this.logger.debug('getUserMedia() without audio failed.');
+            video: {mandatory: {minWidth: 800, minHeight: 600}}
+        }, callbackFunc, (err) => {
+            this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
+            this.logger.error(this.className, err);
         })
     };
 
 
     stopRecording() {
-        this.logger.debug('Stopping record');
-        this.recorder.stop();
-        this.stopButtonSubject.next(true);
-        this.disableButtonSubject.next(false);
-        this.localStream.getVideoTracks()[0].stop();
+        if (this.recorder && this.recorder.state === 'recording') {
+            this.logger.debug(this.className, 'Stopping record');
+            this.recorder.stop();
+            if (this.localStream && this.localStream.getVideoTracks().length > 0) {
+                this.localStream.getVideoTracks()[0].stop();
+                // this.stopButtonSubject.next(true);
+                // this.disableButtonSubject.next(false);
+            }
+        }
     };
 
     play() {
-        // Unmute video.
-        let video = this.utilityService.document.querySelector('video');
-        video.controls = true;
-        video.muted = false;
-        let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-        // const video = {};
-        video.src = window.URL.createObjectURL(blob);
-        // video['type'] = 'video/webm';
-        // this.videoSourceService.source.next(video);
+        if (this.recordedChunks && this.recordedChunks.length > 0) {
+            // Unmute video.
+            let video = this.utilityService.document.querySelector('video');
+            video.controls = true;
+            video.muted = false;
+            let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
+            // const video = {};
+            video.src = window.URL.createObjectURL(blob);
+            // video['type'] = 'video/webm';
+            // this.videoSourceService.source.next(video);
+        }
     };
 
     download() {
-        let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-        let url = URL.createObjectURL(blob);
-        let a = this.utilityService.document.createElement('a');
-        this.utilityService.document.body.appendChild(a);
-        a.style = 'display: none';
-        a.href = url;
-        a.download = this.getFileName();
-        a.click(() => {
-            this.logger.debug(this.className, ' clicked on download ');
-        });
-        const subs = Observable.interval(1000).pipe(take(1)).subscribe(() => {
-            if (subs) {
-                subs.unsubscribe();
-            }
-            this.utilityService.document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        });
+        if (this.recordedChunks && this.recordedChunks.length > 0) {
+            let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
+            let url = URL.createObjectURL(blob);
+            let a = this.utilityService.document.createElement('a');
+            this.utilityService.document.body.appendChild(a);
+            a.style = 'display: none';
+            a.href = url;
+            a.download = this.getFileName();
+            a.click(() => {
+                this.logger.debug(this.className, ' clicked on download ');
+            });
+            const subs = Observable.interval(1000).pipe(take(1)).subscribe(() => {
+                if (subs) {
+                    subs.unsubscribe();
+                }
+                this.utilityService.document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+        }
     };
+
+    ngOnDestroy() {
+
+        if (this.disabledSubscription) {
+            this.disabledSubscription.unsubscribe();
+        }
+        if (this.stoppedSubscription) {
+            this.stoppedSubscription.unsubscribe();
+        }
+    }
 }
