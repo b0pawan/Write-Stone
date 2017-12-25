@@ -24,9 +24,7 @@ export class WSErrorHandler implements ErrorHandler {
             const stackString = stackframes.splice(0, 5).map(function (sf) {
                 return sf.toString();
             }).join('\n');
-            if(this.logger.isErrorEnabled()){
-                this.logger.error(this.className, "url >>> [", url, "] browser >>> [", browser, "] message [",message,"] stack  >>>" , stackString);
-            }
+            this.logger.error(this.className, "url >>> [", url, "] browser >>> [", browser, "] message [",message,"] stack  >>>" , stackString);
         });
     }
 }

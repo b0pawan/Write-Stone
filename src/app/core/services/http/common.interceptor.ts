@@ -19,10 +19,8 @@ export class CommonInterceptor implements HttpInterceptor {
         const started = Date.now();
         return next.handle(req).pipe(tap(event => {
             if (event.type === HttpEventType.Response) {
-                if (this.logger.isDebugEnabled()) {
-                    const elapsed = Date.now() - started;
-                    this.logger.debug(`${this.className}: Request for ${req.urlWithParams} took ${elapsed} ms.`);
-                }
+                const elapsed = Date.now() - started;
+                this.logger.debug(`${this.className}: Request for ${req.urlWithParams} took ${elapsed} ms.`);
             }
         }));
 
