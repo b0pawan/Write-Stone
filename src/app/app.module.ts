@@ -10,9 +10,9 @@ import {ServiceWorkerModule} from "@angular/service-worker";
 import {environment} from "../environments/environment";
 import {BrowserSupportService} from "./core/services/browser-support.service";
 import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-connectivity-display.module";
-import {RecorderService} from "./electron/services/recorder.service";
 import {PickerService} from "./electron/services/picker.service";
 import {Logger} from "./core/logger/logger";
+import {ElectronService} from "ngx-electron";
 
 @NgModule({
     imports: [
@@ -39,9 +39,9 @@ import {Logger} from "./core/logger/logger";
 })
 
 export class AppModule {
-    constructor(private bss : BrowserSupportService, private pickerService: PickerService, private logger: Logger) {
-        this.logger.log("AppModule browser >>> ", this.bss.isPlatformBrowser);
-        if (this.bss.isPlatformBrowser) {
+    constructor(private bss : BrowserSupportService, private pickerService: PickerService, private logger: Logger, private _electronService: ElectronService) {
+        this.logger.log("AppModule browser >>> ", this.bss.isPlatformBrowser, ' electron app ' , this._electronService.isElectronApp);
+        if (this.bss.isPlatformBrowser && this._electronService.isElectronApp) {
             this.pickerService.init();
         }
     }
