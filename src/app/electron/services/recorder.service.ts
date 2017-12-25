@@ -29,7 +29,7 @@ export class RecorderService {
     }
 
     init() {
-        if (this.bss.isPlatformBrowser) {
+        if (this.bss.isPlatformBrowser && this._electronService.isElectronApp) {
             this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
                 // Users have cancel the picker dialog.
                 if (!sourceId) return;

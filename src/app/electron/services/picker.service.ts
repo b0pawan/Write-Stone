@@ -17,7 +17,7 @@ export class PickerService {
     }
 
     init() {
-        if (this.bss.isPlatformBrowser) {
+        if (this.bss.isPlatformBrowser && this._electronService.isElectronApp) {
             this.utility.document.onkeydown = function (evt) {
                 evt = evt || window.event;
                 // Press esc key.

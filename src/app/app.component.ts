@@ -1,11 +1,10 @@
-import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {Logger} from "./core/logger/logger";
 import {Subscription} from "rxjs/Subscription";
-import {isPlatformBrowser, isPlatformWorkerApp, isPlatformWorkerUi} from "@angular/common";
 import {UtilityService} from "./core/services/utility.service";
 import {BrowserSupportService} from "./core/services/browser-support.service";
-import {PickerService} from "./electron/services/picker.service";
+import {MediaChange, ObservableMedia} from "@angular/flex-layout";
 
 @Component({
     selector: 'ws-app',
@@ -14,16 +13,16 @@ import {PickerService} from "./electron/services/picker.service";
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-    // logInDialogRef: MatDialogRef<LoginComponent>;
     routerChangeSubscription: Subscription;
     private className: string;
     private isPlatformBrowser: boolean;
+    public observableMediaSubscription : Subscription;
 
-    public constructor(public logger: Logger, private router: Router, @Inject(PLATFORM_ID) private platformId: any, private utilityService: UtilityService,
-                       private browserSupport: BrowserSupportService, public pickerService: PickerService) {
-        // initialize userObject from token;
+
+    public constructor(public logger: Logger, private router: Router, private utilityService: UtilityService,
+                       private browserSupport: BrowserSupportService, private  media: ObservableMedia) {
         this.className = 'AppComponent';
-        this.isPlatformBrowser = isPlatformBrowser(this.platformId) || isPlatformWorkerApp(this.platformId) || isPlatformWorkerUi(this.platformId);
+        this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;
     }
 
     /**
@@ -31,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
      */
     ngOnInit() {
         // this.browserSupport.checkBasicBrowserSupport();
+        this.deviceType();
         this.routerChangeSubscription = this.router.events.subscribe((evt) => {
             this.logger.debug(this.className, "event", evt);
             if (!(evt instanceof NavigationEnd)) {
@@ -43,12 +43,27 @@ export class AppComponent implements OnInit, OnDestroy {
         });
     }
 
+    public deviceType() : void {
+        this.logger.log(this.className, " (max-height: 400px) and (max-width: 690px) " ,  this.media.isActive("(max-height: 400px) and (max-width: 690px)"));
+        if (this.media.isActive("(max-height: 400px) and (max-width: 690px)")){
+            this.router.navigateByUrl('/picker').then(()=>{
+                this.logger.log(this.className, " navigated to picker route");
+            }).catch((err) => {
+                this.logger.error(err);
+            })
+        }
+    }
+
     /**
      *
      */
     ngOnDestroy() {
         if( this.routerChangeSubscription ) {
             this.routerChangeSubscription.unsubscribe();
+        }
+
+        if(this.observableMediaSubscription){
+            this.observableMediaSubscription.unsubscribe();
         }
     }
 }
