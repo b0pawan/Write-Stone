@@ -24,8 +24,6 @@ declare var navigator: any;
     encapsulation: ViewEncapsulation.None
 })
 export class HomeComponent implements OnInit, OnDestroy {
-    recorderButtons: boolean;
-    recorderStopped: boolean;
     recordingButtonsObs: Observable<boolean>;
     recorderStatusObs: Observable<boolean>;
     recordingButtonSubject: BehaviorSubject<boolean>;
