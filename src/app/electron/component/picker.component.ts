@@ -8,8 +8,8 @@ import {RecorderService} from "../services/recorder.service";
 import {PickerService} from "../services/picker.service";
 import {Subscription} from "rxjs/Subscription";
 import {ElectronService} from "ngx-electron";
-import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 @Component({
     selector: 'ws-picker',
@@ -21,7 +21,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     // logInDialogRef: MatDialogRef<LoginComponent>;
     private className: string;
     private isPlatformBrowser: boolean;
-    sourcesList: Subject<any[]>;
+    sourcesList: BehaviorSubject<any[]>;
     sourcesSubs: Subscription;
     sourcesObs: Observable<any[]>;
 
@@ -31,7 +31,7 @@ export class PickerComponent implements OnInit, OnDestroy {
         // initialize userObject from token;
         this.className = 'PickerComponent';
         this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;
-        this.sourcesList = new Subject<any[]>();
+        this.sourcesList = new BehaviorSubject<any[]>([]);
         this.sourcesObs = this.sourcesList.asObservable();
     }
 
@@ -39,7 +39,7 @@ export class PickerComponent implements OnInit, OnDestroy {
         this.titleService.setTitle("picker");
         this.titleService.setMetaTags("picker");
         this.sourcesSubs = this.pickerService.sourcesList.subscribe((sources) => {
-            this.logger.log(this.className, 'sources count ', sources.length);
+            this.logger.debug(this.className, 'sources count ', sources.length);
             const sourcesItems = [];
             for (let source of sources) {
                 let thumb = source.thumbnail.toDataURL();
@@ -50,7 +50,7 @@ export class PickerComponent implements OnInit, OnDestroy {
                 sourcesItems.push(item);
             }
             this.sourcesList.next(sourcesItems);
-            this.logger.debug(this.className, sourcesItems);
+            this.logger.debug(this.className, ' sources ' , sourcesItems);
             /*let links = sourcesList.querySelectorAll('a');
             for (let i = 0; i < links.length; ++i) {
                 let closure = (i) => {
@@ -66,7 +66,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     }
 
     sourceOnClick(source_id) {
-        this.logger.log(this.className, " source id " , source_id);
+        this.logger.debug(this.className, " source id " , source_id);
         this._electronService.ipcRenderer.send('source-id-selected', source_id);
     }
 

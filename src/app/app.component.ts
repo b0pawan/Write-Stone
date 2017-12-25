@@ -46,7 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public deviceType() : void {
 
         this.observableMediaSubscription = this.media.subscribe((change) => {
-            this.logger.log(this.className, change.mqAlias);
+            this.logger.debug(this.className, change.mqAlias);
             if (change.mqAlias === 'sm') {
                 this.navigateToPicker();
             }
@@ -56,7 +56,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     navigateToPicker() {
         this.router.navigateByUrl('/picker').then(()=>{
-            this.logger.log(this.className, " navigated to picker route");
+            this.logger.debug(this.className, " navigated to picker route");
         }).catch((err) => {
             this.logger.error(err);
         })

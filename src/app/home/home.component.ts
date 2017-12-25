@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     playVideo() {
         this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
-            this.logger.log(filename);
+            this.logger.debug(filename);
             /*let video = document.querySelector('video');
             video.muted = false;
             video.src = filename;*/
@@ -92,7 +92,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             document.querySelector('#micro-audio-btn').classList.add('active');
         else
             document.querySelector('#micro-audio-btn').classList.remove('active');
-        this.logger.log('Audio =', this.recorderService.includeMic);
+        this.logger.debug('Audio =', this.recorderService.includeMic);
         if (this.recorderService.includeMic) {
             navigator.webkitGetUserMedia({audio: true, video: false}, this.recorderService.getMicroAudio, this.recorderService.getUserMediaError)
         }
@@ -105,7 +105,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.recorderService.includeSysAudio = !this.recorderService.includeSysAudio;
         this.recorderService.includeMic = false;
         // document.querySelector('#micro-audio').checked = false;
-        this.logger.log('System Audio =', this.recorderService.includeSysAudio);
+        this.logger.debug('System Audio =', this.recorderService.includeSysAudio);
     };
 
     cleanRecord() {
@@ -135,7 +135,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
     stopRecording() {
-        this.logger.log('Stopping record and starting download');
+        this.logger.debug('Stopping record and starting download');
         this.enableButtons();
         /*document.querySelector('#play-button').hidden = false;
         document.querySelector('#download-button').hidden = false;*/

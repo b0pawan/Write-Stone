@@ -33,7 +33,7 @@ export class RecorderService {
             this._electronService.ipcRenderer.on('source-id-selected', (event, sourceId) => {
                 // Users have cancel the picker dialog.
                 if (!sourceId) return;
-                this.logger.log(sourceId);
+                this.logger.debug(sourceId);
                 this.onAccessApproved(sourceId);
             });
         }
@@ -52,27 +52,27 @@ export class RecorderService {
         video.src = URL.createObjectURL(stream);
         this.localStream = stream;
         stream.onended = () => {
-            this.logger.log('Media stream ended.')
+            this.logger.debug('Media stream ended.')
         };
 
         let videoTracks = this.localStream.getVideoTracks();
 
         if (this.includeMic) {
-            this.logger.log('Adding audio track.');
+            this.logger.debug('Adding audio track.');
             let audioTracks = this.microAudioStream.getAudioTracks();
             this.localStream.addTrack(audioTracks[0]);
         }
         if (this.includeSysAudio) {
-            this.logger.log('Adding system audio track.');
+            this.logger.debug('Adding system audio track.');
             let audioTracks = stream.getAudioTracks();
             if (audioTracks.length < 1) {
-                this.logger.log('No audio track in screen stream.')
+                this.logger.debug('No audio track in screen stream.')
             }
         } else {
-            this.logger.log('Not adding audio track.')
+            this.logger.debug('Not adding audio track.')
         }
         try {
-            this.logger.log('Start recording the stream.');
+            this.logger.debug('Start recording the stream.');
             this.recorder = new MediaRecorder(stream);
         } catch (e) {
             console.assert(false, 'Exception while creating MediaRecorder: ' + e);
@@ -80,34 +80,34 @@ export class RecorderService {
         }
         this.recorder.ondataavailable = this.recorderOnDataAvailable;
         this.recorder.onstop = () => {
-            this.logger.log('recorderOnStop fired')
+            this.logger.debug('recorderOnStop fired')
         };
         this.recorder.start();
-        this.logger.log('Recorder is started.');
+        this.logger.debug('Recorder is started.');
         this.disableButtonSubject.next(true);
         // this.disableButtons();
     };
 
     getMicroAudio(stream) {
-        this.logger.log('Received audio stream.');
+        this.logger.debug('Received audio stream.');
         this.microAudioStream = stream;
         stream.onended = () => {
-            this.logger.log('Micro audio ended.')
+            this.logger.debug('Micro audio ended.')
         }
     };
 
     getUserMediaError() {
-        this.logger.log('getUserMedia() failed.');
+        this.logger.debug('getUserMedia() failed.');
     };
 
     onAccessApproved(id) {
         if (!id) {
-            this.logger.log('Access rejected.');
+            this.logger.debug('Access rejected.');
             return
         }
-        this.logger.log('Window ID: ', id);
-        this.logger.log('Audio: ', this.includeMic);
-        this.logger.log('System Audio: ', this.includeSysAudio);
+        this.logger.debug('Window ID: ', id);
+        this.logger.debug('Audio: ', this.includeMic);
+        this.logger.debug('System Audio: ', this.includeSysAudio);
         if (this.includeSysAudio) {
             navigator.webkitGetUserMedia({
                 audio: true,
