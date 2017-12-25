@@ -1,7 +1,10 @@
 const {app, BrowserWindow, protocol} = require('electron');
+require('dotenv').config();
 const path = require('path');
+const url = require('url');
 // const rootPath = path.normalize(__dirname + '/..');
 const rootPath = path.normalize(__dirname);
+require('electron-reload')(__dirname);
 const protocolServe = require('electron-protocol-serve');
 // Create the protocol
 console.log('Root path ', rootPath);
@@ -16,8 +19,20 @@ app.on('ready', () => {
         height: 600,
         width: 800
     });
-    mainWindow.loadURL('serve://dist');
+    if (process.env.PACKAGE === 'true'){
+        mainWindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'index.html'),
+            protocol: 'file:',
+            slashes: true
+        }));
+    } else {
+        mainWindow.loadURL(process.env.HOST);
+        mainWindow.webContents.openDevTools();
+    }
+
+    // mainWindow.loadURL(url.format());
+
     // initializePickerDialog();
     // open dev tools to check console.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 });
