@@ -9,6 +9,8 @@ import {Subscription} from "rxjs/Subscription";
 import {ElectronService} from "ngx-electron";
 import {Observable} from "rxjs/Observable";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import "rxjs/add/observable/interval";
+import "rxjs/add/observable/timer";
 
 @Component({
     selector: 'ws-picker',
@@ -23,6 +25,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     sourcesList: BehaviorSubject<any[]>;
     sourcesSubs: Subscription;
     sourcesObs: Observable<any[]>;
+    pickerObs: Observable<boolean>;
 
     public constructor(public logger: Logger, private router: Router, private utilityService: UtilityService,
                        private browserSupport: BrowserSupportService, private titleService: TitleService,
@@ -32,13 +35,14 @@ export class PickerComponent implements OnInit, OnDestroy {
         this.isPlatformBrowser = this.browserSupport.isPlatformBrowser;
         this.sourcesList = new BehaviorSubject<any[]>([]);
         this.sourcesObs = this.sourcesList.asObservable();
+        this.pickerObs = this.pickerService.pickerSubject.asObservable();
     }
 
     ngOnInit() {
         this.titleService.setTitle("picker");
         this.titleService.setMetaTags("picker");
         this.sourcesSubs = this.pickerService.sourcesList.subscribe((sources) => {
-            // this.recorderService.disableButtonSubject.next(false);
+            this.pickerService.pickerSubject.next(true);
             this.logger.debug(this.className, 'sources count ', sources.length);
             const sourcesItems = [];
             for (let source of sources) {
@@ -57,7 +61,7 @@ export class PickerComponent implements OnInit, OnDestroy {
     sourceOnClick(source_id) {
         this.logger.debug(this.className, " source id " , source_id);
         this._electronService.ipcRenderer.send('source-id-selected', source_id);
-        // this.recorderService.disableButtonSubject.next(true);
+        this.pickerService.pickerSubject.next(false);
     }
 
 

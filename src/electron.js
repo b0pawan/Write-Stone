@@ -18,6 +18,8 @@ let mainWindow;
 let pickerDialog;
 let pickerStatus;
 
+app.commandLine.appendSwitch('incognito');
+
 app.on('ready', () => {
     global.ffmpegpath = require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked');
     mainWindow = new BrowserWindow({
@@ -51,7 +53,7 @@ app.on('ready', () => {
         setTimeout(()=> {
             pickerDialog.show();
             pickerDialog.webContents.send('get-sources', options);
-        }, 2000);
+        }, 1000);
     });
 
 

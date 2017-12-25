@@ -23,7 +23,8 @@
     "build:prod": "node --max-old-space-size=4096 node_modules/@angular/cli/bin/ng build --app 0 --output-path=dist --prod --aot --build-optimizer --vendor-chunk --named-chunks --base-href ./ && npm run prepare:body dist production && npm run prepare:electron",
     "start": "electron .",
     "all": "npm run build:prod && npm run build-win32 && npm run start",
-    "all:dev": "npm run build:dev && npm run build-win32 && npm run start"
+    "all:uat": "npm run build:uat && npm run start",
+    "all:dev": "npm run build:dev && npm run start"
   },
   "main": "dist/electron.js",
   "bin": {

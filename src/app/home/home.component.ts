@@ -3,12 +3,15 @@ import {Logger} from "../core/logger/logger";
 import {Router} from "@angular/router";
 import {TitleService} from "../core/services/title.service";
 import {ObservableMedia} from "@angular/flex-layout";
-import {PickerService} from "../electron/services/picker.service";
 import {Observable} from "rxjs/Observable";
 import {take} from "rxjs/operators";
 import {ElectronService} from "ngx-electron";
 import {UtilityService} from "../core/services/utility.service";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import "rxjs/add/observable/interval";
+import "rxjs/add/observable/timer";
+import {PickerService} from "../electron/services/picker.service";
+import {Subscription} from "rxjs/Subscription";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -21,6 +24,8 @@ declare var navigator: any;
 })
 export class HomeComponent implements OnInit, OnDestroy {
     public disabled: Observable<boolean>;
+    public stopped: Observable<boolean>;
+    public pickerObs: Observable<boolean>;
     className: string;
     localStream: any;
     microAudioStream: any;
@@ -30,17 +35,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     includeMic: boolean;
     includeSysAudio: boolean;
     public disableButtonSubject: BehaviorSubject<boolean>;
-
-    constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService,
-                public pickerService: PickerService, private _electronService: ElectronService,
-                private utilityService: UtilityService) {
+    public stopButtonSubject: BehaviorSubject<boolean>;
+    pickerSubscription: Subscription;
+    constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
+                private utilityService: UtilityService, private pickerService: PickerService) {
         this.className = 'HomeComponent';
         this.recordedChunks = [];
         this.numRecordedChunks = 0;
         this.includeMic = false;
         this.includeSysAudio = false;
         this.disableButtonSubject = new BehaviorSubject<boolean>(false);
+        this.stopButtonSubject = new BehaviorSubject<boolean>(false);
         this.disabled = this.disableButtonSubject.asObservable();
+        this.stopped = this.stopButtonSubject.asObservable();
+        this.pickerObs = this.pickerService.pickerSubject.asObservable();
     }
 
 
@@ -53,50 +61,11 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.logger.debug(sourceId);
             this.onAccessApproved(sourceId);
         });
+        this.pickerSubscription = this.pickerObs.subscribe((state) => {
+            this.logger.debug(this.className,' picker status ' , state);
+            this.disableButtonSubject.next(state);
+        });
     }
-
-    callbackFunc(stream) {
-        let video = this.utilityService.document.querySelector('video');
-        video.src = URL.createObjectURL(stream);
-        stream.onended = () => {
-            this.logger.debug('Media stream ended.')
-        };
-        this.localStream = stream;
-        let videoTracks = this.localStream.getVideoTracks();
-        if (this.includeMic) {
-            this.logger.debug('Adding audio track.');
-            let audioTracks = this.microAudioStream.getAudioTracks();
-            this.localStream.addTrack(audioTracks[0]);
-        }
-        if (this.includeSysAudio) {
-            this.logger.debug('Adding system audio track.');
-            let audioTracks = stream.getAudioTracks();
-            if (audioTracks.length < 1) {
-                this.logger.debug('No audio track in screen stream.')
-            }
-        } else {
-            this.logger.debug('Not adding audio track.')
-        }
-        try {
-            this.logger.debug('Start recording the stream.');
-            this.recorder = new MediaRecorder(stream);
-        } catch (e) {
-            this.logger.error('Exception while creating MediaRecorder: ', e);
-            return
-        }
-        this.recorder.ondataavailable = (event) => {
-            if (event.data && event.data.size > 0) {
-                this.recordedChunks.push(event.data);
-                this.numRecordedChunks += event.data.byteLength;
-            }
-        };
-        this.recorder.onstop = () => {
-            this.logger.debug('recorderOnStop fired')
-        };
-        this.recorder.start();
-        this.logger.debug('Recorder is started.');
-        this.disableButtonSubject.next(true);
-    };
 
 
     onAccessApproved(id) {
@@ -107,6 +76,49 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.logger.debug('Window ID: ', id);
         this.logger.debug('Audio: ', this.includeMic);
         this.logger.debug('System Audio: ', this.includeSysAudio);
+
+        const callbackFunc = (stream) => {
+            let video = this.utilityService.document.querySelector('video');
+            video.src = URL.createObjectURL(stream);
+            stream.onended = () => {
+                this.logger.debug('Media stream ended.')
+            };
+            this.localStream = stream;
+            let videoTracks = this.localStream.getVideoTracks();
+            if (this.includeMic) {
+                this.logger.debug('Adding audio track.');
+                let audioTracks = this.microAudioStream.getAudioTracks();
+                this.localStream.addTrack(audioTracks[0]);
+            }
+            if (this.includeSysAudio) {
+                this.logger.debug('Adding system audio track.');
+                let audioTracks = stream.getAudioTracks();
+                if (audioTracks.length < 1) {
+                    this.logger.debug('No audio track in screen stream.')
+                }
+            } else {
+                this.logger.debug('Not adding audio track.')
+            }
+            try {
+                this.logger.debug('Start recording the stream.');
+                this.recorder = new MediaRecorder(stream);
+            } catch (e) {
+                this.logger.error('Exception while creating MediaRecorder: ', e);
+                return
+            }
+            this.recorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                    this.numRecordedChunks += event.data.byteLength;
+                }
+            };
+            this.recorder.onstop = () => {
+                this.logger.debug('recorderOnStop fired')
+            };
+            this.recorder.start();
+            this.logger.debug('Recorder is started.');
+            this.disableButtonSubject.next(true);
+        };
 
         if (this.includeSysAudio) {
             navigator.webkitGetUserMedia({
@@ -119,7 +131,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                         maxHeight: window.screen.height
                     }
                 }
-            }, this.callbackFunc, () => {
+            }, callbackFunc, () => {
                 this.logger.debug('getUserMedia() with audio failed.');
             })
         } else {
@@ -133,14 +145,16 @@ export class HomeComponent implements OnInit, OnDestroy {
                         maxHeight: window.screen.height
                     }
                 }
-            }, this.callbackFunc, () => {
+            }, callbackFunc, () => {
                 this.logger.debug('getUserMedia() without audio failed.');
             })
         }
     };
 
     ngOnDestroy() {
-
+        if (this.pickerSubscription) {
+            this.pickerSubscription.unsubscribe();
+        }
     }
 
     getFileName() {
@@ -166,7 +180,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     getMicroAudio(stream) {
         this.logger.debug('Received audio stream.');
-        stream.onended = () => { this.logger.debug('Micro audio ended.') };
+        stream.onended = () => {
+            this.logger.debug('Micro audio ended.')
+        };
         this.microAudioStream = stream;
     }
 
@@ -213,10 +229,52 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     recordCamera() {
         this.cleanRecord();
+        const callbackFunc = (stream) => {
+            let video = this.utilityService.document.querySelector('video');
+            video.src = URL.createObjectURL(stream);
+            stream.onended = () => {
+                this.logger.debug('Media stream ended.')
+            };
+            this.localStream = stream;
+            let videoTracks = this.localStream.getVideoTracks();
+            if (this.includeMic) {
+                this.logger.debug('Adding audio track.');
+                let audioTracks = this.microAudioStream.getAudioTracks();
+                this.localStream.addTrack(audioTracks[0]);
+            }
+            if (this.includeSysAudio) {
+                this.logger.debug('Adding system audio track.');
+                let audioTracks = stream.getAudioTracks();
+                if (audioTracks.length < 1) {
+                    this.logger.debug('No audio track in screen stream.')
+                }
+            } else {
+                this.logger.debug('Not adding audio track.')
+            }
+            try {
+                this.logger.debug('Start recording the stream.');
+                this.recorder = new MediaRecorder(stream);
+            } catch (e) {
+                this.logger.error('Exception while creating MediaRecorder: ', e);
+                return
+            }
+            this.recorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                    this.numRecordedChunks += event.data.byteLength;
+                }
+            };
+            this.recorder.onstop = () => {
+                this.logger.debug('recorderOnStop fired')
+            };
+            this.recorder.start();
+            this.logger.debug('Recorder is started.');
+            this.disableButtonSubject.next(true);
+        };
         navigator.webkitGetUserMedia({
             audio: false,
-            video: {mandatory: {minWidth: 1280, minHeight: 720}}
-        }, this.callbackFunc, () => {
+            video: {mandatory: {minWidth: 1024, minHeight: 768}}
+        }, callbackFunc, () => {
             this.logger.debug('getUserMedia() without audio failed.');
         })
     };
@@ -224,6 +282,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     stopRecording() {
         this.logger.debug('Stopping record and starting download');
+        this.stopButtonSubject.next(true);
         this.enableButtons();
         this.recorder.stop();
         this.localStream.getVideoTracks()[0].stop();
@@ -243,11 +302,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         let url = URL.createObjectURL(blob);
         let a = this.utilityService.document.createElement('a');
         this.utilityService.document.body.appendChild(a);
-        // a.style = 'display: none';
+        a.style = 'display: none';
         a.href = url;
         a.download = this.getFileName();
-        a.click();
-        Observable.timer(100).pipe(take(1)).subscribe(() => {
+        a.click(()=> {
+            this.logger.debug(this.className,' clicked on download ');
+        });
+        const subs = Observable.interval(1000).pipe(take(1)).subscribe(() => {
+            if (subs){
+                subs.unsubscribe();
+            }
             this.utilityService.document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         });
