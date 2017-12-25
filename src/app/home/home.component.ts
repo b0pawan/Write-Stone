@@ -30,8 +30,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     recorderStatusObs: Observable<boolean>;
     recordingButtonSubject: BehaviorSubject<boolean>;
     recorderStatusSubject: BehaviorSubject<boolean>;
-    recordingButtonSubscription: Subscription;
-    recorderStatusSubscription: Subscription;
     screenObs: Observable<any>;
     screenSubscription: Subscription;
     className: string;
@@ -94,15 +92,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
         });
 
-        this.recordingButtonSubscription = this.recordingButtonsObs.subscribe((state) => {
-            this.logger.debug(this.className, '  Recording Buttons ', state);
-            this.recorderButtons = state;
-        });
-
-        this.recorderStatusSubscription = this.recorderStatusObs.subscribe((state) => {
-            this.logger.debug(this.className, ' Recording Stopped ', state);
-            this.recorderStopped = state;
-        });
 
     }
 
@@ -357,13 +346,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         if (this.screenSubscription) {
             this.screenSubscription.unsubscribe();
-        }
-
-        if (this.recordingButtonSubscription) {
-            this.recordingButtonSubscription.unsubscribe();
-        }
-        if (this.recorderStatusSubscription) {
-            this.recorderStatusSubscription.unsubscribe();
         }
     }
 }
