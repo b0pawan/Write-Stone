@@ -8,7 +8,7 @@ if (process.env.PACKAGE !== 'true'){
     require('electron-reload')(__dirname);
 }
 // Create the protocol
-console.log('Root path ', rootPath);
+// console.log('Root path ', rootPath);
 
 let mainWindow;
 let pickerDialog;
@@ -36,6 +36,15 @@ app.on('ready', () => {
         mainWindow.loadURL(process.env.HOST);
         mainWindow.webContents.openDevTools();
     }
+
+    mainWindow.webContents.on('devtools-reload-page', () => {
+        console.log('devtools-reload-page');
+        mainWindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'index.html'),
+            protocol: 'file:',
+            slashes: true
+        }))
+    });
 
 
     mainWindow.on('closed', (event) => {

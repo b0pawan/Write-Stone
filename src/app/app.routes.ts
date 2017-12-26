@@ -8,7 +8,9 @@ const appRoutes: Routes = [
     {path: 'picker', component: PickerComponent}
 ];
 
-export const routes: ModuleWithProviders = RouterModule.forRoot(appRoutes);
+export const routes: ModuleWithProviders = RouterModule.forRoot(appRoutes, {
+    initialNavigation : 'enabled'
+});
 
 export const appRoutingProviders: any[] = [];
 
