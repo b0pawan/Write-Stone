@@ -34,7 +34,7 @@
         </button>
     </div>
     <div *ngIf="(recorderStatusObs | async) === true" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="download(true)">
+        <button mat-icon-button="" color="primary" (click)="download()">
             <mat-icon><i class="material-icons">save</i></mat-icon>
         </button>
     </div>
@@ -42,7 +42,7 @@
         <button mat-icon-button="" color="primary" (click)="stopRecording()">
             <mat-icon><i class="material-icons">stop</i></mat-icon>
         </button>
-        <button mat-icon-button="" color="primary" (click)="download(true)">
+        <button mat-icon-button="" color="primary" (click)="download()">
             <mat-icon><i class="material-icons">save</i></mat-icon>
         </button>
     </div>

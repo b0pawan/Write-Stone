@@ -13,6 +13,7 @@ import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-co
 import {PickerService} from "./electron/services/picker.service";
 import {Logger} from "./core/logger/logger";
 import {ElectronService} from "ngx-electron";
+import {VideoSourceService} from "./electron/services/video.sources.";
 
 @NgModule({
     imports: [
@@ -39,10 +40,11 @@ import {ElectronService} from "ngx-electron";
 })
 
 export class AppModule {
-    constructor(private bss : BrowserSupportService, private pickerService: PickerService, private logger: Logger, private _electronService: ElectronService) {
+    constructor(private bss : BrowserSupportService, private pickerService: PickerService, private logger: Logger, private _electronService: ElectronService, private videoSourceService: VideoSourceService) {
         this.logger.log("AppModule browser >>> ", this.bss.isPlatformBrowser, ' electron app ' , this._electronService.isElectronApp);
         if (this.bss.isPlatformBrowser && this._electronService.isElectronApp) {
             this.pickerService.init();
+            this.videoSourceService.init();
         }
     }
 }

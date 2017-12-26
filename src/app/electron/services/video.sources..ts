@@ -20,10 +20,10 @@ export class VideoSourceService {
     }
 
     init(){
-        this._electronService.ipcRenderer.on('save-chunk-to-disk', (event, file) => {
+        this._electronService.ipcRenderer.on('get-saved-video-file', (event, file) => {
             this.ngZone.run(()=> {
                 if (file != null) {
-                    this.logger.debug(this.className, ' save-chunk-to-disk ', file);
+                    this.logger.debug(this.className, ' get-saved-video-file ', file);
                     this.source.next(file);
                 }
             });
@@ -31,6 +31,6 @@ export class VideoSourceService {
     }
 
     saveToDisk(blob) {
-        this._electronService.ipcRenderer.send('save-chunk-to-disk', blob);
+        this._electronService.ipcRenderer.send('send-blob-to-electron', blob);
     }
 }

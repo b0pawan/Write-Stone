@@ -69,14 +69,15 @@ app.on('ready', () => {
     });
 
 
-    ipcMain.on('save-chunk-to-disk', (event, blob) => {
-        saveToDisk(blob, (err, file)=> {
+    ipcMain.on('send-blob-to-electron', (event, url) => {
+        console.log('send-blob-to-electron', url);
+        /*saveToDisk(blob, (err, file)=> {
             if (err) {
-                mainWindow.webContents.send('save-chunk-to-disk', null);
+                mainWindow.webContents.send('get-saved-video-file', null);
             }else {
-                mainWindow.webContents.send('save-chunk-to-disk', file);
+                mainWindow.webContents.send('get-saved-video-file', file);
             }
-        });
+        });*/
     });
 
     ipcMain.on('screen-selected', (event, sourceId) => {
