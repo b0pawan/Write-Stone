@@ -13,6 +13,7 @@ import "rxjs/add/observable/timer";
 import {PickerService} from "../electron/services/picker.service";
 import {Subscription} from "rxjs/Subscription";
 import {VideoSourceService} from "../electron/services/video.sources.";
+import {isNullOrUndefined} from "util";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -39,7 +40,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     recorder: any;
     includeMic: boolean;
     includeSysAudio: boolean;
-
+    saveFileObs: Observable<any>;
+    fileSubscription: Subscription;
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
         this.className = 'HomeComponent';
@@ -52,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.recordingButtonsObs = this.recordingButtonSubject.asObservable();
         this.recorderStatusObs = this.recorderStatusSubject.asObservable();
         this.screenObs = this.pickerService.screen.asObservable();
-
+        this.saveFileObs = this.videoSourceService.source.asObservable();
     }
 
 
@@ -82,6 +84,10 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
         });
 
+        this.fileSubscription = this.saveFileObs.subscribe((file) => {
+            this.logger.debug(this.className, file);
+        });
+
         this._electronService.ipcRenderer.on('picker-closed-status', (event, state) => {
             // console.log(' picker-closed-status ', state);
             this.ngZone.run(() => {
@@ -89,6 +95,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.recordingButtonSubject.next(!state);
             });
         });
+
 
 
     }
@@ -134,7 +141,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                 }
                 try {
                     this.logger.debug(this.className, 'screen capture ', 'Start recording the stream.');
-                    this.recorder = new MediaRecorder(this.localStream);
+                    this.recorder = new MediaRecorder(this.localStream, {
+                        mimeType: 'video/webm'
+                    });
                     this.recorder.ondataavailable = (event) => {
                         this.ngZone.run(() => {
                             if (event.data && event.data.size > 0) {
@@ -153,7 +162,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.recorder.start();
                     this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
-                    // this.videoSourceService.source.next(video);
                 } catch (e) {
                     this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
                     return
@@ -271,7 +279,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
                 try {
                     this.logger.debug(this.className, 'camera ', 'Start recording the stream.');
-                    this.recorder = new MediaRecorder(this.localStream);
+                    this.recorder = new MediaRecorder(this.localStream, {
+                        mimeType: 'video/webm'
+                    });
                     this.recorder.ondataavailable = (event) => {
                         this.ngZone.run(() => {
                             if (event.data && event.data.size > 0) {
@@ -290,7 +300,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.recorder.start();
                     this.logger.debug(this.className, 'camera ', 'Recorder is started.');
                     this.handleStream(this.localStream, true);
-                    // this.videoSourceService.source.next(video);
                 } catch (e) {
                     this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
                     return
@@ -323,29 +332,32 @@ export class HomeComponent implements OnInit, OnDestroy {
             // const video = {};
             video.src = window.URL.createObjectURL(blob);
             // video['type'] = 'video/webm';
-            // this.videoSourceService.source.next(video);
         }
     };*/
 
-    download() {
+    download(disk?: boolean) {
         if (this.recordedChunks && this.recordedChunks.length > 0) {
             let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-            let url = URL.createObjectURL(blob);
-            let a = this.utilityService.document.createElement('a');
-            this.utilityService.document.body.appendChild(a);
-            a.style = 'display: none';
-            a.href = url;
-            a.download = this.getFileName();
-            a.click(() => {
-                this.logger.debug(this.className, ' clicked on download ');
-            });
-            const subs = Observable.interval(1000).pipe(take(1)).subscribe(() => {
-                if (subs) {
-                    subs.unsubscribe();
-                }
-                this.utilityService.document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            });
+            if (!isNullOrUndefined(disk) && disk) {
+                this.videoSourceService.saveToDisk(blob);
+            }else {
+                let url = URL.createObjectURL(blob);
+                let a = this.utilityService.document.createElement('a');
+                this.utilityService.document.body.appendChild(a);
+                a.style = 'display: none';
+                a.href = url;
+                a.download = this.getFileName();
+                a.click(() => {
+                    this.logger.debug(this.className, ' clicked on download ');
+                });
+                const subs = Observable.interval(1000).pipe(take(1)).subscribe(() => {
+                    if (subs) {
+                        subs.unsubscribe();
+                    }
+                    this.utilityService.document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                });
+            }
         }
     };
 

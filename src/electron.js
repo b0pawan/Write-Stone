@@ -1,4 +1,6 @@
 const {app, BrowserWindow, protocol, ipcMain} = require('electron');
+const fs = require("fs");
+const blob2Buffer = require("blob-to-buffer");
 require('dotenv').config();
 const path = require('path');
 const url = require('url');
@@ -51,8 +53,6 @@ app.on('ready', () => {
         console.log('electron', 'main window closed');
     });
 
-
-
     ipcMain.on('screen-capture', (event, options) => {
         mainWindow.webContents.send('get-screen-source', options);
     });
@@ -68,6 +68,16 @@ app.on('ready', () => {
         }, 1000);
     });
 
+
+    ipcMain.on('save-chunk-to-disk', (event, blob) => {
+        saveToDisk(blob, (err, file)=> {
+            if (err) {
+                mainWindow.webContents.send('save-chunk-to-disk', null);
+            }else {
+                mainWindow.webContents.send('save-chunk-to-disk', file);
+            }
+        });
+    });
 
     ipcMain.on('screen-selected', (event, sourceId) => {
         console.log('screen-selected', sourceId);
@@ -134,4 +144,29 @@ const initializePickerDialog = () => {
     pickerDialog.on('hide', (event) => {
         console.log('electron', 'picker window hide ');
     });
+};
+
+const saveToDisk = (blob, callBk) => {
+    blob2Buffer(blob, function (err, buffer) {
+        if (err) throw err;
+        const fileName = getFileName(randomIntFromInterval(10000,100000));
+        const file = "./"+ fileName;
+        fs.writeFile(file, buffer, (err) => {
+            if (err) {
+                console.error("Electron ",'Failed to save video ', err);
+                callBk(err, null);
+            } else {
+                console.log("Electron ", 'Saved video: ', file);
+                callBk(null, file);
+            }
+        });
+    });
+};
+
+const getFileName = (random) => {
+    return "Write-Stone-" + random + "-" + Date.now() + '.webm';
+};
+
+const randomIntFromInterval = (min,max) => {
+    return Math.floor(Math.random()*(max-min+1)+min);
 };
