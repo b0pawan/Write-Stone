@@ -10,10 +10,12 @@ if (environment.production) {
 platformBrowserDynamic().bootstrapModule(AppModule).then(()=>{
     console.log('Application bootstrapped');
     if ('getUserMedia' in navigator){
-
+        console.log('navigator ', 'getUserMedia');
     }else if ('webkitGetUserMedia' in navigator){
+        console.log('navigator ', 'webkitGetUserMedia');
         navigator.getUserMedia = navigator['webkitGetUserMedia'];
     }else if ('mozGetUserMedia' in navigator){
+        console.log('navigator ', 'mozGetUserMedia');
         navigator.getUserMedia = navigator['mozGetUserMedia'];
     }
 }).catch((err) => {
