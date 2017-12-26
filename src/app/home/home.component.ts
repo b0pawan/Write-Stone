@@ -101,7 +101,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.logger.debug(this.className, 'Window ID: ', id);
         this.logger.debug(this.className, 'Audio: ', this.includeMic);
         this.logger.debug(this.className, 'System Audio: ', this.includeSysAudio);
-        navigator.webkitGetUserMedia({
+        navigator.getUserMedia({
             audio: false,
             video: {
                 mandatory: {
@@ -194,7 +194,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.includeMic = !this.includeMic;
         this.logger.debug(this.className, 'Audio =', this.includeMic);
         if (this.includeMic) {
-            navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+            navigator.getUserMedia({audio: true, video: false}, (stream) => {
                 this.ngZone.run(() => {
                     this.logger.debug(this.className, 'Received audio stream.');
                     stream.onended = () => {
@@ -215,7 +215,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.recorderStatusSubject.next(false);
         this.includeSysAudio = !this.includeSysAudio;
         this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
-        navigator.webkitGetUserMedia({audio: true, video: false}, (stream) => {
+        navigator.getUserMedia({audio: true, video: false}, (stream) => {
             this.ngZone.run(() => {
                 this.logger.debug(this.className, 'Received audio stream.');
                 stream.onended = () => {
@@ -252,7 +252,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     recordCamera() {
         this.recorderStatusSubject.next(false);
         this.reset();
-        navigator.webkitGetUserMedia({
+        navigator.getUserMedia({
             audio: false,
             video: {mandatory: {minWidth: 800, minHeight: 600}}
         }, (stream) => {

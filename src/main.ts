@@ -9,6 +9,13 @@ if (environment.production) {
 
 platformBrowserDynamic().bootstrapModule(AppModule).then(()=>{
     console.log('Application bootstrapped');
+    if ('getUserMedia' in navigator){
+
+    }else if ('webkitGetUserMedia' in navigator){
+        navigator.getUserMedia = navigator['webkitGetUserMedia'];
+    }else if ('mozGetUserMedia' in navigator){
+        navigator.getUserMedia = navigator['mozGetUserMedia'];
+    }
 }).catch((err) => {
     console.error(err);
 });
