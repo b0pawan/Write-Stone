@@ -1,6 +1,7 @@
 import {Logger} from "../core/logger/logger";
 import {Subject} from "rxjs/Subject";
 import {NgZone} from "@angular/core";
+import {Observable} from "rxjs/Observable";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -9,18 +10,31 @@ export class WSstreamRecorder {
 
     private recorder: any;
     private className: string;
-    public dataSubject: Subject<any>;
-    public stopSubject: Subject<boolean>;
-    public pauseSubject: Subject<boolean>;
-    public resumeSubject: Subject<boolean>;
+    private dataSubject: Subject<any>;
+    private startSubject: Subject<boolean>;
+    private stopSubject: Subject<boolean>;
+    private pauseSubject: Subject<boolean>;
+    private resumeSubject: Subject<boolean>;
 
-    constructor(private ngZone: NgZone, private logger: Logger, public localStream: any) {
-        this.className = 'WSstreamRecorder';
+    public data: Observable<any>;
+    public start: Observable<boolean>;
+    public stop: Observable<boolean>;
+    public pause: Observable<boolean>;
+    public resume: Observable<boolean>;
 
+
+    constructor(private ngZone: NgZone, private logger: Logger, public localStream: any, public recorderName: string) {
+        this.className = 'WSstreamRecorder' + "-" + this.recorderName;
         this.dataSubject = new Subject<any>();
+        this.startSubject = new Subject<boolean>();
         this.stopSubject = new Subject<boolean>();
         this.pauseSubject = new Subject<boolean>();
         this.resumeSubject = new Subject<boolean>();
+        this.data = this.dataSubject.asObservable();
+        this.start = this.startSubject.asObservable();
+        this.stop = this.stopSubject.asObservable();
+        this.pause = this.pauseSubject.asObservable();
+        this.resume = this.resumeSubject.asObservable();
 
         this.localStream.onended = () => {
             this.logger.debug(this.className, '  ', 'Media stream ended.')
@@ -29,11 +43,12 @@ export class WSstreamRecorder {
         try {
             this.logger.debug(this.className, ' ', 'Start recording the stream.');
             this.recorder = new MediaRecorder(this.localStream, {
-                mimeType: 'video/mp4'
+                mimeType: 'video/webm'
             });
 
             this.recorder.ondataavailable = (event) => {
                 this.ngZone.run(() => {
+                    this.logger.debug(this.className, ' data size ', event.data.size);
                     if (event.data && event.data.size > 0) {
                         /*this.recordedChunks.push(event.data);
                         this.numRecordedChunks += event.data.byteLength;*/
@@ -42,10 +57,18 @@ export class WSstreamRecorder {
                 });
             };
 
+
             this.recorder.onstop = (event) => {
                 this.ngZone.run(() => {
                     this.logger.debug(this.className, ' ', 'onstop fired');
                     this.stopSubject.next(true);
+                });
+            };
+
+            this.recorder.onstart = (event) => {
+                this.ngZone.run(() => {
+                    this.logger.debug(this.className, ' ', 'start fired');
+                    this.startSubject.next(true);
                 });
             };
 
@@ -78,31 +101,50 @@ export class WSstreamRecorder {
         }
     }
 
-    start() {
-        if (this.recorder) {
+    startRec() {
+        if (this.recorder && this.state() === 'inactive') {
             this.recorder.start();
             this.logger.debug(this.className, ' ', 'Recorder is started.');
+        } else {
+            this.logger.debug(this.className, ' recorder inactive');
         }
+        /*if (this.recorder) {
+            this.recorder.start();
+            this.logger.debug(this.className, ' ', 'Recorder is started.');
+        }*/
     }
 
-    stop() {
-        if (this.recorder) {
+    stopRec() {
+        if (this.recorder && this.state() === 'recording') {
             this.recorder.stop();
             this.logger.debug(this.className, ' ', 'Recorder is stopped.');
+        } else {
+            this.logger.debug(this.className, ' ', 'Recorder is not recording');
         }
     }
 
-    pause() {
-        if (this.recorder) {
+    pauseRec() {
+        if (this.recorder && this.state() !== 'inactive') {
             this.recorder.pause();
             this.logger.debug(this.className, ' ', 'Recorder is paused.');
+        } else {
+            this.logger.debug(this.className, ' recorder inactive');
         }
     }
 
-    resume() {
-        if (this.recorder) {
+    resumeRec() {
+        if (this.recorder && this.state() !== 'inactive') {
             this.recorder.resume();
             this.logger.debug(this.className, ' ', 'Recorder is resumed.');
+        } else {
+            this.logger.debug(this.className, ' recorder inactive');
+        }
+    }
+
+    state() {
+        if (this.recorder) {
+            this.logger.debug(this.className, ' state ', this.recorder.state);
+            return this.recorder.state;
         }
     }
 

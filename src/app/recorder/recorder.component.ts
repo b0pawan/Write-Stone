@@ -13,6 +13,7 @@ import {PickerService} from "../electron/services/picker.service";
 import {Subscription} from "rxjs/Subscription";
 import {VideoSourceService} from "../electron/services/video.sources";
 import {WSstreamRecorder} from "./recorder";
+import {isNullOrUndefined} from "util";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -46,7 +47,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
-        this.className = 'HomeComponent';
+        this.className = 'RecorderComponent';
         this.includeMic = false;
         this.includeSysAudio = false;
         this.recordingButtonSubject = new BehaviorSubject<boolean>(true);
@@ -103,7 +104,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
     onAccessApproved(id) {
         if (!id) {
             this.logger.debug('Access rejected.');
-            return
+            return;
         }
         this.logger.debug(this.className, 'Window ID: ', id);
         this.logger.debug(this.className, 'Audio: ', this.includeMic);
@@ -124,16 +125,19 @@ export class RecorderComponent implements OnInit, OnDestroy {
                 this.playerSubs = Observable.interval(1000).subscribe((_sec) => {
                     this.playTimer = this.playTimer + 1;
                 });
-                // start recording system audio
-                this.sysAudioCheck();
-                this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream);
-                if (this.includeSysAudio) {
-                    let audioTracks = this.sysAudioStream.getAudioTracks();
-                    this.screenRecorder.localStream.addTrack(audioTracks[0]);
+                this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'screen');
+                if (this.screenRecorder){
+                    this.screenRecorderSubs = this.screenRecorder.data.subscribe((eventData) => {
+                        this.download('screen', eventData, startTime, this.playTimer);
+                    });
+                    /*this.screenRecorder.startSubject.asObservable().subscribe((start) => {
+                        if (start) {
+                            // start recording system audio
+                            this.sysAudioCheck();
+                        }
+                    });*/
+                    this.screenRecorder.startRec();
                 }
-                this.screenRecorderSubs = this.screenRecorder.dataSubject.asObservable().subscribe((eventData) => {
-                    this.download('screen', eventData, startTime, this.playTimer);
-                });
             });
         }, (err) => {
             this.logger.debug(this.className, 'screen capture ', ' getUserMedia() failed.');
@@ -189,14 +193,19 @@ export class RecorderComponent implements OnInit, OnDestroy {
         this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
         navigator.getUserMedia({audio: true, video: false}, (stream) => {
             this.ngZone.run(() => {
-                this.logger.debug(this.className, 'Received audio stream.');
+                this.logger.debug(this.className, 'sysAudioCheck audio stream.');
                 stream.onended = () => {
-                    this.logger.debug(this.className, 'Micro audio ended.')
+                    this.logger.debug(this.className, 'sysAudioCheck ended.')
                 };
                 this.sysAudioStream = stream;
+                if (this.screenRecorder.localStream) {
+                    let audioTracks = this.sysAudioStream.getAudioTracks();
+                    this.screenRecorder.localStream.addTrack(audioTracks[0]);
+                }
+
             });
         }, (err) => {
-            this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
+            this.logger.debug(this.className, 'sysAudioCheck ', ' getUserMedia() with audio failed.');
             this.logger.error(this.className, err);
         });
     };
@@ -224,23 +233,26 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
     recordScreen() {
         this.recorderStatusSubject.next(false);
-        this.reset();
+        // this.reset();
         this._electronService.ipcRenderer.send('show-picker', {types: ['window', 'screen']});
     };
 
     recordCamera() {
         this.recorderStatusSubject.next(false);
-        this.reset();
+        // this.reset();
         navigator.getUserMedia({
-            audio: true,
+            audio: false,
             video: {mandatory: {minWidth: 400, minHeight: 300}}
         }, (stream) => {
             let cameraTime = this.playTimer;
             this.ngZone.run(() => {
-                this.cameraRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream);
-                this.cameraRecorderSubs = this.cameraRecorder.dataSubject.asObservable().subscribe((eventData) => {
-                    this.download('camera', eventData, cameraTime, this.playTimer);
-                });
+                this.cameraRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'camera');
+                if ( this.cameraRecorder) {
+                    this.cameraRecorderSubs = this.cameraRecorder.data.subscribe((eventData) => {
+                        this.download('camera', eventData, cameraTime, this.playTimer);
+                    });
+                    this.cameraRecorder.startRec();
+                }
             });
         }, (err) => {
             this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
@@ -251,20 +263,21 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
     stopCamera() {
         if (this.cameraRecorder) {
-            this.cameraRecorder.stop();
+            this.cameraRecorder.stopRec();
         }
     };
 
     stopScreen() {
         if (this.screenRecorder) {
-            this.screenRecorder.stop();
+            this.screenRecorder.stopRec();
+            this.reset();
         }
-        this.reset();
     };
 
     download(type: string, recordedChunks: any, startTimeSeconds: number, endTimeSeconds: number) {
-        if (recordedChunks && recordedChunks.length > 0) {
-            let blob = new Blob(recordedChunks, {type: 'video/mp4'});
+        this.logger.debug(this.className, ' download called ', type , startTimeSeconds, endTimeSeconds, ' recorded chunk size ', recordedChunks.size);
+        if (!isNullOrUndefined(recordedChunks) && recordedChunks.length > 0) {
+            let blob = new Blob(recordedChunks, {type: 'video/webm'});
             this.videoSourceService.saveToDisk(blob, type, startTimeSeconds, endTimeSeconds);
         }
     };
