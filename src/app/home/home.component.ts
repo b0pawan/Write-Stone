@@ -338,9 +338,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     download(disk?: boolean) {
         if (this.recordedChunks && this.recordedChunks.length > 0) {
             let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
+            this.videoSourceService.saveToDisk(blob);
+            /*
             let url = URL.createObjectURL(blob);
+
             if (!isNullOrUndefined(disk) && disk) {
-                this.videoSourceService.saveToDisk(blob);
             }else {
                 let a = this.utilityService.document.createElement('a');
                 this.utilityService.document.body.appendChild(a);
@@ -357,7 +359,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.utilityService.document.body.removeChild(a);
                     window.URL.revokeObjectURL(url);
                 });
-            }
+            }*/
         }
     };
 
