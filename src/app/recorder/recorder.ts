@@ -35,6 +35,10 @@ export class WSstreamRecorder {
         this.stop = this.stopSubject.asObservable();
         this.pause = this.pauseSubject.asObservable();
         this.resume = this.resumeSubject.asObservable();
+        this.init();
+    }
+
+    init() {
 
         this.localStream.onended = () => {
             this.logger.debug(this.className, '  ', 'Media stream ended.')
