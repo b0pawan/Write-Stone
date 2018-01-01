@@ -1,16 +1,16 @@
 <div fxLayout="column" fxLayoutAlign="center center">
     <div fxLayout="row" fxLayoutAlign="center center" fxFill="">
         <button mat-icon-button="" color="primary" (click)="recordScreen()">
-            <mat-icon><i class="material-icons">desktop_windows</i></mat-icon>
+            <mat-icon>desktop_windows</mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="recordCamera()">
-            <mat-icon><i class="material-icons">camera</i></mat-icon>
+            <mat-icon>camera</mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="stopCamera()">
-            <mat-icon><i class="material-icons">stop</i></mat-icon>
+            <mat-icon>stop</mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="stopScreen()">
-            <mat-icon><i class="material-icons">stop</i></mat-icon>
+            <mat-icon>stop</mat-icon>
         </button>
         <span>{{playTimeObservable | async}}</span>
     </div>
