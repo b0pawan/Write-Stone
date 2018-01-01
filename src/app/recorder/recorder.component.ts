@@ -4,7 +4,6 @@ import {Router} from "@angular/router";
 import {TitleService} from "../core/services/title.service";
 import {ObservableMedia} from "@angular/flex-layout";
 import {Observable} from "rxjs/Observable";
-import {take} from "rxjs/operators";
 import {ElectronService} from "ngx-electron";
 import {UtilityService} from "../core/services/utility.service";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
@@ -13,7 +12,7 @@ import "rxjs/add/observable/timer";
 import {PickerService} from "../electron/services/picker.service";
 import {Subscription} from "rxjs/Subscription";
 import {VideoSourceService} from "../electron/services/video.sources";
-import {isNullOrUndefined} from "util";
+import {WSstreamRecorder} from "./recorder";
 
 declare var MediaRecorder: any;
 declare var navigator: any;
@@ -32,16 +31,22 @@ export class RecorderComponent implements OnInit, OnDestroy {
     screenObs: Observable<any>;
     screenSubscription: Subscription;
     className: string;
-    localStream: any;
+    cameraStream: any;
+    screenStream: any;
+    cameraRecorder: any;
+    screenRecorder: any;
     microAudioStream: any;
     sysAudioStream: any;
-    recordedChunks: any[];
+
+    /*recordedChunks: any[];
     numRecordedChunks: number;
-    recorder: any;
+    recorder: any;*/
+
     includeMic: boolean;
     includeSysAudio: boolean;
     saveFileObs: Observable<any>;
     fileSubscription: Subscription;
+
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
         this.className = 'HomeComponent';
@@ -69,13 +74,13 @@ export class RecorderComponent implements OnInit, OnDestroy {
             });
         });
 
-        this._electronService.ipcRenderer.on('screen-selected', (event, sourceId) => {
+        /*this._electronService.ipcRenderer.on('screen-selected', (event, sourceId) => {
             this.ngZone.run(() => {
                 if (!sourceId) return;
                 this.logger.debug(this.className, sourceId);
                 this.onAccessApproved(sourceId, true);
             });
-        });
+        });*/
 
         this.screenSubscription = this.screenObs.subscribe((screen) => {
             this.logger.debug(this.className, screen);
@@ -120,61 +125,13 @@ export class RecorderComponent implements OnInit, OnDestroy {
             }
         }, (stream) => {
             this.ngZone.run(() => {
-                this.localStream = stream;
-                this.localStream.onended = () => {
-                    this.logger.debug(this.className, 'screen capture ', 'Media stream ended.')
-                };
-                let videoTracks = this.localStream.getVideoTracks();
-                if (this.includeSysAudio) {
-                    this.logger.debug(this.className, 'screen capture ', 'Adding system audio track.');
-                    /*let audioTracks = this.localStream.getAudioTracks();
-                    if (audioTracks.length === 0) {
-                        this.logger.debug('screen capture ', 'No audio track in screen stream.');
-                    } else {
-                        this.localStream.addTrack(audioTracks[0]);
-                    }*/
-                    this.logger.debug(this.className, 'screen capture ', 'Adding audio track.');
-                    let audioTracks = this.sysAudioStream.getAudioTracks();
-                    this.localStream.addTrack(audioTracks[0]);
-                } else {
-                    this.logger.debug(this.className, 'screen capture ', 'Not adding audio track.')
-                }
-                try {
-                    this.logger.debug(this.className, 'screen capture ', 'Start recording the stream.');
-                    this.recorder = new MediaRecorder(this.localStream, {
-                        mimeType: 'video/webm'
-                    });
-                    this.recorder.ondataavailable = (event) => {
-                        this.ngZone.run(() => {
-                            if (event.data && event.data.size > 0) {
-                                this.recordedChunks.push(event.data);
-                                this.numRecordedChunks += event.data.byteLength;
-                            }
-                        });
-                    };
-                    this.recorder.onstop = () => {
-                        this.ngZone.run(() => {
-                            this.logger.debug(this.className, 'screen capture ', 'recorderOnStop fired');
-                            this.recorderStatusSubject.next(true);
-                            this.recordingButtonSubject.next(true);
-                        });
-                    };
-                    this.recorder.start();
-                    this.logger.debug(this.className, 'screen capture ', 'Recorder is started.');
-                    this.handleStream(this.localStream, true);
-                } catch (e) {
-                    this.logger.error(this.className, 'screen capture ', 'Exception while creating MediaRecorder: ', e);
-                    return
-                }
+                this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream);
+                this.screenStream = this.screenRecorder.localStream;
             });
         }, (err) => {
             this.logger.debug(this.className, 'screen capture ', ' getUserMedia() failed.');
             this.logger.error(this.className, err);
         });
-    };
-
-    getFileName() {
-        return "Write-Stone-Stream-" + Date.now() + '.webm';
     };
 
     playVideo() {
@@ -245,16 +202,10 @@ export class RecorderComponent implements OnInit, OnDestroy {
         this.numRecordedChunks = 0;
     };
 
-    recordDesktop() {
+    recordScreen() {
         this.recorderStatusSubject.next(false);
         this.reset();
-        this._electronService.ipcRenderer.send('screen-capture', {types: ['screen']});
-    };
-
-    recordWindow() {
-        this.recorderStatusSubject.next(false);
-        this.reset();
-        this._electronService.ipcRenderer.send('show-picker', {types: ['window']});
+        this._electronService.ipcRenderer.send('show-picker', {types: ['window','screen']});
     };
 
     recordCamera() {
@@ -265,45 +216,8 @@ export class RecorderComponent implements OnInit, OnDestroy {
             video: {mandatory: {minWidth: 800, minHeight: 600}}
         }, (stream) => {
             this.ngZone.run(() => {
-                this.localStream = stream;
-                this.localStream.onended = () => {
-                    this.logger.debug(this.className, 'camera ', 'Media stream ended.')
-                };
-
-                // let videoTracks = this.localStream.getVideoTracks();
-                if (this.includeMic) {
-                    this.logger.debug(this.className, 'camera ', 'Adding audio track.');
-                    let audioTracks = this.microAudioStream.getAudioTracks();
-                    this.localStream.addTrack(audioTracks[0]);
-                }
-
-                try {
-                    this.logger.debug(this.className, 'camera ', 'Start recording the stream.');
-                    this.recorder = new MediaRecorder(this.localStream, {
-                        mimeType: 'video/webm'
-                    });
-                    this.recorder.ondataavailable = (event) => {
-                        this.ngZone.run(() => {
-                            if (event.data && event.data.size > 0) {
-                                this.recordedChunks.push(event.data);
-                                this.numRecordedChunks += event.data.byteLength;
-                            }
-                        });
-                    };
-                    this.recorder.onstop = () => {
-                        this.ngZone.run(() => {
-                            this.logger.debug(this.className, 'camera ', 'recorderOnStop fired');
-                            this.recorderStatusSubject.next(true);
-                            this.recordingButtonSubject.next(true);
-                        });
-                    };
-                    this.recorder.start();
-                    this.logger.debug(this.className, 'camera ', 'Recorder is started.');
-                    this.handleStream(this.localStream, true);
-                } catch (e) {
-                    this.logger.error(this.className, 'camera ', 'Exception while creating MediaRecorder: ', e);
-                    return
-                }
+                this.cameraRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream);
+                this.cameraStream = this.cameraRecorder.localStream;
             });
         }, (err) => {
             this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
@@ -312,13 +226,15 @@ export class RecorderComponent implements OnInit, OnDestroy {
     };
 
 
-    stopRecording() {
-        if (this.recorder && this.recorder.state === 'recording') {
-            this.logger.debug(this.className, 'Stopping record');
-            this.recorder.stop();
-            if (this.localStream && this.localStream.getVideoTracks().length > 0) {
-                this.localStream.getVideoTracks()[0].stop();
-            }
+    stopCamera() {
+        if (this.cameraRecorder) {
+            this.cameraRecorder.stop();
+        }
+    };
+
+    stopScreen() {
+        if (this.screenRecorder) {
+            this.screenRecorder.stop();
         }
     };
 

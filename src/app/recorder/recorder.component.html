@@ -4,11 +4,8 @@
         <video id="video" controls class="video-js" data-setup='{}'></video>
     </div>
     <div *ngIf="(recordingButtonsObs | async) === true" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="recordDesktop()">
+        <button mat-icon-button="" color="primary" (click)="recordScreen()">
             <mat-icon><i class="material-icons">desktop_windows</i></mat-icon>
-        </button>
-        <button mat-icon-button="" color="primary" (click)="recordWindow()">
-            <mat-icon><i class="material-icons">screen_share</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="recordCamera()">
             <mat-icon><i class="material-icons">camera</i></mat-icon>
