@@ -128,9 +128,12 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
                     this.startScreenSubs = this.screenRecorder.start.subscribe(() => {
                         this.playerSubs = Observable.interval(1000).subscribe((_sec) => {
-                            const timer = this.playTimeSubject.getValue() + 1;
-                            this.playTimeSubject.next(timer);
+                            this.ngZone.run(() => {
+                                const timer = this.playTimeSubject.getValue() + 1;
+                                this.playTimeSubject.next(timer);
+                            });
                         });
+
                     });
 
                     /*this.screenRecorder.startSubject.asObservable().subscribe((start) => {
