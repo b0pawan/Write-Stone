@@ -30,13 +30,13 @@ export class VideoSourceService {
         });
     }
 
-    getFileName() {
-        return "Write-Stone-Stream-" + Date.now() + '.webm';
+    getFileName(type: string) {
+        return "Write-Stone-Stream-"+type+ Date.now() + '.webm';
     };
 
-    saveToDisk(blob) {
+    saveToDisk(blob, type) {
         let reader = new FileReader();
-        const fileName = this.getFileName();
+        const fileName = this.getFileName(type);
         reader.onload = () => {
             this.ngZone.run(()=> {
                 if (reader.readyState == 2) {

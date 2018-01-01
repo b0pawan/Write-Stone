@@ -335,10 +335,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
     };*/
 
-    download(disk?: boolean) {
+    download(type: string) {
         if (this.recordedChunks && this.recordedChunks.length > 0) {
             let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-            this.videoSourceService.saveToDisk(blob);
+            this.videoSourceService.saveToDisk(blob, type);
             /*
             let url = URL.createObjectURL(blob);
 
