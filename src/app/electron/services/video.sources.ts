@@ -37,12 +37,12 @@ export class VideoSourceService {
         return "WS-"+startTimeSeconds+"-"+endTimeSeconds+"_"+type+"_"+Date.now()+'.webm';
     };
 
-    saveToDisk(blob, type, startTimeSeconds, endTimeSeconds) {
+    saveToDisk(blob: any, type: string, startTimeSeconds: number, endTimeSeconds: number) {
         let reader = new FileReader();
-        const fileName = this.getFileName(type, startTimeSeconds, endTimeSeconds);
-        this.logger.debug(this.className, ' file name ' , fileName);
         reader.onload = () => {
             this.ngZone.run(()=> {
+                const fileName = this.getFileName(type, startTimeSeconds, endTimeSeconds);
+                this.logger.debug(this.className, ' file name ' , fileName);
                 if (reader.readyState == 2) {
                     let buffer = new Buffer(reader.result);
                     this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer);

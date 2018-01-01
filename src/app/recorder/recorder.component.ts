@@ -127,7 +127,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
                 });
                 this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'screen');
                 if (this.screenRecorder){
-                    this.screenRecorderSubs = this.screenRecorder.data.subscribe((eventData) => {
+                    this.screenRecorderSubs = this.screenRecorder.chunkedData.subscribe((eventData) => {
                         this.download('screen', eventData, startTime, this.playTimer);
                     });
                     /*this.screenRecorder.startSubject.asObservable().subscribe((start) => {
@@ -248,7 +248,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
             this.ngZone.run(() => {
                 this.cameraRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'camera');
                 if ( this.cameraRecorder) {
-                    this.cameraRecorderSubs = this.cameraRecorder.data.subscribe((eventData) => {
+                    this.cameraRecorderSubs = this.cameraRecorder.chunkedData.subscribe((eventData) => {
                         this.download('camera', eventData, cameraTime, this.playTimer);
                     });
                     this.cameraRecorder.startRec();
@@ -275,7 +275,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
     };
 
     download(type: string, recordedChunks: any, startTimeSeconds: number, endTimeSeconds: number) {
-        this.logger.debug(this.className, ' download called ', type , startTimeSeconds, endTimeSeconds, ' recorded chunk size ', recordedChunks.size);
+        this.logger.debug(this.className, ' download called ', type , startTimeSeconds, endTimeSeconds, ' recorded array ', recordedChunks.length);
         if (!isNullOrUndefined(recordedChunks) && recordedChunks.length > 0) {
             let blob = new Blob(recordedChunks, {type: 'video/webm'});
             this.videoSourceService.saveToDisk(blob, type, startTimeSeconds, endTimeSeconds);
