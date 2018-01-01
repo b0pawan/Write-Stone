@@ -43,8 +43,10 @@ export class RecorderComponent implements OnInit, OnDestroy {
     fileSubscription: Subscription;
     screenRecorderSubs: Subscription;
     cameraRecorderSubs: Subscription;
+    startScreenSubs: Subscription;
     stopScreenSubs: Subscription;
-    playTimer: number;
+    playTimeSubject: BehaviorSubject<number>;
+    playTimeObservable: Observable<number>;
     playerSubs: Subscription;
 
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
@@ -58,7 +60,8 @@ export class RecorderComponent implements OnInit, OnDestroy {
         this.recorderStatusObs = this.recorderStatusSubject.asObservable();
         this.screenObs = this.pickerService.screen.asObservable();
         this.saveFileObs = this.videoSourceService.source.asObservable();
-        this.playTimer = 0;
+        this.playTimeSubject = new BehaviorSubject<number>(0);
+        this.playTimeObservable = this.playTimeSubject.asObservable();
     }
 
 
@@ -115,16 +118,21 @@ export class RecorderComponent implements OnInit, OnDestroy {
             }
         }, (stream) => {
             this.ngZone.run(() => {
-                let startTime = this.playTimer;
-                this.playerSubs = Observable.interval(1000).subscribe((_sec) => {
-                    this.playTimer = this.playTimer + 1;
-                });
+                let startTime = this.playTimeSubject.getValue();
                 this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'screen');
                 if (this.screenRecorder) {
                     this.screenRecorderSubs = this.screenRecorder.chunkedData.subscribe((eventData) => {
                         this.logger.debug(this.className, " screen recorder data ", eventData.length);
-                        this.download('screen', eventData, startTime, this.playTimer);
+                        this.download('screen', eventData, startTime, this.playTimeSubject.getValue());
                     });
+
+                    this.startScreenSubs = this.screenRecorder.start.subscribe(() => {
+                        this.playerSubs = Observable.interval(1000).subscribe((_sec) => {
+                            const timer = this.playTimeSubject.getValue() + 1;
+                            this.playTimeSubject.next(timer);
+                        });
+                    });
+
                     /*this.screenRecorder.startSubject.asObservable().subscribe((start) => {
                         if (start) {
                             // start recording system audio
@@ -217,7 +225,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
         if (this.playerSubs) {
             this.playerSubs.unsubscribe();
-            this.playTimer = 0;
+            this.playTimeSubject.next(0);
         }
         // reseting source as well.
         this.videoSourceService.source.next([]);
@@ -238,12 +246,12 @@ export class RecorderComponent implements OnInit, OnDestroy {
             audio: false,
             video: {mandatory: {minWidth: 400, minHeight: 300}}
         }, (stream) => {
-            let cameraTime = this.playTimer;
             this.ngZone.run(() => {
+                let cameraTime = this.playTimeSubject.getValue();
                 this.cameraRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'camera');
                 if (this.cameraRecorder) {
                     this.cameraRecorderSubs = this.cameraRecorder.chunkedData.subscribe((eventData) => {
-                        this.download('camera', eventData, cameraTime, this.playTimer);
+                        this.download('camera', eventData, cameraTime, this.playTimeSubject.getValue());
                     });
                     this.cameraRecorder.startRec();
                 }
@@ -266,6 +274,9 @@ export class RecorderComponent implements OnInit, OnDestroy {
             const noOfFiles = this.videoSourceService.source.getValue().length;
             this.stopScreenSubs = this.saveFileObs.subscribe((files) => {
                 if (files.length > noOfFiles) {
+                    if (this.startScreenSubs) {
+                        this.startScreenSubs.unsubscribe();
+                    }
                     if (this.stopScreenSubs) {
                         this.stopScreenSubs.unsubscribe();
                     }
@@ -317,6 +328,10 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
         if (this.stopScreenSubs) {
             this.stopScreenSubs.unsubscribe();
+        }
+
+        if (this.startScreenSubs) {
+            this.startScreenSubs.unsubscribe();
         }
     }
 }

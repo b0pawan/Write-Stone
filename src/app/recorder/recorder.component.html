@@ -4,7 +4,6 @@
         <video id="video" controls class="video-js" data-setup='{}'></video>
     </div>
     <!--*ngIf="(recordingButtonsObs | async) === true" -->
-    -->
     <div fxLayout="row" fxLayoutAlign="center center" fxFill="">
         <button mat-icon-button="" color="primary" (click)="recordScreen()">
             <mat-icon><i class="material-icons">desktop_windows</i></mat-icon>
@@ -12,9 +11,7 @@
         <button mat-icon-button="" color="primary" (click)="recordCamera()">
             <mat-icon><i class="material-icons">camera</i></mat-icon>
         </button>
-        <span>
-            {{playTimer}}
-        </span>
+        <span>{{playTimeObservable | async}}</span>
         <!--<button mat-icon-button="" color="primary" (click)="audioCheck()">'
             <span *ngIf="includeSysAudio">
             <mat-icon><i class="material-icons">mic</i></mat-icon>
