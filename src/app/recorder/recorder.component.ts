@@ -12,7 +12,7 @@ import "rxjs/add/observable/interval";
 import "rxjs/add/observable/timer";
 import {PickerService} from "../electron/services/picker.service";
 import {Subscription} from "rxjs/Subscription";
-import {VideoSourceService} from "../electron/services/video.sources.";
+import {VideoSourceService} from "../electron/services/video.sources";
 import {isNullOrUndefined} from "util";
 
 declare var MediaRecorder: any;
