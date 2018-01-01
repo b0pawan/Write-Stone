@@ -80,7 +80,7 @@ app.on('ready', () => {
             if (err) {
                 event.sender.send('get-saved-video-file', err.message);
             }else {
-                event.sender.send('get-saved-video-file', filePath);
+                event.sender.send('get-saved-video-file', path);
             }
         });
     });

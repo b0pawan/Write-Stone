@@ -4,19 +4,19 @@ import "rxjs/add/observable/interval";
 import {ElectronService} from 'ngx-electron';
 import {Logger} from "../../core/logger/logger";
 import {UtilityService} from "../../core/services/utility.service";
-import {Subject} from "rxjs/Subject";
 import {BrowserSupportService} from "../../core/services/browser-support.service";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 @Injectable()
 export class VideoSourceService {
 
     public className: string;
-    public source: Subject<any>;
+    public source: BehaviorSubject<string[]>;
 
     constructor(private logger: Logger, private utility: UtilityService, private _electronService: ElectronService, private bss: BrowserSupportService,
                 private ngZone: NgZone) {
         this.className = 'VideoSourceService';
-        this.source = new Subject<any>();
+        this.source = new BehaviorSubject<any[]>([]);
     }
 
     init(){
@@ -24,14 +24,17 @@ export class VideoSourceService {
             this.ngZone.run(()=> {
                 if (file != null) {
                     this.logger.debug(this.className, ' get-saved-video-file path ', file);
-                    this.source.next(file);
+                    let oldSources = this.source.getValue();
+                    oldSources.push(file);
+                    const sources = new Set(oldSources);
+                    this.source.next(sources);
                 }
             });
         });
     }
 
     getFileName(type: string) {
-        return "WS-stream-"+type+"_"+Date.now()+'.webm';
+        return "WS_"+type+"_"+Date.now()+'.webm';
     };
 
     saveToDisk(blob, type) {
