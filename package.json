@@ -90,6 +90,7 @@
     "concurrently": "^3.5.1",
     "dotenv": "^4.0.0",
     "electron-reload": "^1.2.2",
-    "blob-to-buffer": "^1.2.6"
+    "blob-to-buffer": "^1.2.6",
+    "electron-remote": "^1.2.0"
   }
 }
