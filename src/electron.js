@@ -1,4 +1,5 @@
 const {app, BrowserWindow, protocol, ipcMain} = require('electron');
+const {createProxyForMainProcessModule, createProxyForRemote} = require('electron-remote');
 const fs = require("fs-extra");
 const blob2Buffer = require("blob-to-buffer");
 require('dotenv').config();
@@ -11,6 +12,8 @@ if (process.env.PACKAGE !== 'true'){
 }
 // Create the protocol
 // console.log('Root path ', rootPath);
+
+const fileSavePath = "C:\\Users\\Public\\Downloads\\";
 
 let mainWindow;
 let pickerDialog;
@@ -71,7 +74,7 @@ app.on('ready', () => {
 
     ipcMain.on('send-file-buffer-to-electron', (event, path, buffer) => {
         console.log('send-file-buffer-to-electron', ' path ', path);
-        const filePath = "C:\\Users\\Public\\Downloads\\"+path;
+        const filePath = fileSavePath+path;
         fs.outputFile(filePath, buffer, err => {
             // console.log('error ', err);
             if (err) {
