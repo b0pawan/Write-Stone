@@ -21,9 +21,9 @@ export class WSstreamRecorder {
     public stop: Observable<boolean>;
     public pause: Observable<boolean>;
     public resume: Observable<boolean>;
+    public audioStream: any;
 
-
-    constructor(private ngZone: NgZone, private logger: Logger, public localStream: any, public recorderName: string) {
+    constructor(private ngZone: NgZone, private logger: Logger, public localStream: any, public recorderName: string, public isVideo: boolean = true) {
         this.className = 'WSstreamRecorder' + "-" + this.recorderName;
         this.dataSubject = new Subject<any[]>();
         this.startSubject = new Subject<boolean>();
@@ -39,16 +39,22 @@ export class WSstreamRecorder {
     }
 
     init() {
-
         this.localStream.onended = () => {
             this.logger.debug(this.className, '  ', 'Media stream ended.')
         };
 
         try {
             this.logger.debug(this.className, ' ', 'Start recording the stream.');
-            this.recorder = new MediaRecorder(this.localStream, {
-                mimeType: 'video/webm'
-            });
+            MediaRecorder.ignoreMutedMedia = true;
+            if (this.isVideo) {
+                this.recorder = new MediaRecorder(this.localStream, {
+                    mimeType: 'video/webm'
+                });
+            } else {
+                this.recorder = new MediaRecorder(this.localStream, {
+                    mimeType: 'audio/webm'
+                });
+            }
 
             this.recorder.ondataavailable = (event) => {
                 this.ngZone.run(() => {
@@ -93,7 +99,7 @@ export class WSstreamRecorder {
 
             this.recorder.onerror = (event) => {
                 this.ngZone.run(() => {
-                    this.logger.error(this.className, ' ', event.error);
+                    this.logger.error(this.className, ' ', event);
                 });
             };
 
@@ -110,7 +116,7 @@ export class WSstreamRecorder {
 
     startRec() {
         if (this.recorder && this.state() === 'inactive') {
-            this.recorder.start();
+            this.recorder.start(15000);
             this.logger.debug(this.className, ' ', 'Recorder is started.');
         } else {
             this.logger.debug(this.className, ' recorder inactive');

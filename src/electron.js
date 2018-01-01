@@ -55,9 +55,9 @@ app.on('ready', () => {
         console.log('electron', 'main window closed');
     });
 
-    /*ipcMain.on('screen-capture', (event, options) => {
+    ipcMain.on('screen-capture', (event, options) => {
         mainWindow.webContents.send('get-screen-source', options);
-    });*/
+    });
 
     ipcMain.on('show-picker', (event, options) => {
         if (pickerDialog && pickerStatus) {
@@ -84,10 +84,10 @@ app.on('ready', () => {
         });
     });
 
-    /*ipcMain.on('screen-selected', (event, sourceId) => {
+    ipcMain.on('screen-selected', (event, sourceId) => {
         console.log('screen-selected', sourceId);
         mainWindow.webContents.send('screen-selected', sourceId);
-    });*/
+    });
 
     ipcMain.on('source-id-selected', (event, sourceId) => {
         console.log('source-id-selected', sourceId, ' picker status ', pickerStatus);
