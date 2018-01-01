@@ -71,9 +71,9 @@ app.on('ready', () => {
 
     ipcMain.on('send-file-buffer-to-electron', (event, path, buffer) => {
         console.log('send-file-buffer-to-electron', ' path ', path);
-        const filePath = "C:\\Users\\Pawan\\Desktop\\"+path;
+        const filePath = "C:\\Users\\Public\\Downloads\\"+path;
         fs.outputFile(filePath, buffer, err => {
-            console.log('error ', err);
+            // console.log('error ', err);
             if (err) {
                 event.sender.send('get-saved-video-file', err.message);
             }else {
@@ -147,29 +147,4 @@ const initializePickerDialog = () => {
     pickerDialog.on('hide', (event) => {
         console.log('electron', 'picker window hide ');
     });
-};
-
-const saveToDisk = (blob, callBk) => {
-    blob2Buffer(blob, function (err, buffer) {
-        if (err) throw err;
-        const fileName = getFileName(randomIntFromInterval(10000,100000));
-        const file = "./"+ fileName;
-        fs.writeFile(file, buffer, (err) => {
-            if (err) {
-                console.error("Electron ",'Failed to save video ', err);
-                callBk(err, null);
-            } else {
-                console.log("Electron ", 'Saved video: ', file);
-                callBk(null, file);
-            }
-        });
-    });
-};
-
-const getFileName = (random) => {
-    return "Write-Stone-" + random + "-" + Date.now() + '.webm';
-};
-
-const randomIntFromInterval = (min,max) => {
-    return Math.floor(Math.random()*(max-min+1)+min);
 };
