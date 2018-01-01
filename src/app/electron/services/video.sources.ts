@@ -27,7 +27,7 @@ export class VideoSourceService {
                     let oldSources = this.source.getValue();
                     oldSources.push(file);
                     const sources = new Set(oldSources);
-                    this.source.next(sources);
+                    this.source.next(Array.from<string>(sources));
                 }
             });
         });
