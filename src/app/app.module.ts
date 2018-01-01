@@ -4,7 +4,7 @@ import {appRoutingProviders, routes} from "./app.routes";
 import {AppComponent} from "./app.component";
 import {CoreModule} from "./core/core.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations"
-import {HOME_COMPONENTS} from "./home/index";
+import {RECORDER_COMPONENTS} from "./recorder/index";
 import {SharedModule} from "./shared/shared.module";
 import {ServiceWorkerModule} from "@angular/service-worker";
 import {environment} from "../environments/environment";
@@ -13,7 +13,7 @@ import {HttpConnectivityDisplayModule} from "./http-connectivity-display/http-co
 import {PickerService} from "./electron/services/picker.service";
 import {Logger} from "./core/logger/logger";
 import {ElectronService} from "ngx-electron";
-import {VideoSourceService} from "./electron/services/video.sources.";
+import {VideoSourceService} from "./electron/services/video.sources";
 
 @NgModule({
     imports: [
@@ -31,9 +31,9 @@ import {VideoSourceService} from "./electron/services/video.sources.";
         HttpConnectivityDisplayModule,
         SharedModule,
         AppComponent,
-        HOME_COMPONENTS
+        RECORDER_COMPONENTS
     ],
-    declarations: [AppComponent, HOME_COMPONENTS],
+    declarations: [AppComponent, RECORDER_COMPONENTS],
     providers: [appRoutingProviders],
     entryComponents: [],
     bootstrap: [AppComponent]

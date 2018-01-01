@@ -1,10 +1,10 @@
 import {ModuleWithProviders} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
-import {HomeComponent} from "./home/home.component";
+import {RecorderComponent} from "./recorder/recorder.component";
 import {PickerComponent} from "./electron/component/picker.component";
 
 const appRoutes: Routes = [
-    {path: '', component: HomeComponent},
+    {path: '', component: RecorderComponent},
     {path: 'picker', component: PickerComponent}
 ];
 

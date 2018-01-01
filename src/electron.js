@@ -73,8 +73,8 @@ app.on('ready', () => {
 
 
     ipcMain.on('send-file-buffer-to-electron', (event, path, buffer) => {
-        console.log('send-file-buffer-to-electron', ' path ', path);
         const filePath = fileSavePath+path;
+        console.log('send-file-buffer-to-electron', ' path ', filePath);
         fs.outputFile(filePath, buffer, err => {
             // console.log('error ', err);
             if (err) {

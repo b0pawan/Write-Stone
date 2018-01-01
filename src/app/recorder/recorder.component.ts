@@ -19,12 +19,12 @@ declare var MediaRecorder: any;
 declare var navigator: any;
 
 @Component({
-    selector: 'app-home',
-    templateUrl: 'home.component.html',
-    styleUrls: ['./home.component.scss'],
+    selector: 'app-recorder',
+    templateUrl: 'recorder.component.html',
+    styleUrls: ['./recorder.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class RecorderComponent implements OnInit, OnDestroy {
     recordingButtonsObs: Observable<boolean>;
     recorderStatusObs: Observable<boolean>;
     recordingButtonSubject: BehaviorSubject<boolean>;
