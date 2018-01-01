@@ -16,7 +16,7 @@ export class WSstreamRecorder {
     private pauseSubject: Subject<boolean>;
     private resumeSubject: Subject<boolean>;
 
-    public data: Observable<any>;
+    public chunkedData: Observable<any>;
     public start: Observable<boolean>;
     public stop: Observable<boolean>;
     public pause: Observable<boolean>;
@@ -25,16 +25,20 @@ export class WSstreamRecorder {
 
     constructor(private ngZone: NgZone, private logger: Logger, public localStream: any, public recorderName: string) {
         this.className = 'WSstreamRecorder' + "-" + this.recorderName;
-        this.dataSubject = new Subject<any>();
+        this.dataSubject = new Subject<any[]>();
         this.startSubject = new Subject<boolean>();
         this.stopSubject = new Subject<boolean>();
         this.pauseSubject = new Subject<boolean>();
         this.resumeSubject = new Subject<boolean>();
-        this.data = this.dataSubject.asObservable();
+        this.chunkedData = this.dataSubject.asObservable();
         this.start = this.startSubject.asObservable();
         this.stop = this.stopSubject.asObservable();
         this.pause = this.pauseSubject.asObservable();
         this.resume = this.resumeSubject.asObservable();
+        this.init();
+    }
+
+    init() {
 
         this.localStream.onended = () => {
             this.logger.debug(this.className, '  ', 'Media stream ended.')
@@ -50,9 +54,10 @@ export class WSstreamRecorder {
                 this.ngZone.run(() => {
                     this.logger.debug(this.className, ' data size ', event.data.size);
                     if (event.data && event.data.size > 0) {
-                        /*this.recordedChunks.push(event.data);
-                        this.numRecordedChunks += event.data.byteLength;*/
-                        this.dataSubject.next(event.data);
+                        const recordedChunks = [];
+                        recordedChunks.push(event.data);
+                        this.logger.debug(this.className, ' chunk length ', recordedChunks.length);
+                        this.dataSubject.next(recordedChunks);
                     }
                 });
             };
@@ -93,7 +98,9 @@ export class WSstreamRecorder {
             };
 
             this.recorder.onwarning = function (e) {
-                this.logger.warn(this.className, "A warning has been raised: " + e.message);
+                this.ngZone.run(() => {
+                    this.logger.warn(this.className, "A warning has been raised: " + e.message);
+                });
             }
         } catch (e) {
             this.logger.error(this.className, ' ', 'Exception while creating MediaRecorder: ', e);

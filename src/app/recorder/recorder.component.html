@@ -1,53 +1,18 @@
 <div fxLayout="column" fxLayoutAlign="center center">
     <div fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <!--<app-video-player></app-video-player>-->
-        <video id="video" controls class="video-js" data-setup='{}'></video>
-    </div>
-    <div *ngIf="(recordingButtonsObs | async) === true" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="recordDesktop()">
-            <mat-icon>desktop_windows</mat-icon>
-        </button>
-        <button mat-icon-button="" color="primary" (click)="recordWindow()">
-            <mat-icon>screen_share</mat-icon>
+        <button mat-icon-button="" color="primary" (click)="recordScreen()">
+            <mat-icon><i class="material-icons">desktop_windows</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="recordCamera()">
-            <mat-icon>camera</mat-icon>
+            <mat-icon><i class="material-icons">camera</i></mat-icon>
         </button>
-        <button mat-icon-button="" color="primary" (click)="playVideo()">
-            <mat-icon>play_circle_filled</mat-icon>
+        <button mat-icon-button="" color="primary" (click)="stopCamera()">
+            <mat-icon><i class="material-icons">stop</i></mat-icon>
         </button>
-        <button mat-icon-button="" color="primary" (click)="sysAudioCheck()">'
-            <span *ngIf="includeSysAudio">
-            <mat-icon>mic</mat-icon>
-        </span>
-            <span *ngIf="!includeSysAudio">
-            <mat-icon>mic_none</mat-icon>
-        </span>
+        <button mat-icon-button="" color="primary" (click)="stopScreen()">
+            <mat-icon><i class="material-icons">stop</i></mat-icon>
         </button>
-        <button mat-icon-button="" color="primary" (click)="microAudioCheck()">
-        <span *ngIf="includeMic">
-            <mat-icon>camera_enhance</mat-icon>
-        </span>
-            <span *ngIf="!includeMic">
-            <mat-icon>perm_camera_mic</mat-icon>
-        </span>
-        </button>
+        <span>{{playTimeObservable | async}}</span>
     </div>
-    <div *ngIf="(recorderStatusObs | async) === true" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="download()">
-            <mat-icon>save</mat-icon>
-        </button>
-    </div>
-    <div *ngIf="(recordingButtonsObs | async) === false" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="stopRecording()">
-            <mat-icon>stop</mat-icon>
-        </button>
-        <button mat-icon-button="" color="primary" (click)="download()">
-            <mat-icon>save</mat-icon>
-        </button>
-    </div>
-    <!--<div fxLayout="row" fxLayoutAlign="center center" fxFill="">
-            buttons : {{recordingButtonsObs | async}} -&#45;&#45; recorderStatus : {{recorderStatusObs | async}}
-    </div>-->
 </div>
 
