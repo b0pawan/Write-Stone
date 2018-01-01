@@ -39,7 +39,7 @@ export class VideoSourceService {
 
     saveToDisk(blob, type, startTimeSeconds, endTimeSeconds) {
         let reader = new FileReader();
-        const fileName = this.getFileName(type);
+        const fileName = this.getFileName(type, startTimeSeconds, endTimeSeconds);
         reader.onload = () => {
             this.ngZone.run(()=> {
                 if (reader.readyState == 2) {
