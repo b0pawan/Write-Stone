@@ -34,18 +34,19 @@ export class VideoSourceService {
     }
 
     getFileName(type: string, startTimeSeconds: number, endTimeSeconds : number) {
-        return "WS-"+startTimeSeconds+"-"+endTimeSeconds+"_"+type+"_"+Date.now()+'.mp4';
+        return "WS-"+startTimeSeconds+"-"+endTimeSeconds+"_"+type+"_"+Date.now()+'.webm';
     };
 
     saveToDisk(blob, type, startTimeSeconds, endTimeSeconds) {
         let reader = new FileReader();
         const fileName = this.getFileName(type, startTimeSeconds, endTimeSeconds);
+        this.logger.debug(this.className, ' file name ' , fileName);
         reader.onload = () => {
             this.ngZone.run(()=> {
                 if (reader.readyState == 2) {
                     let buffer = new Buffer(reader.result);
-                    this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer, startTimeSeconds, endTimeSeconds);
-                    this.logger.debug(this.className, ' Saving ', `${JSON.stringify({fileName, size: blob.size})} start sec ${startTimeSeconds} end sec ${endTimeSeconds}`);
+                    this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer);
+                    this.logger.debug(this.className, ' Saving ', `${JSON.stringify({fileName, size: blob.size})} start time ${startTimeSeconds} end time ${endTimeSeconds}`);
                 }
             });
         };

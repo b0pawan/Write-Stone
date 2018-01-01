@@ -1,7 +1,6 @@
 const {app, BrowserWindow, protocol, ipcMain} = require('electron');
 const {createProxyForMainProcessModule, createProxyForRemote} = require('electron-remote');
 const fs = require("fs-extra");
-const blob2Buffer = require("blob-to-buffer");
 require('dotenv').config();
 const path = require('path');
 const url = require('url');
@@ -72,9 +71,9 @@ app.on('ready', () => {
     });
 
 
-    ipcMain.on('send-file-buffer-to-electron', (event, path, buffer, startTimeSeconds, endTimeSeconds) => {
+    ipcMain.on('send-file-buffer-to-electron', (event, path, buffer) => {
         const filePath = fileSavePath+path;
-        console.log('send-file-buffer-to-electron', ' path ', filePath, ' start sec ', startTimeSeconds, ' end sec ', endTimeSeconds);
+        console.log('send-file-buffer-to-electron', ' path ', filePath);
         fs.outputFile(filePath, buffer, err => {
             // console.log('error ', err);
             if (err) {
