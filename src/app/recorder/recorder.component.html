@@ -36,7 +36,10 @@
         </button>
     </div>
     <div *ngIf="(recordingButtonsObs | async) === false" fxLayout="row" fxLayoutAlign="center center" fxFill="">
-        <button mat-icon-button="" color="primary" (click)="stopRecording()">
+        <button mat-icon-button="" color="primary" (click)="stopCamera()">
+            <mat-icon><i class="material-icons">stop</i></mat-icon>
+        </button>
+        <button mat-icon-button="" color="primary" (click)="stopScreen()">
             <mat-icon><i class="material-icons">stop</i></mat-icon>
         </button>
         <button mat-icon-button="" color="primary" (click)="download('test')">
