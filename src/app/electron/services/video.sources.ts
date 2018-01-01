@@ -33,19 +33,19 @@ export class VideoSourceService {
         });
     }
 
-    getFileName(type: string) {
-        return "WS_"+type+"_"+Date.now()+'.mp4';
+    getFileName(type: string, startTimeSeconds: number, endTimeSeconds : number) {
+        return "WS-"+startTimeSeconds+"-"+endTimeSeconds+"_"+type+"_"+Date.now()+'.mp4';
     };
 
-    saveToDisk(blob, type) {
+    saveToDisk(blob, type, startTimeSeconds, endTimeSeconds) {
         let reader = new FileReader();
         const fileName = this.getFileName(type);
         reader.onload = () => {
             this.ngZone.run(()=> {
                 if (reader.readyState == 2) {
                     let buffer = new Buffer(reader.result);
-                    this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer);
-                    this.logger.debug(this.className, ' Saving ', `${JSON.stringify({fileName, size: blob.size})}`);
+                    this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer, startTimeSeconds, endTimeSeconds);
+                    this.logger.debug(this.className, ' Saving ', `${JSON.stringify({fileName, size: blob.size})} start sec ${startTimeSeconds} end sec ${endTimeSeconds}`);
                 }
             });
         };

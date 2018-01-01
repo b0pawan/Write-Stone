@@ -31,27 +31,22 @@ export class RecorderComponent implements OnInit, OnDestroy {
     screenObs: Observable<any>;
     screenSubscription: Subscription;
     className: string;
-    cameraStream: any;
-    screenStream: any;
     cameraRecorder: any;
     screenRecorder: any;
     microAudioStream: any;
     sysAudioStream: any;
-
-    /*recordedChunks: any[];
-    numRecordedChunks: number;
-    recorder: any;*/
-
     includeMic: boolean;
     includeSysAudio: boolean;
     saveFileObs: Observable<any>;
     fileSubscription: Subscription;
+    screenRecorderSubs: Subscription;
+    cameraRecorderSubs: Subscription;
+    playTimer: number;
+    playerSubs: Subscription;
 
     constructor(private logger: Logger, private router: Router, private media: ObservableMedia, private titleService: TitleService, private _electronService: ElectronService,
                 private utilityService: UtilityService, private pickerService: PickerService, private ngZone: NgZone, private videoSourceService: VideoSourceService) {
         this.className = 'HomeComponent';
-        this.recordedChunks = [];
-        this.numRecordedChunks = 0;
         this.includeMic = false;
         this.includeSysAudio = false;
         this.recordingButtonSubject = new BehaviorSubject<boolean>(true);
@@ -60,6 +55,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
         this.recorderStatusObs = this.recorderStatusSubject.asObservable();
         this.screenObs = this.pickerService.screen.asObservable();
         this.saveFileObs = this.videoSourceService.source.asObservable();
+        this.playTimer = 0;
     }
 
 
@@ -70,7 +66,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
             this.ngZone.run(() => {
                 if (!sourceId) return;
                 this.logger.debug(this.className, sourceId);
-                this.onAccessApproved(sourceId, false);
+                this.onAccessApproved(sourceId);
             });
         });
 
@@ -102,10 +98,9 @@ export class RecorderComponent implements OnInit, OnDestroy {
         });
 
 
-
     }
 
-    onAccessApproved(id, screen) {
+    onAccessApproved(id) {
         if (!id) {
             this.logger.debug('Access rejected.');
             return
@@ -125,8 +120,20 @@ export class RecorderComponent implements OnInit, OnDestroy {
             }
         }, (stream) => {
             this.ngZone.run(() => {
+                let startTime = this.playTimer;
+                this.playerSubs = Observable.interval(1000).subscribe((_sec) => {
+                    this.playTimer = this.playTimer + 1;
+                });
+                // start recording system audio
+                this.sysAudioCheck();
                 this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream);
-                this.screenStream = this.screenRecorder.localStream;
+                if (this.includeSysAudio) {
+                    let audioTracks = this.sysAudioStream.getAudioTracks();
+                    this.screenRecorder.localStream.addTrack(audioTracks[0]);
+                }
+                this.screenRecorderSubs = this.screenRecorder.dataSubject.asObservable().subscribe((eventData) => {
+                    this.download('screen', eventData, startTime, this.playTimer);
+                });
             });
         }, (err) => {
             this.logger.debug(this.className, 'screen capture ', ' getUserMedia() failed.');
@@ -134,27 +141,8 @@ export class RecorderComponent implements OnInit, OnDestroy {
         });
     };
 
-    playVideo() {
-        this.recorderStatusSubject.next(false);
-        this._electronService.remote.dialog.showOpenDialog({properties: ['openFile']}, (filename) => {
-            if (filename) {
-                this.ngZone.run(() => {
-                    // this.logger.debug(filename);
-                    // const video = {};
-                    let video = this.utilityService.document.querySelector('video');
-                    video.muted = false;
-                    if (Array.isArray(filename)) {
-                        video.src = filename[0];
-                    }else {
-                        video.src = filename;
-                    }
-                    video.controls = true;
-                });
-            }
-        });
-    };
 
-    microAudioCheck() {
+    /*microAudioCheck() {
         this.recorderStatusSubject.next(false);
         this.includeMic = !this.includeMic;
         this.logger.debug(this.className, 'Audio =', this.includeMic);
@@ -192,32 +180,67 @@ export class RecorderComponent implements OnInit, OnDestroy {
             this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
             this.logger.error(this.className, err);
         });
+    };*/
+
+
+    sysAudioCheck() {
+        // this.recorderStatusSubject.next(false);
+        this.includeSysAudio = !this.includeSysAudio;
+        this.logger.debug(this.className, 'System Audio =', this.includeSysAudio);
+        navigator.getUserMedia({audio: true, video: false}, (stream) => {
+            this.ngZone.run(() => {
+                this.logger.debug(this.className, 'Received audio stream.');
+                stream.onended = () => {
+                    this.logger.debug(this.className, 'Micro audio ended.')
+                };
+                this.sysAudioStream = stream;
+            });
+        }, (err) => {
+            this.logger.debug(this.className, 'microAudioCheck ', ' getUserMedia() with audio failed.');
+            this.logger.error(this.className, err);
+        });
     };
 
     reset() {
-        let video = this.utilityService.document.querySelector('video');
+        /*let video = this.utilityService.document.querySelector('video');
         // video.srcObject = '';
         video.controls = false;
-        this.recordedChunks = [];
-        this.numRecordedChunks = 0;
+*/
+        if (this.cameraRecorderSubs) {
+            this.cameraRecorderSubs.unsubscribe();
+        }
+
+        if (this.screenRecorderSubs) {
+            this.screenRecorderSubs.unsubscribe();
+        }
+
+        if (this.playerSubs) {
+            this.playerSubs.unsubscribe();
+            this.playTimer = 0;
+        }
+        this.cameraRecorder = null;
+        this.screenRecorder = null;
     };
 
     recordScreen() {
         this.recorderStatusSubject.next(false);
         this.reset();
-        this._electronService.ipcRenderer.send('show-picker', {types: ['window','screen']});
+        this._electronService.ipcRenderer.send('show-picker', {types: ['window', 'screen']});
     };
 
     recordCamera() {
         this.recorderStatusSubject.next(false);
         this.reset();
         navigator.getUserMedia({
-            audio: false,
-            video: {mandatory: {minWidth: 800, minHeight: 600}}
+            audio: true,
+            video: {mandatory: {minWidth: 400, minHeight: 300}}
         }, (stream) => {
+            let cameraTime = this.playTimer;
             this.ngZone.run(() => {
                 this.cameraRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream);
-                this.cameraStream = this.cameraRecorder.localStream;
+                this.cameraRecorderSubs = this.cameraRecorder.dataSubject.asObservable().subscribe((eventData) => {
+                    this.download('camera', eventData, cameraTime, this.playTimer);
+                });
             });
         }, (err) => {
             this.logger.debug(this.className, 'camera ', ' getUserMedia() without audio failed.');
@@ -236,25 +259,13 @@ export class RecorderComponent implements OnInit, OnDestroy {
         if (this.screenRecorder) {
             this.screenRecorder.stop();
         }
+        this.reset();
     };
 
-    /*play() {
-        if (this.recordedChunks && this.recordedChunks.length > 0) {
-            // Unmute video.
-            let video = this.utilityService.document.querySelector('video');
-            video.controls = true;
-            video.muted = false;
-            let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
-            // const video = {};
-            video.src = window.URL.createObjectURL(blob);
-            // video['type'] = 'video/webm';
-        }
-    };*/
-
-    download(type: string) {
-        if (this.recordedChunks && this.recordedChunks.length > 0) {
-            let blob = new Blob(this.recordedChunks, {type: 'video/mp4'});
-            this.videoSourceService.saveToDisk(blob, type);
+    download(type: string, recordedChunks: any, startTimeSeconds: number, endTimeSeconds: number) {
+        if (recordedChunks && recordedChunks.length > 0) {
+            let blob = new Blob(recordedChunks, {type: 'video/mp4'});
+            this.videoSourceService.saveToDisk(blob, type, startTimeSeconds, endTimeSeconds);
         }
     };
 
@@ -271,9 +282,20 @@ export class RecorderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-
         if (this.screenSubscription) {
             this.screenSubscription.unsubscribe();
+        }
+
+        if (this.cameraRecorderSubs) {
+            this.cameraRecorderSubs.unsubscribe();
+        }
+
+        if (this.screenRecorderSubs) {
+            this.screenRecorderSubs.unsubscribe();
+        }
+
+        if (this.playerSubs) {
+            this.playerSubs.unsubscribe();
         }
     }
 }
