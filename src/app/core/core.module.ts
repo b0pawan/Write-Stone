@@ -8,7 +8,6 @@ import {CSRFInterceptor} from "./services/http/csrf.interceptor";
 import {ErrorInterceptor} from "./services/http/error.interceptor";
 import {WSErrorHandler} from "./handler/wsErrorHandler";
 import {ElectronAppModule} from "../electron/electron.module";
-import {VideoPlayerModule} from "../player/player.module";
 import {ELECTRON_SERVICES} from "../electron/services";
 import {NgxElectronModule} from "ngx-electron";
 

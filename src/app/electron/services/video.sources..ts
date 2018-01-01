@@ -30,7 +30,22 @@ export class VideoSourceService {
         });
     }
 
+    getFileName() {
+        return "Write-Stone-Stream-" + Date.now() + '.webm';
+    };
+
     saveToDisk(blob) {
-        this._electronService.ipcRenderer.send('send-blob-to-electron', blob);
+        let reader = new FileReader();
+        const fileName = this.getFileName();
+        reader.onload = () => {
+            this.ngZone.run(()=> {
+                if (reader.readyState == 2) {
+                    let buffer = new Buffer(reader.result);
+                    this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer);
+                    this.logger.debug(this.className, ' Saving ', `${JSON.stringify({fileName, size: blob.size})}`);
+                }
+            });
+        };
+        reader.readAsArrayBuffer(blob);
     }
 }

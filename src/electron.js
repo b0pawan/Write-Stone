@@ -1,5 +1,5 @@
 const {app, BrowserWindow, protocol, ipcMain} = require('electron');
-const fs = require("fs");
+const fs = require("fs-extra");
 const blob2Buffer = require("blob-to-buffer");
 require('dotenv').config();
 const path = require('path');
@@ -69,15 +69,16 @@ app.on('ready', () => {
     });
 
 
-    ipcMain.on('send-blob-to-electron', (event, url) => {
-        console.log('send-blob-to-electron', url);
-        /*saveToDisk(blob, (err, file)=> {
+    ipcMain.on('send-file-buffer-to-electron', (event, path, buffer) => {
+        console.log('send-file-buffer-to-electron', ' path ', path, ' buffer ', buffer);
+        fs.outputFile(path, buffer, err => {
+            console.log(err);
             if (err) {
-                mainWindow.webContents.send('get-saved-video-file', null);
+                event.sender.send('get-saved-video-file', err.message);
             }else {
-                mainWindow.webContents.send('get-saved-video-file', file);
+                event.sender.send('get-saved-video-file', path);
             }
-        });*/
+        });
     });
 
     ipcMain.on('screen-selected', (event, sourceId) => {
