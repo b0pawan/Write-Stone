@@ -31,7 +31,7 @@ export class VideoSourceService {
     }
 
     getFileName(type: string) {
-        return "Write-Stone-Stream-"+type+ Date.now() + '.webm';
+        return "WS-stream-"+type+"_"+Date.now()+'.webm';
     };
 
     saveToDisk(blob, type) {
