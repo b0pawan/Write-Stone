@@ -70,13 +70,14 @@ app.on('ready', () => {
 
 
     ipcMain.on('send-file-buffer-to-electron', (event, path, buffer) => {
-        console.log('send-file-buffer-to-electron', ' path ', path, ' buffer ', buffer);
-        fs.outputFile(path, buffer, err => {
-            console.log(err);
+        console.log('send-file-buffer-to-electron', ' path ', path);
+        const filePath = "C:\\Users\\Pawan\\Desktop\\"+path;
+        fs.outputFile(filePath, buffer, err => {
+            console.log('error ', err);
             if (err) {
                 event.sender.send('get-saved-video-file', err.message);
             }else {
-                event.sender.send('get-saved-video-file', path);
+                event.sender.send('get-saved-video-file', filePath);
             }
         });
     });

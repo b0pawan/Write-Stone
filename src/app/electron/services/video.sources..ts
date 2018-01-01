@@ -23,7 +23,7 @@ export class VideoSourceService {
         this._electronService.ipcRenderer.on('get-saved-video-file', (event, file) => {
             this.ngZone.run(()=> {
                 if (file != null) {
-                    this.logger.debug(this.className, ' get-saved-video-file ', file);
+                    this.logger.debug(this.className, ' get-saved-video-file path ', file);
                     this.source.next(file);
                 }
             });
@@ -43,6 +43,7 @@ export class VideoSourceService {
                     let buffer = new Buffer(reader.result);
                     this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer);
                     this.logger.debug(this.className, ' Saving ', `${JSON.stringify({fileName, size: blob.size})}`);
+                    // console.log(' Saving ', `${JSON.stringify({fileName, size: blob.size})}`);
                 }
             });
         };
