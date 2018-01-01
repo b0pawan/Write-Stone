@@ -42,7 +42,7 @@ export class VideoSourceService {
         reader.onload = () => {
             this.ngZone.run(()=> {
                 const fileName = this.getFileName(type, startTimeSeconds, endTimeSeconds);
-                this.logger.debug(this.className, ' file name ' , fileName);
+                // this.logger.debug(this.className, ' file name ' , fileName);
                 if (reader.readyState == 2) {
                     let buffer = new Buffer(reader.result);
                     this._electronService.ipcRenderer.send('send-file-buffer-to-electron', fileName, buffer);

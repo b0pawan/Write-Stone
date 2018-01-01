@@ -116,7 +116,7 @@ export class WSstreamRecorder {
 
     startRec() {
         if (this.recorder && this.state() === 'inactive') {
-            this.recorder.start(15000);
+            this.recorder.start(60000);
             this.logger.debug(this.className, ' ', 'Recorder is started.');
         } else {
             this.logger.debug(this.className, ' recorder inactive');
