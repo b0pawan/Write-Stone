@@ -58,11 +58,11 @@ export class WSstreamRecorder {
 
             this.recorder.ondataavailable = (event) => {
                 this.ngZone.run(() => {
-                    this.logger.debug(this.className, ' data size ', event.data.size);
+                    // this.logger.debug(this.className, ' data size ', event.data.size);
                     if (event.data && event.data.size > 0) {
                         const recordedChunks = [];
                         recordedChunks.push(event.data);
-                        this.logger.debug(this.className, ' chunk length ', recordedChunks.length);
+                       // this.logger.debug(this.className, ' chunk length ', recordedChunks.length);
                         this.dataSubject.next(recordedChunks);
                     }
                 });

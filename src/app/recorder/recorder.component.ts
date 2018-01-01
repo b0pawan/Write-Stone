@@ -128,6 +128,8 @@ export class RecorderComponent implements OnInit, OnDestroy {
             }
         }, (stream) => {
             this.ngZone.run(() => {
+                // start recording system audio
+                this.sysAudioCheck();
                 let startTime = this.playTimeSubject.getValue();
                 this.screenRecorder = new WSstreamRecorder(this.ngZone, this.logger, stream, 'screen');
                 if (this.screenRecorder) {
@@ -137,7 +139,6 @@ export class RecorderComponent implements OnInit, OnDestroy {
                         this.download('screen', eventData, startTime, endTime);
                         startTime = endTime;
                     });
-
                     this.startScreenSubs = this.screenRecorder.start.subscribe(() => {
                         this.screenRecSubject.next(true);
                         this.playTimeSubject.next(0);
@@ -147,8 +148,6 @@ export class RecorderComponent implements OnInit, OnDestroy {
                                 this.playTimeSubject.next(timer);
                             });
                         });
-                        // start recording system audio
-                        this.sysAudioCheck();
                     });
                     this.screenRecorder.startRec();
                 }
@@ -334,7 +333,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
     };
 
     download(type: string, recordedChunks: any, startTimeSeconds: number, endTimeSeconds: number, isVideo: boolean =  true) {
-        this.logger.debug(this.className, ' download called ', type, startTimeSeconds, endTimeSeconds, ' recorded array ', recordedChunks.length);
+        // this.logger.debug(this.className, ' download called ', type, startTimeSeconds, endTimeSeconds, ' recorded array ', recordedChunks.length);
         if (!isNullOrUndefined(recordedChunks) && recordedChunks.length > 0) {
             let blob;
             if (isVideo) {
