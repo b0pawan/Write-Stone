@@ -339,27 +339,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.recordedChunks && this.recordedChunks.length > 0) {
             let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
             this.videoSourceService.saveToDisk(blob, type);
-            /*
-            let url = URL.createObjectURL(blob);
-
-            if (!isNullOrUndefined(disk) && disk) {
-            }else {
-                let a = this.utilityService.document.createElement('a');
-                this.utilityService.document.body.appendChild(a);
-                a.style = 'display: none';
-                a.href = url;
-                a.download = this.getFileName();
-                a.click(() => {
-                    this.logger.debug(this.className, ' clicked on download ');
-                });
-                const subs = Observable.interval(1000).pipe(take(1)).subscribe(() => {
-                    if (subs) {
-                        subs.unsubscribe();
-                    }
-                    this.utilityService.document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                });
-            }*/
         }
     };
 
