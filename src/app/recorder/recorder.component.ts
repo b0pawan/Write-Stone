@@ -337,7 +337,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
     download(type: string) {
         if (this.recordedChunks && this.recordedChunks.length > 0) {
-            let blob = new Blob(this.recordedChunks, {type: 'video/webm'});
+            let blob = new Blob(this.recordedChunks, {type: 'video/mp4'});
             this.videoSourceService.saveToDisk(blob, type);
         }
     };

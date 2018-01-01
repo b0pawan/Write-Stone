@@ -34,7 +34,7 @@ export class VideoSourceService {
     }
 
     getFileName(type: string) {
-        return "WS_"+type+"_"+Date.now()+'.webm';
+        return "WS_"+type+"_"+Date.now()+'.mp4';
     };
 
     saveToDisk(blob, type) {
