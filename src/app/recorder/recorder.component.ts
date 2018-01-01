@@ -26,10 +26,11 @@ declare var navigator: any;
     encapsulation: ViewEncapsulation.None
 })
 export class RecorderComponent implements OnInit, OnDestroy {
-    recordingButtonsObs: Observable<boolean>;
-    recorderStatusObs: Observable<boolean>;
-    recordingButtonSubject: BehaviorSubject<boolean>;
-    recorderStatusSubject: BehaviorSubject<boolean>;
+    screenRecObs: Observable<boolean>;
+    cameraRecObs: Observable<boolean>;
+    screenRecSubject: BehaviorSubject<boolean>;
+    cameraRecSubject: BehaviorSubject<boolean>;
+
     screenObs: Observable<any>;
     screenSubscription: Subscription;
     className: string;
@@ -54,10 +55,10 @@ export class RecorderComponent implements OnInit, OnDestroy {
         this.className = 'RecorderComponent';
         this.includeMic = false;
         this.includeSysAudio = false;
-        this.recordingButtonSubject = new BehaviorSubject<boolean>(true);
-        this.recorderStatusSubject = new BehaviorSubject<boolean>(false);
-        this.recordingButtonsObs = this.recordingButtonSubject.asObservable();
-        this.recorderStatusObs = this.recorderStatusSubject.asObservable();
+        this.screenRecSubject = new BehaviorSubject<boolean>(false);
+        this.cameraRecSubject = new BehaviorSubject<boolean>(false);
+        this.screenRecObs = this.screenRecSubject.asObservable();
+        this.cameraRecObs = this.cameraRecSubject.asObservable();
         this.screenObs = this.pickerService.screen.asObservable();
         this.saveFileObs = this.videoSourceService.source.asObservable();
         this.playTimeSubject = new BehaviorSubject<number>(0);
@@ -91,7 +92,6 @@ export class RecorderComponent implements OnInit, OnDestroy {
             // console.log(' picker-closed-status ', state);
             this.ngZone.run(() => {
                 this.logger.debug(this.className, ' picker status ', state);
-                this.recordingButtonSubject.next(!state);
             });
         });
 
@@ -127,6 +127,8 @@ export class RecorderComponent implements OnInit, OnDestroy {
                     });
 
                     this.startScreenSubs = this.screenRecorder.start.subscribe(() => {
+                        this.screenRecSubject.next(true);
+                        this.playTimeSubject.next(0);
                         this.playerSubs = Observable.interval(1000).subscribe((_sec) => {
                             this.ngZone.run(() => {
                                 const timer = this.playTimeSubject.getValue() + 1;
@@ -135,7 +137,6 @@ export class RecorderComponent implements OnInit, OnDestroy {
                         });
 
                     });
-
                     /*this.screenRecorder.startSubject.asObservable().subscribe((start) => {
                         if (start) {
                             // start recording system audio
@@ -228,7 +229,6 @@ export class RecorderComponent implements OnInit, OnDestroy {
 
         if (this.playerSubs) {
             this.playerSubs.unsubscribe();
-            this.playTimeSubject.next(0);
         }
         // reseting source as well.
         this.videoSourceService.source.next([]);
@@ -237,13 +237,11 @@ export class RecorderComponent implements OnInit, OnDestroy {
     };
 
     recordScreen() {
-        this.recorderStatusSubject.next(false);
         // this.reset();
         this._electronService.ipcRenderer.send('show-picker', {types: ['window', 'screen']});
     };
 
     recordCamera() {
-        this.recorderStatusSubject.next(false);
         // this.reset();
         navigator.getUserMedia({
             audio: false,
@@ -255,6 +253,15 @@ export class RecorderComponent implements OnInit, OnDestroy {
                 if (this.cameraRecorder) {
                     this.cameraRecorderSubs = this.cameraRecorder.chunkedData.subscribe((eventData) => {
                         this.download('camera', eventData, cameraTime, this.playTimeSubject.getValue());
+                    });
+                    const camStartSubs = this.cameraRecorder.start.subscribe(() => {
+                        this.cameraRecSubject.next(true);
+                        if (this.screenRecSubject.getValue() === false) {
+                            this.playTimeSubject.next(0);
+                        }
+                        if (camStartSubs) {
+                            camStartSubs.unsubscribe();
+                        }
                     });
                     this.cameraRecorder.startRec();
                 }
@@ -269,6 +276,12 @@ export class RecorderComponent implements OnInit, OnDestroy {
     stopCamera() {
         if (this.cameraRecorder) {
             this.cameraRecorder.stopRec();
+            const camStopSubs = this.cameraRecorder.stop.subscribe(() => {
+                this.cameraRecSubject.next(false);
+                if (camStopSubs) {
+                    camStopSubs.unsubscribe();
+                }
+            });
         }
     };
 
@@ -283,6 +296,7 @@ export class RecorderComponent implements OnInit, OnDestroy {
                     if (this.stopScreenSubs) {
                         this.stopScreenSubs.unsubscribe();
                     }
+                    this.screenRecSubject.next(false);
                     this.reset();
                 }
             });
@@ -301,7 +315,6 @@ export class RecorderComponent implements OnInit, OnDestroy {
     };
 
     handleStream(stream, mute) {
-        this.recordingButtonSubject.next(false);
         this.logger.debug(this.className, ' handleStream ');
         const video = this.utilityService.document.querySelector('video');
         video.srcObject = stream;
